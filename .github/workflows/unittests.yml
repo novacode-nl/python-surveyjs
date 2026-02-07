@@ -1,0 +1,6 @@
+- name: Test Python SurveyJS
+
+on:
+  push:
+    branches:
+      - '**'
