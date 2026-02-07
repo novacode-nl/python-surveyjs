@@ -1,0 +1,100 @@
+# Copyright 2026 Nova Code (https://www.novacode.nl)
+# See LICENSE file for full licensing details.
+
+"""Tests for the Form class."""
+
+import unittest
+
+from tests.utils import readjson, load_form, load_survey
+
+
+class TestForm(unittest.TestCase):
+
+    def setUp(self):
+        self.form = load_form()
+
+    def test_form_questions_loaded(self):
+        self.assertGreater(len(self.form.questions), 0)
+
+    def test_form_input_questions(self):
+        self.assertGreater(len(self.form.input_questions), 0)
+
+    def test_form_data_accessor(self):
+        """form.data.firstName should return the question object."""
+        q = self.form.data.firstName
+        self.assertIsNotNone(q)
+        self.assertEqual(q.value, 'Alice')
+
+    def test_form_data_accessor_nonexistent(self):
+        """Accessing a nonexistent question via data returns None."""
+        self.assertIsNone(self.form.data.nonExistentQuestion)
+
+    def test_get_question_by_name(self):
+        q = self.form.get_question_by_name('firstName')
+        self.assertIsNotNone(q)
+        self.assertEqual(q.name, 'firstName')
+
+    def test_get_value(self):
+        self.assertEqual(self.form.get_value('firstName'), 'Alice')
+        self.assertEqual(self.form.get_value('age'), 30)
+
+    def test_get_value_nonexistent(self):
+        self.assertIsNone(self.form.get_value('nonExistent'))
+
+    def test_form_from_survey_schema_json(self):
+        """Form can be created with survey_schema_json instead of survey."""
+        from surveyjs_data import Form
+        schema = readjson('test_survey_schema.json')
+        form_data = readjson('test_survey_form.json')
+        form = Form(form_data, survey_schema_json=schema)
+        self.assertEqual(form.get_value('firstName'), 'Alice')
+
+    def test_form_constructor_both_raises(self):
+        """Providing both survey and survey_schema_json should raise."""
+        from surveyjs_data import Form
+        schema = readjson('test_survey_schema.json')
+        form_data = readjson('test_survey_form.json')
+        survey = load_survey()
+        with self.assertRaises(Exception):
+            Form(form_data, survey=survey, survey_schema_json=schema)
+
+    def test_form_constructor_neither_raises(self):
+        """Providing neither survey nor survey_schema_json should raise."""
+        from surveyjs_data import Form
+        form_data = readjson('test_survey_form.json')
+        with self.assertRaises(Exception):
+            Form(form_data)
+
+    def test_form_from_json_string(self):
+        """Form should accept a JSON string for form_json."""
+        import json
+        from surveyjs_data import Form
+        schema = readjson('test_survey_schema.json')
+        form_data = readjson('test_survey_form.json')
+        survey = load_survey()
+        form = Form(json.dumps(form_data), survey=survey)
+        self.assertEqual(form.get_value('firstName'), 'Alice')
+
+    def test_form_all_input_values_loaded(self):
+        """All submitted values should be accessible."""
+        expected = {
+            'firstName': 'Alice',
+            'age': 30,
+            'country': 'us',
+            'satisfaction': 8,
+        }
+        for name, expected_val in expected.items():
+            self.assertEqual(
+                self.form.get_value(name), expected_val,
+                f"Value mismatch for {name}"
+            )
+
+    def test_non_input_not_in_input_questions(self):
+        """Panel, html, image should not be in input_questions."""
+        non_input = ['contactPanel', 'infoHtml', 'thankYouImage']
+        for name in non_input:
+            self.assertNotIn(name, self.form.input_questions)
+
+
+if __name__ == '__main__':
+    unittest.main()

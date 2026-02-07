@@ -1,0 +1,64 @@
+{
+    "firstName": "Alice",
+    "age": 30,
+    "birthDate": "1993-05-15",
+    "email": "alice@example.com",
+    "appointmentTime": "2024-06-15T10:30",
+    "bio": "Software developer with 8 years of experience in Python and JavaScript.",
+    "favoriteColor": "blue",
+    "hobbies": ["reading", "music", "travel"],
+    "country": "us",
+    "skills": ["python", "javascript", "go"],
+    "favoritePet": "cat",
+    "priorityItems": ["quality", "price", "support", "speed"],
+    "agreeTerms": "agreed",
+    "satisfaction": 8,
+    "signature": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUg==",
+    "fullName": "Alice Smith",
+    "resume": [
+        {
+            "name": "resume.pdf",
+            "type": "application/pdf",
+            "content": "data:application/pdf;base64,JVBERi0xLjQ="
+        },
+        {
+            "name": "cover_letter.docx",
+            "type": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            "content": "data:application/docx;base64,UEsDBBQ="
+        }
+    ],
+    "qualityMatrix": {
+        "product": "excellent",
+        "service": "good",
+        "support": "fair"
+    },
+    "budgetMatrix": {
+        "marketing": {"q1": "10000", "q2": "15000", "status": "approved"},
+        "development": {"q1": "50000", "q2": "55000", "status": "planned"}
+    },
+    "employeeList": [
+        {"name": "Bob Smith", "role": "developer", "salary": "90000"},
+        {"name": "Jane Doe", "role": "designer", "salary": "85000"},
+        {"name": "Tom Brown", "role": "manager", "salary": "110000"}
+    ],
+    "address": {
+        "street": "123 Main Street",
+        "city": "Springfield",
+        "state": "IL",
+        "zip": "62701"
+    },
+    "phone": "+1-555-0123",
+    "website": "https://alice.example.com",
+    "education": [
+        {
+            "institution": "MIT",
+            "degree": "BSc Computer Science",
+            "year": 2015
+        },
+        {
+            "institution": "Stanford",
+            "degree": "MSc AI",
+            "year": 2017
+        }
+    ]
+}

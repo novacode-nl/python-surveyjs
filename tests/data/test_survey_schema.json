@@ -1,0 +1,354 @@
+{
+    "title": "Test Survey",
+    "description": "A comprehensive test survey covering all SurveyJS question types",
+    "logoPosition": "right",
+    "pages": [
+        {
+            "name": "page_basic_input",
+            "title": "Basic Input",
+            "elements": [
+                {
+                    "type": "text",
+                    "name": "firstName",
+                    "title": "First Name",
+                    "description": "Enter your first name",
+                    "isRequired": true,
+                    "placeholder": "John"
+                },
+                {
+                    "type": "text",
+                    "name": "age",
+                    "title": "Age",
+                    "inputType": "number",
+                    "min": 0,
+                    "max": 150,
+                    "step": 1
+                },
+                {
+                    "type": "text",
+                    "name": "birthDate",
+                    "title": "Birth Date",
+                    "inputType": "date"
+                },
+                {
+                    "type": "text",
+                    "name": "email",
+                    "title": "Email",
+                    "inputType": "email",
+                    "maxLength": 100,
+                    "validators": [
+                        {
+                            "type": "email"
+                        }
+                    ]
+                },
+                {
+                    "type": "text",
+                    "name": "appointmentTime",
+                    "title": "Appointment Time",
+                    "inputType": "datetime-local"
+                },
+                {
+                    "type": "comment",
+                    "name": "bio",
+                    "title": "Biography",
+                    "description": "Tell us about yourself",
+                    "maxLength": 500,
+                    "rows": 4,
+                    "autoGrow": true,
+                    "allowResize": false
+                }
+            ]
+        },
+        {
+            "name": "page_choice",
+            "title": "Choice Questions",
+            "elements": [
+                {
+                    "type": "radiogroup",
+                    "name": "favoriteColor",
+                    "title": "Favorite Color",
+                    "isRequired": true,
+                    "choices": [
+                        {"value": "red", "text": "Red"},
+                        {"value": "blue", "text": "Blue"},
+                        {"value": "green", "text": "Green"},
+                        {"value": "yellow", "text": "Yellow"}
+                    ],
+                    "showOtherItem": true,
+                    "showNoneItem": false,
+                    "choicesOrder": "random",
+                    "colCount": 2
+                },
+                {
+                    "type": "checkbox",
+                    "name": "hobbies",
+                    "title": "Hobbies",
+                    "choices": [
+                        {"value": "reading", "text": "Reading"},
+                        {"value": "sports", "text": "Sports"},
+                        {"value": "music", "text": "Music"},
+                        {"value": "cooking", "text": "Cooking"},
+                        {"value": "travel", "text": "Travel"}
+                    ],
+                    "showOtherItem": true,
+                    "showNoneItem": true,
+                    "showSelectAllItem": true,
+                    "maxSelectedChoices": 3,
+                    "minSelectedChoices": 1,
+                    "colCount": 3
+                },
+                {
+                    "type": "dropdown",
+                    "name": "country",
+                    "title": "Country",
+                    "choices": [
+                        {"value": "us", "text": "United States"},
+                        {"value": "uk", "text": "United Kingdom"},
+                        {"value": "ca", "text": "Canada"},
+                        {"value": "au", "text": "Australia"}
+                    ],
+                    "showOtherItem": false,
+                    "allowClear": true,
+                    "searchEnabled": true
+                },
+                {
+                    "type": "tagbox",
+                    "name": "skills",
+                    "title": "Skills",
+                    "choices": [
+                        {"value": "python", "text": "Python"},
+                        {"value": "javascript", "text": "JavaScript"},
+                        {"value": "java", "text": "Java"},
+                        {"value": "csharp", "text": "C#"},
+                        {"value": "go", "text": "Go"}
+                    ],
+                    "showOtherItem": true,
+                    "searchEnabled": true,
+                    "maxSelectedChoices": 4
+                },
+                {
+                    "type": "imagepicker",
+                    "name": "favoritePet",
+                    "title": "Favorite Pet",
+                    "choices": [
+                        {"value": "dog", "text": "Dog", "imageLink": "https://example.com/dog.png"},
+                        {"value": "cat", "text": "Cat", "imageLink": "https://example.com/cat.png"},
+                        {"value": "bird", "text": "Bird", "imageLink": "https://example.com/bird.png"}
+                    ],
+                    "multiSelect": false,
+                    "showLabel": true,
+                    "imageFit": "cover",
+                    "imageHeight": 150,
+                    "imageWidth": 200,
+                    "contentMode": "image"
+                },
+                {
+                    "type": "ranking",
+                    "name": "priorityItems",
+                    "title": "Prioritize Items",
+                    "choices": [
+                        {"value": "price", "text": "Price"},
+                        {"value": "quality", "text": "Quality"},
+                        {"value": "speed", "text": "Speed"},
+                        {"value": "support", "text": "Support"}
+                    ],
+                    "longTap": true,
+                    "selectToRankEnabled": false
+                }
+            ]
+        },
+        {
+            "name": "page_special",
+            "title": "Special Types",
+            "elements": [
+                {
+                    "type": "boolean",
+                    "name": "agreeTerms",
+                    "title": "I agree to the Terms of Service",
+                    "labelTrue": "Yes",
+                    "labelFalse": "No",
+                    "valueTrue": "agreed",
+                    "valueFalse": "declined",
+                    "renderAs": "checkbox"
+                },
+                {
+                    "type": "rating",
+                    "name": "satisfaction",
+                    "title": "Overall Satisfaction",
+                    "rateMin": 1,
+                    "rateMax": 10,
+                    "rateStep": 1,
+                    "minRateDescription": "Very Bad",
+                    "maxRateDescription": "Excellent",
+                    "displayMode": "buttons",
+                    "rateType": "stars"
+                },
+                {
+                    "type": "signaturepad",
+                    "name": "signature",
+                    "title": "Your Signature",
+                    "signatureWidth": 500,
+                    "signatureHeight": 200,
+                    "penColor": "#000000",
+                    "backgroundColor": "#ffffff",
+                    "dataFormat": "png",
+                    "allowClear": true
+                },
+                {
+                    "type": "expression",
+                    "name": "fullName",
+                    "title": "Full Name",
+                    "expression": "{firstName} + ' Smith'",
+                    "displayStyle": "none"
+                },
+                {
+                    "type": "file",
+                    "name": "resume",
+                    "title": "Upload Resume",
+                    "storeDataAsText": true,
+                    "allowMultiple": true,
+                    "maxSize": 5242880,
+                    "acceptedTypes": ".pdf,.doc,.docx"
+                }
+            ]
+        },
+        {
+            "name": "page_matrix",
+            "title": "Matrix Questions",
+            "elements": [
+                {
+                    "type": "matrix",
+                    "name": "qualityMatrix",
+                    "title": "Rate the quality",
+                    "columns": [
+                        {"value": "poor", "text": "Poor"},
+                        {"value": "fair", "text": "Fair"},
+                        {"value": "good", "text": "Good"},
+                        {"value": "excellent", "text": "Excellent"}
+                    ],
+                    "rows": [
+                        {"value": "product", "text": "Product Quality"},
+                        {"value": "service", "text": "Service Quality"},
+                        {"value": "support", "text": "Support Quality"}
+                    ],
+                    "isAllRowRequired": true
+                },
+                {
+                    "type": "matrixdropdown",
+                    "name": "budgetMatrix",
+                    "title": "Annual Budget",
+                    "columns": [
+                        {"name": "q1", "title": "Q1", "cellType": "text"},
+                        {"name": "q2", "title": "Q2", "cellType": "text"},
+                        {"name": "status", "title": "Status", "cellType": "dropdown", "choices": ["planned", "approved", "spent"]}
+                    ],
+                    "rows": [
+                        {"value": "marketing", "text": "Marketing"},
+                        {"value": "development", "text": "Development"}
+                    ],
+                    "cellType": "text",
+                    "choices": ["low", "medium", "high"]
+                },
+                {
+                    "type": "matrixdynamic",
+                    "name": "employeeList",
+                    "title": "Employee List",
+                    "columns": [
+                        {"name": "name", "title": "Name", "cellType": "text"},
+                        {"name": "role", "title": "Role", "cellType": "dropdown", "choices": ["developer", "designer", "manager"]},
+                        {"name": "salary", "title": "Salary", "cellType": "text"}
+                    ],
+                    "rowCount": 2,
+                    "minRowCount": 1,
+                    "maxRowCount": 10,
+                    "cellType": "text"
+                },
+                {
+                    "type": "multipletext",
+                    "name": "address",
+                    "title": "Address",
+                    "items": [
+                        {"name": "street", "title": "Street"},
+                        {"name": "city", "title": "City"},
+                        {"name": "state", "title": "State"},
+                        {"name": "zip", "title": "ZIP Code"}
+                    ],
+                    "colCount": 2
+                }
+            ]
+        },
+        {
+            "name": "page_layout",
+            "title": "Layout and Dynamic",
+            "elements": [
+                {
+                    "type": "panel",
+                    "name": "contactPanel",
+                    "title": "Contact Information",
+                    "state": "expanded",
+                    "innerIndent": 1,
+                    "elements": [
+                        {
+                            "type": "text",
+                            "name": "phone",
+                            "title": "Phone Number"
+                        },
+                        {
+                            "type": "text",
+                            "name": "website",
+                            "title": "Website",
+                            "inputType": "url"
+                        }
+                    ]
+                },
+                {
+                    "type": "paneldynamic",
+                    "name": "education",
+                    "title": "Education History",
+                    "templateTitle": "Education #{panelIndex}",
+                    "panelCount": 1,
+                    "minPanelCount": 0,
+                    "maxPanelCount": 5,
+                    "panelAddText": "Add Education",
+                    "panelRemoveText": "Remove",
+                    "allowAddPanel": true,
+                    "allowRemovePanel": true,
+                    "templateElements": [
+                        {
+                            "type": "text",
+                            "name": "institution",
+                            "title": "Institution"
+                        },
+                        {
+                            "type": "text",
+                            "name": "degree",
+                            "title": "Degree"
+                        },
+                        {
+                            "type": "text",
+                            "name": "year",
+                            "title": "Year",
+                            "inputType": "number"
+                        }
+                    ]
+                },
+                {
+                    "type": "html",
+                    "name": "infoHtml",
+                    "html": "<p>Thank you for completing this survey. Your responses will be kept confidential.</p>"
+                },
+                {
+                    "type": "image",
+                    "name": "thankYouImage",
+                    "imageLink": "https://example.com/thankyou.png",
+                    "imageFit": "contain",
+                    "imageHeight": 300,
+                    "imageWidth": 400,
+                    "altText": "Thank you",
+                    "contentMode": "image"
+                }
+            ]
+        }
+    ]
+}
