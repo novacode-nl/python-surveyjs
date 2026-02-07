@@ -1,4 +1,4 @@
-# surveyjs
+# surveyjs (Python)
 
 SurveyJS (JSON Form Builder) data API for Python.
 
