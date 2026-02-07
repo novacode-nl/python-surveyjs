@@ -15,7 +15,7 @@ class TestCommentSurvey(unittest.TestCase):
         self.q = self.survey.questions['bio']
 
     def test_class_type(self):
-        from surveyjs_data.questions.comment import commentQuestion
+        from surveyjs.questions.comment import commentQuestion
         self.assertIsInstance(self.q, commentQuestion)
 
     def test_type(self):

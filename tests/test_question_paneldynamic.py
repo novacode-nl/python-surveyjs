@@ -15,7 +15,7 @@ class TestPanelDynamicSurvey(unittest.TestCase):
         self.q = self.survey.questions['education']
 
     def test_class_type(self):
-        from surveyjs_data.questions.paneldynamic import paneldynamicQuestion
+        from surveyjs.questions.paneldynamic import paneldynamicQuestion
         self.assertIsInstance(self.q, paneldynamicQuestion)
 
     def test_type(self):

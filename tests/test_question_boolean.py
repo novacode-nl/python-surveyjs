@@ -15,7 +15,7 @@ class TestBooleanSurvey(unittest.TestCase):
         self.q = self.survey.questions['agreeTerms']
 
     def test_class_type(self):
-        from surveyjs_data.questions.boolean_q import booleanQuestion
+        from surveyjs.questions.boolean_q import booleanQuestion
         self.assertIsInstance(self.q, booleanQuestion)
 
     def test_type(self):

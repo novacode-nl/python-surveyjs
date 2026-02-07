@@ -15,7 +15,7 @@ class TestMatrixDynamicSurvey(unittest.TestCase):
         self.q = self.survey.questions['employeeList']
 
     def test_class_type(self):
-        from surveyjs_data.questions.matrixdynamic import matrixdynamicQuestion
+        from surveyjs.questions.matrixdynamic import matrixdynamicQuestion
         self.assertIsInstance(self.q, matrixdynamicQuestion)
 
     def test_type(self):

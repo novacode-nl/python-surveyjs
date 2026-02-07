@@ -14,14 +14,14 @@ Its main aim is to provide easy access to a Form's questions/fields,
 also captured as **Python objects**, which makes this API very versatile and usable.
 
 **Notes about terms:**
-  - **Survey:** The Survey Creator schema which is the design/blueprint of a Form.
+  - **SurveyCreator:** The Survey Creator (form builder) schema which is the design/blueprint of a Form.
   - **Form:** A filled-in Form, aka Form submission.
   - **Question:** Input (field) or layout element in the Survey and Form.
 
 ## Features
 
   - Compatible with Python 3.8 and later
-  - Constructor of the **Survey** and **Form** class only requires
+  - Constructor of the **SurveyCreator** and **Form** class only requires
     the JSON (string or dict).
   - Get a Form object's Questions as usable Python objects
     e.g. datetime, boolean, list (for checkbox), dict (for matrix) etc.
@@ -31,27 +31,27 @@ also captured as **Python objects**, which makes this API very versatile and usa
 ## Installation
 
 ```
-pip install python-surveyjs-data
+pip install surveyjs
 ```
 
 ### Source Install
 
 ```
 git clone <repo-url>
-cd python-surveyjs-data
+cd python-surveyjs
 pip install -e .
 ```
 
 ## Usage Examples
 
 ```python
-from surveyjs_data import Survey, Form
+from surveyjs import SurveyCreator, Form
 
 # survey_json is a SurveyJS Creator JSON schema (string or dict)
 # form_json is a SurveyJS Form submission JSON (string or dict)
 
-survey = Survey(survey_json)
-form = Form(form_json, survey)
+creator = SurveyCreator(survey_json)
+form = Form(form_json, creator)
 
 # Text question
 print(form.input_questions['firstName'].label)

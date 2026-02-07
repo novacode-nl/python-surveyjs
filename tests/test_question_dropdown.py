@@ -15,7 +15,7 @@ class TestDropdownSurvey(unittest.TestCase):
         self.q = self.survey.questions['country']
 
     def test_class_type(self):
-        from surveyjs_data.questions.dropdown import dropdownQuestion
+        from surveyjs.questions.dropdown import dropdownQuestion
         self.assertIsInstance(self.q, dropdownQuestion)
 
     def test_type(self):

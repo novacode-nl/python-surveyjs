@@ -15,7 +15,7 @@ class TestMatrixDropdownSurvey(unittest.TestCase):
         self.q = self.survey.questions['budgetMatrix']
 
     def test_class_type(self):
-        from surveyjs_data.questions.matrixdropdown import matrixdropdownQuestion
+        from surveyjs.questions.matrixdropdown import matrixdropdownQuestion
         self.assertIsInstance(self.q, matrixdropdownQuestion)
 
     def test_type(self):

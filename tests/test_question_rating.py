@@ -15,7 +15,7 @@ class TestRatingSurvey(unittest.TestCase):
         self.q = self.survey.questions['satisfaction']
 
     def test_class_type(self):
-        from surveyjs_data.questions.rating import ratingQuestion
+        from surveyjs.questions.rating import ratingQuestion
         self.assertIsInstance(self.q, ratingQuestion)
 
     def test_type(self):

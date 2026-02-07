@@ -15,7 +15,7 @@ class TestFileSurvey(unittest.TestCase):
         self.q = self.survey.questions['resume']
 
     def test_class_type(self):
-        from surveyjs_data.questions.file import fileQuestion
+        from surveyjs.questions.file import fileQuestion
         self.assertIsInstance(self.q, fileQuestion)
 
     def test_type(self):

@@ -15,7 +15,7 @@ class TestImageSurvey(unittest.TestCase):
         self.q = self.survey.questions['thankYouImage']
 
     def test_class_type(self):
-        from surveyjs_data.questions.image import imageQuestion
+        from surveyjs.questions.image import imageQuestion
         self.assertIsInstance(self.q, imageQuestion)
 
     def test_type(self):

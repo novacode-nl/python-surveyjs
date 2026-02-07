@@ -15,7 +15,7 @@ class TestHtmlSurvey(unittest.TestCase):
         self.q = self.survey.questions['infoHtml']
 
     def test_class_type(self):
-        from surveyjs_data.questions.html import htmlQuestion
+        from surveyjs.questions.html import htmlQuestion
         self.assertIsInstance(self.q, htmlQuestion)
 
     def test_type(self):

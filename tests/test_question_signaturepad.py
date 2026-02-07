@@ -15,7 +15,7 @@ class TestSignaturepadSurvey(unittest.TestCase):
         self.q = self.survey.questions['signature']
 
     def test_class_type(self):
-        from surveyjs_data.questions.signaturepad import signaturepadQuestion
+        from surveyjs.questions.signaturepad import signaturepadQuestion
         self.assertIsInstance(self.q, signaturepadQuestion)
 
     def test_type(self):

@@ -15,7 +15,7 @@ class TestMultipleTextSurvey(unittest.TestCase):
         self.q = self.survey.questions['address']
 
     def test_class_type(self):
-        from surveyjs_data.questions.multipletext import multipletextQuestion
+        from surveyjs.questions.multipletext import multipletextQuestion
         self.assertIsInstance(self.q, multipletextQuestion)
 
     def test_type(self):

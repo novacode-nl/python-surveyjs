@@ -15,7 +15,7 @@ class TestTagboxSurvey(unittest.TestCase):
         self.q = self.survey.questions['skills']
 
     def test_class_type(self):
-        from surveyjs_data.questions.tagbox import tagboxQuestion
+        from surveyjs.questions.tagbox import tagboxQuestion
         self.assertIsInstance(self.q, tagboxQuestion)
 
     def test_type(self):

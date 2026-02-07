@@ -69,13 +69,13 @@ class TestSurvey(unittest.TestCase):
         """Survey should accept a JSON string."""
         import json
         schema = readjson('test_survey_schema.json')
-        from surveyjs_data import Survey
+        from surveyjs import Survey
         survey = Survey(json.dumps(schema))
         self.assertEqual(survey.title, 'Test Survey')
 
     def test_get_question_class_unknown(self):
         """Unknown question types should fall back to base Question."""
-        from surveyjs_data.questions.question import Question
+        from surveyjs.questions.question import Question
         cls = self.survey.get_question_class({'type': 'unknowntype'})
         self.assertEqual(cls, Question)
 

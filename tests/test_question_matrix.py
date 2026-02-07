@@ -15,7 +15,7 @@ class TestMatrixSurvey(unittest.TestCase):
         self.q = self.survey.questions['qualityMatrix']
 
     def test_class_type(self):
-        from surveyjs_data.questions.matrix import matrixQuestion
+        from surveyjs.questions.matrix import matrixQuestion
         self.assertIsInstance(self.q, matrixQuestion)
 
     def test_type(self):

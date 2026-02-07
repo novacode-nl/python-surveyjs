@@ -15,7 +15,7 @@ class TestImagepickerSurvey(unittest.TestCase):
         self.q = self.survey.questions['favoritePet']
 
     def test_class_type(self):
-        from surveyjs_data.questions.imagepicker import imagepickerQuestion
+        from surveyjs.questions.imagepicker import imagepickerQuestion
         self.assertIsInstance(self.q, imagepickerQuestion)
 
     def test_type(self):

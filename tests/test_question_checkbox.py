@@ -15,7 +15,7 @@ class TestCheckboxSurvey(unittest.TestCase):
         self.q = self.survey.questions['hobbies']
 
     def test_class_type(self):
-        from surveyjs_data.questions.checkbox import checkboxQuestion
+        from surveyjs.questions.checkbox import checkboxQuestion
         self.assertIsInstance(self.q, checkboxQuestion)
 
     def test_type(self):

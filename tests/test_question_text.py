@@ -15,7 +15,7 @@ class TestTextSurvey(unittest.TestCase):
         self.survey = load_survey()
 
     def test_class_type(self):
-        from surveyjs_data.questions.text import textQuestion
+        from surveyjs.questions.text import textQuestion
         q = self.survey.questions['firstName']
         self.assertIsInstance(q, textQuestion)
 

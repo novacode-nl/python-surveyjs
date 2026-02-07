@@ -15,7 +15,7 @@ class TestExpressionSurvey(unittest.TestCase):
         self.q = self.survey.questions['fullName']
 
     def test_class_type(self):
-        from surveyjs_data.questions.expression_q import expressionQuestion
+        from surveyjs.questions.expression_q import expressionQuestion
         self.assertIsInstance(self.q, expressionQuestion)
 
     def test_type(self):

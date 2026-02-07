@@ -15,7 +15,7 @@ class TestPanelSurvey(unittest.TestCase):
         self.q = self.survey.questions['contactPanel']
 
     def test_class_type(self):
-        from surveyjs_data.questions.panel import panelQuestion
+        from surveyjs.questions.panel import panelQuestion
         self.assertIsInstance(self.q, panelQuestion)
 
     def test_type(self):

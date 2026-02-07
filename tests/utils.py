@@ -21,14 +21,14 @@ def readjson(filename):
 
 def load_survey():
     """Load the test survey schema."""
-    from surveyjs_data import Survey
+    from surveyjs import Survey
     schema = readjson('test_survey_schema.json')
     return Survey(schema)
 
 
 def load_form():
     """Load the test form with survey schema."""
-    from surveyjs_data import Survey, Form
+    from surveyjs import Survey, Form
     schema = readjson('test_survey_schema.json')
     form_data = readjson('test_survey_form.json')
     survey = Survey(schema)

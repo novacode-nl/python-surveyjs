@@ -43,7 +43,7 @@ class TestForm(unittest.TestCase):
 
     def test_form_from_survey_schema_json(self):
         """Form can be created with survey_schema_json instead of survey."""
-        from surveyjs_data import Form
+        from surveyjs import Form
         schema = readjson('test_survey_schema.json')
         form_data = readjson('test_survey_form.json')
         form = Form(form_data, survey_schema_json=schema)
@@ -51,7 +51,7 @@ class TestForm(unittest.TestCase):
 
     def test_form_constructor_both_raises(self):
         """Providing both survey and survey_schema_json should raise."""
-        from surveyjs_data import Form
+        from surveyjs import Form
         schema = readjson('test_survey_schema.json')
         form_data = readjson('test_survey_form.json')
         survey = load_survey()
@@ -60,7 +60,7 @@ class TestForm(unittest.TestCase):
 
     def test_form_constructor_neither_raises(self):
         """Providing neither survey nor survey_schema_json should raise."""
-        from surveyjs_data import Form
+        from surveyjs import Form
         form_data = readjson('test_survey_form.json')
         with self.assertRaises(Exception):
             Form(form_data)
@@ -68,7 +68,7 @@ class TestForm(unittest.TestCase):
     def test_form_from_json_string(self):
         """Form should accept a JSON string for form_json."""
         import json
-        from surveyjs_data import Form
+        from surveyjs import Form
         schema = readjson('test_survey_schema.json')
         form_data = readjson('test_survey_form.json')
         survey = load_survey()

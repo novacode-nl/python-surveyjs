@@ -15,7 +15,7 @@ class TestRadiogroupSurvey(unittest.TestCase):
         self.q = self.survey.questions['favoriteColor']
 
     def test_class_type(self):
-        from surveyjs_data.questions.radiogroup import radiogroupQuestion
+        from surveyjs.questions.radiogroup import radiogroupQuestion
         self.assertIsInstance(self.q, radiogroupQuestion)
 
     def test_type(self):
