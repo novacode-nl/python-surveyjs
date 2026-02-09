@@ -6,13 +6,13 @@
 import unittest
 from datetime import date, datetime
 
-from tests.utils import load_survey, load_form
+from tests.utils import load_creator, load_form
 
 
 class TestTextSurvey(unittest.TestCase):
 
     def setUp(self):
-        self.survey = load_survey()
+        self.survey = load_creator()
 
     def test_class_type(self):
         from surveyjs.questions.text import textQuestion

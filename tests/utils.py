@@ -19,17 +19,17 @@ def readjson(filename):
     return json.loads(readfile(filename))
 
 
-def load_survey():
+def load_creator():
     """Load the test survey schema."""
-    from surveyjs import Survey
+    from surveyjs import SurveyCreator
     schema = readjson('test_survey_schema.json')
-    return Survey(schema)
+    return SurveyCreator(schema)
 
 
 def load_form():
     """Load the test form with survey schema."""
-    from surveyjs import Survey, Form
+    from surveyjs import SurveyCreator, Form
     schema = readjson('test_survey_schema.json')
-    form_data = readjson('test_survey_form.json')
-    survey = Survey(schema)
-    return Form(form_data, survey=survey)
+    form_json = readjson('test_survey_form.json')
+    creator = SurveyCreator(schema)
+    return Form(form_json, creator=creator)

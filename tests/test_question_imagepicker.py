@@ -5,13 +5,13 @@
 
 import unittest
 
-from tests.utils import load_survey, load_form
+from tests.utils import load_creator, load_form
 
 
 class TestImagepickerSurvey(unittest.TestCase):
 
     def setUp(self):
-        self.survey = load_survey()
+        self.survey = load_creator()
         self.q = self.survey.questions['favoritePet']
 
     def test_class_type(self):

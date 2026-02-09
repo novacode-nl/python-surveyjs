@@ -5,13 +5,13 @@
 
 import unittest
 
-from tests.utils import readjson, load_survey
+from tests.utils import readjson, load_creator
 
 
 class TestSurvey(unittest.TestCase):
 
     def setUp(self):
-        self.survey = load_survey()
+        self.survey = load_creator()
 
     def test_title(self):
         self.assertEqual(self.survey.title, 'Test Survey')
@@ -69,9 +69,9 @@ class TestSurvey(unittest.TestCase):
         """Survey should accept a JSON string."""
         import json
         schema = readjson('test_survey_schema.json')
-        from surveyjs import Survey
-        survey = Survey(json.dumps(schema))
-        self.assertEqual(survey.title, 'Test Survey')
+        from surveyjs import SurveyCreator
+        creator = SurveyCreator(json.dumps(schema))
+        self.assertEqual(creator.title, 'Test Survey')
 
     def test_get_question_class_unknown(self):
         """Unknown question types should fall back to base Question."""

@@ -3,9 +3,11 @@
 
 """Tests for the Form class."""
 
+import json
 import unittest
 
-from tests.utils import readjson, load_form, load_survey
+from surveyjs import Form
+from tests.utils import load_form, load_creator, readjson, readfile
 
 
 class TestForm(unittest.TestCase):
@@ -42,37 +44,32 @@ class TestForm(unittest.TestCase):
         self.assertIsNone(self.form.get_value('nonExistent'))
 
     def test_form_from_survey_schema_json(self):
-        """Form can be created with survey_schema_json instead of survey."""
-        from surveyjs import Form
-        schema = readjson('test_survey_schema.json')
-        form_data = readjson('test_survey_form.json')
-        form = Form(form_data, survey_schema_json=schema)
+        """Form can be created with creator_schema_json instead of creator."""
+        schema = readfile('test_survey_schema.json')
+        form_json = readjson('test_survey_form.json')
+        form = Form(form_json, creator_schema_json=schema)
         self.assertEqual(form.get_value('firstName'), 'Alice')
 
     def test_form_constructor_both_raises(self):
         """Providing both survey and survey_schema_json should raise."""
-        from surveyjs import Form
         schema = readjson('test_survey_schema.json')
         form_data = readjson('test_survey_form.json')
-        survey = load_survey()
+        creator = load_creator()
         with self.assertRaises(Exception):
-            Form(form_data, survey=survey, survey_schema_json=schema)
+            Form(form_data, creator=creator, creator_schema_json=schema)
 
     def test_form_constructor_neither_raises(self):
         """Providing neither survey nor survey_schema_json should raise."""
-        from surveyjs import Form
         form_data = readjson('test_survey_form.json')
         with self.assertRaises(Exception):
             Form(form_data)
 
     def test_form_from_json_string(self):
         """Form should accept a JSON string for form_json."""
-        import json
-        from surveyjs import Form
-        schema = readjson('test_survey_schema.json')
-        form_data = readjson('test_survey_form.json')
-        survey = load_survey()
-        form = Form(json.dumps(form_data), survey=survey)
+
+        form_json = readjson('test_survey_form.json')
+        creator = load_creator()
+        form = Form(json.dumps(form_json), creator=creator)
         self.assertEqual(form.get_value('firstName'), 'Alice')
 
     def test_form_all_input_values_loaded(self):

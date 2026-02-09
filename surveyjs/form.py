@@ -20,13 +20,27 @@ class Form:
     Equivalent to the Form class in python-formio-data.
     """
 
-    def __init__(self, form_json, creator=None, creator_schema_json=None, **kwargs):
+    def __init__(
+        self,
+        form_json,
+        creator=None,
+        creator_schema_json=None,
+        lang="en",
+        **kwargs
+    ):
         """
-        @param form_json: SurveyJS form submission JSON (str or dict)
-        @param survey: A Survey instance
-        @param survey_schema_json: SurveyJS survey schema JSON (str or dict)
-            Alternative to providing a Survey instance.
+        @param form_json: SurveyJS Form submission JSON (str or dict)
+        @param creator: A SurveyCreator instance
+        @param creator_schema_json: SurveyCreator schema JSON (str or dict)
+            Alternative to providing a SurveyCreator instance.
+        @param lang: Language code for translations (default: 'en')
         """
+
+        if creator and creator_schema_json:
+            raise Exception(
+                "Constructor accepts either creator or creator_schema_json, not both."
+            )
+
         if isinstance(form_json, dict):
             self.form = form_json
         else:
@@ -35,20 +49,24 @@ class Form:
         self.creator = creator
         self.creator_schema_json = creator_schema_json
 
-        if self.creator and self.creator_schema_json:
-            raise Exception(
-                "Constructor accepts either creator or creator_schema_json, not both."
-            )
+        if self.creator is None and self.creator_schema_json:
+            self.creator = SurveyCreator(self.creator_schema_json)
 
         if self.creator:
             if not isinstance(self.creator, SurveyCreator):
                 raise TypeError("creator must be a SurveyCreator instance")
         elif self.creator_schema_json:
-            assert isinstance(self.builder_schema_json, str)
+            assert isinstance(self.creator_schema_json, str)
+
         else:
             raise Exception(
                 "Provide either the argument: creator or creator_schema_json."
             )
+
+        self.lang = lang
+        # defaults to English (en) date/time format
+        self.date_format = kwargs.get('date_format', '%m/%d/%Y')
+        self.time_format = kwargs.get('time_format', '%H:%M:%S')
 
         # All questions (input + layout) keyed by name
         self.questions = OrderedDict()
@@ -65,6 +83,12 @@ class Form:
         # Create attribute-style accessor
         self._data = FormData(self)
 
+    def set_creator_by_creator_schema_json(self):
+        self.creator = SurveyCreator(
+            self.creator_schema_json,
+            language=self.lang,
+        )
+
     @property
     def data(self):
         """Attribute-style access to input questions."""
@@ -75,7 +99,7 @@ class Form:
         form submission data."""
         for key, creator_question in self.creator.questions.items():
             # Create a new question object (don't affect the Survey's question)
-            question_obj = self.survey.get_question_object(creator_question.raw)
+            question_obj = self.creator.get_question_object(creator_question.raw)
             question_obj.load(
                 question_owner=self,
                 parent=None,
