@@ -5,18 +5,18 @@
 
 import unittest
 
+from surveyjs.questions.matrixdropdown import QuestionMatrixdropdown
 from tests.utils import load_creator, load_form
 
 
-class TestMatrixDropdownSurvey(unittest.TestCase):
+class TestQuestionMatrixdropdown(unittest.TestCase):
 
     def setUp(self):
         self.survey = load_creator()
         self.q = self.survey.questions['budgetMatrix']
 
     def test_class_type(self):
-        from surveyjs.questions.matrixdropdown import matrixdropdownQuestion
-        self.assertIsInstance(self.q, matrixdropdownQuestion)
+        self.assertIsInstance(self.q, QuestionMatrixdropdown)
 
     def test_type(self):
         self.assertEqual(self.q.type, 'matrixdropdown')

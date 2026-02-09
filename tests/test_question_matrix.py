@@ -5,18 +5,18 @@
 
 import unittest
 
+from surveyjs.questions.matrix import QuestionMatrix
 from tests.utils import load_creator, load_form
 
 
-class TestMatrixSurvey(unittest.TestCase):
+class TestQuestionMatrix(unittest.TestCase):
 
     def setUp(self):
         self.survey = load_creator()
         self.q = self.survey.questions['qualityMatrix']
 
     def test_class_type(self):
-        from surveyjs.questions.matrix import matrixQuestion
-        self.assertIsInstance(self.q, matrixQuestion)
+        self.assertIsInstance(self.q, QuestionMatrix)
 
     def test_type(self):
         self.assertEqual(self.q.type, 'matrix')

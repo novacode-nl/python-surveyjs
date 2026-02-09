@@ -4,7 +4,7 @@
 from .question import Question
 
 
-class fileQuestion(Question):
+class QuestionFile(Question):
     """SurveyJS File Upload question.
 
     Value is typically a list of file metadata objects or base64 data.

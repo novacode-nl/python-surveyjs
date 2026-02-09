@@ -4,7 +4,7 @@
 from .question import Question
 
 
-class commentQuestion(Question):
+class QuestionComment(Question):
     """SurveyJS Comment (Long Text / Multi-line) question."""
 
     @property

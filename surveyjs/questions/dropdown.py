@@ -4,7 +4,7 @@
 from .question import Question
 
 
-class dropdownQuestion(Question):
+class QuestionDropdown(Question):
     """SurveyJS Dropdown (single-select) question."""
 
     @property

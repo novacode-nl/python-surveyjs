@@ -5,18 +5,18 @@
 
 import unittest
 
+from surveyjs.questions.expression import QuestionExpression
 from tests.utils import load_creator, load_form
 
 
-class TestExpressionSurvey(unittest.TestCase):
+class TestQuestionExpression(unittest.TestCase):
 
     def setUp(self):
         self.survey = load_creator()
         self.q = self.survey.questions['fullName']
 
     def test_class_type(self):
-        from surveyjs.questions.expression_q import expressionQuestion
-        self.assertIsInstance(self.q, expressionQuestion)
+        self.assertIsInstance(self.q, QuestionExpression)
 
     def test_type(self):
         self.assertEqual(self.q.type, 'expression')

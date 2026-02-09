@@ -5,18 +5,18 @@
 
 import unittest
 
+from surveyjs.questions.comment import QuestionComment
 from tests.utils import load_creator, load_form
 
 
-class TestCommentSurvey(unittest.TestCase):
+class TestQuestionComment(unittest.TestCase):
 
     def setUp(self):
         self.survey = load_creator()
         self.q = self.survey.questions['bio']
 
     def test_class_type(self):
-        from surveyjs.questions.comment import commentQuestion
-        self.assertIsInstance(self.q, commentQuestion)
+        self.assertIsInstance(self.q, QuestionComment)
 
     def test_type(self):
         self.assertEqual(self.q.type, 'comment')

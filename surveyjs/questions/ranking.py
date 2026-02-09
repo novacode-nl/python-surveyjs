@@ -4,7 +4,7 @@
 from .question import Question
 
 
-class rankingQuestion(Question):
+class QuestionRanking(Question):
     """SurveyJS Ranking question.
 
     Value is a list of choices in the user's ranked order.

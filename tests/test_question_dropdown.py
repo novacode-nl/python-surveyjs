@@ -5,18 +5,18 @@
 
 import unittest
 
+from surveyjs.questions.dropdown import QuestionDropdown
 from tests.utils import load_creator, load_form
 
 
-class TestDropdownSurvey(unittest.TestCase):
+class TestQuestionDropdown(unittest.TestCase):
 
     def setUp(self):
         self.survey = load_creator()
         self.q = self.survey.questions['country']
 
     def test_class_type(self):
-        from surveyjs.questions.dropdown import dropdownQuestion
-        self.assertIsInstance(self.q, dropdownQuestion)
+        self.assertIsInstance(self.q, QuestionDropdown)
 
     def test_type(self):
         self.assertEqual(self.q.type, 'dropdown')

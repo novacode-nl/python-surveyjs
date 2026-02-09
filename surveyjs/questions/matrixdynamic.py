@@ -4,7 +4,7 @@
 from .question import Question
 
 
-class matrixdynamicQuestion(Question):
+class QuestionMatrixdynamic(Question):
     """SurveyJS Dynamic Matrix (matrixdynamic) question.
 
     Value is a list of dicts, where each dict maps column names to values.

@@ -4,7 +4,7 @@
 from .question import Question
 
 
-class ratingQuestion(Question):
+class QuestionRating(Question):
     """SurveyJS Rating Scale question.
 
     Value is typically a number or string from the rate values.

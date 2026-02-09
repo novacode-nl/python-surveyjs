@@ -10,13 +10,16 @@ For information about the SurveyJS project, see https://surveyjs.io
 SurveyJS **Creator JSON** (survey schema) and **Form JSON** (submission data)
 into **usable Python objects**.
 
-Its main aim is to provide easy access to a Form's questions/fields,
+Its main aim is to provide easy access to a SurveyJS Form's questions (fields, layout elements, etc.)
 also captured as **Python objects**, which makes this API very versatile and usable.
 
 **Notes about terms:**
-  - **SurveyCreator:** The Survey Creator (form builder) schema which is the design/blueprint of a Form.
+  - **SurveyCreator:** The Survey Creator (form builder) schema which is the design of a Form.
   - **Form:** A filled-in Form, aka Form submission.
-  - **Question:** Input (field) or layout element in the Survey and Form.
+  - **Question:** Input (field) and layout elements in SurveyJS (Creator and Form). Question is not a semantic term for a layout element (e.g. panel), but we follow the SurveyJS convention of calling all components "questions".
+
+**Question types:**
+ Source code (file prefix `question`): https://github.com/surveyjs/survey-library/tree/master/packages/survey-core/src
 
 ## Features
 

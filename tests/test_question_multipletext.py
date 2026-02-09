@@ -5,18 +5,18 @@
 
 import unittest
 
+from surveyjs.questions.multipletext import QuestionMultipletext
 from tests.utils import load_creator, load_form
 
 
-class TestMultipleTextSurvey(unittest.TestCase):
+class TestQuestionMultipleText(unittest.TestCase):
 
     def setUp(self):
         self.survey = load_creator()
         self.q = self.survey.questions['address']
 
     def test_class_type(self):
-        from surveyjs.questions.multipletext import multipletextQuestion
-        self.assertIsInstance(self.q, multipletextQuestion)
+        self.assertIsInstance(self.q, QuestionMultipletext)
 
     def test_type(self):
         self.assertEqual(self.q.type, 'multipletext')

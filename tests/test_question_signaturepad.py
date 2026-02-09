@@ -5,18 +5,18 @@
 
 import unittest
 
+from surveyjs.questions.signaturepad import QuestionSignaturepad
 from tests.utils import load_creator, load_form
 
 
-class TestSignaturepadSurvey(unittest.TestCase):
+class TestQuestionSignaturepad(unittest.TestCase):
 
     def setUp(self):
         self.survey = load_creator()
         self.q = self.survey.questions['signature']
 
     def test_class_type(self):
-        from surveyjs.questions.signaturepad import signaturepadQuestion
-        self.assertIsInstance(self.q, signaturepadQuestion)
+        self.assertIsInstance(self.q, QuestionSignaturepad)
 
     def test_type(self):
         self.assertEqual(self.q.type, 'signaturepad')

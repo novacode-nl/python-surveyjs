@@ -4,7 +4,7 @@
 from .question import Question
 
 
-class tagboxQuestion(Question):
+class QuestionTagbox(Question):
     """SurveyJS Tag Box (multi-select dropdown) question.
 
     Value is typically a list of selected values.

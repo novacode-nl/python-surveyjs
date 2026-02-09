@@ -6,7 +6,7 @@ from collections import OrderedDict
 from .question import Question
 
 
-class panelQuestion(Question):
+class QuestionPanel(Question):
     """SurveyJS Panel (layout container) question.
 
     Panels group questions together. They are not input elements themselves.

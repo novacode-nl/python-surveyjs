@@ -21,7 +21,14 @@ class SurveyCreator:
     Equivalent to the Builder class in python-formio-data.
     """
 
-    def __init__(self, schema_json, language='en', i18n=None, **kwargs):
+    def __init__(
+        self,
+        schema_json,
+        language='en',
+        i18n=None,
+        question_class_mapping={},
+        **kwargs
+    ):
         """
         @param schema_json: SurveyJS Creator JSON schema (str or dict)
         @param language: Language code for translations (default: 'en')
@@ -34,6 +41,8 @@ class SurveyCreator:
 
         self.language = language
         self.i18n = i18n or {}
+
+        self.question_class_mapping = question_class_mapping
 
         # All questions (input + layout) keyed by name
         self.questions = OrderedDict()
@@ -58,6 +67,14 @@ class SurveyCreator:
     @property
     def pages(self):
         return self.schema.get('pages', [])
+
+    @property
+    def components(self):
+        return self.questions
+
+    @property
+    def input_components(self):
+        return self.input_questions
 
     def load_questions(self):
         """Load questions from the schema, handling both pages-based and
@@ -101,51 +118,40 @@ class SurveyCreator:
     def get_question_class(self, element):
         """Dynamically load the question class based on the element type."""
         element_type = element.get('type')
+        element_type_cap = element_type.capitalize() if element_type else None
         if not element_type:
             return None
 
-        # Map SurveyJS types to class names
-        type_map = {
-            'text': ('text', 'textQuestion'),
-            'comment': ('comment', 'commentQuestion'),
-            'radiogroup': ('radiogroup', 'radiogroupQuestion'),
-            'checkbox': ('checkbox', 'checkboxQuestion'),
-            'dropdown': ('dropdown', 'dropdownQuestion'),
-            'tagbox': ('tagbox', 'tagboxQuestion'),
-            'boolean': ('boolean_q', 'booleanQuestion'),
-            'rating': ('rating', 'ratingQuestion'),
-            'ranking': ('ranking', 'rankingQuestion'),
-            'imagepicker': ('imagepicker', 'imagepickerQuestion'),
-            'signaturepad': ('signaturepad', 'signaturepadQuestion'),
-            'expression': ('expression_q', 'expressionQuestion'),
-            'file': ('file', 'fileQuestion'),
-            'matrix': ('matrix', 'matrixQuestion'),
-            'matrixdropdown': ('matrixdropdown', 'matrixdropdownQuestion'),
-            'matrixdynamic': ('matrixdynamic', 'matrixdynamicQuestion'),
-            'multipletext': ('multipletext', 'multipletextQuestion'),
-            'panel': ('panel', 'panelQuestion'),
-            'paneldynamic': ('paneldynamic', 'paneldynamicQuestion'),
-            'html': ('html', 'htmlQuestion'),
-            'image': ('image', 'imageQuestion'),
-        }
-
-        if element_type in type_map:
-            module_name, cls_name = type_map[element_type]
+        cls_mapping = self.question_class_mapping.get(element_type)
+        if cls_mapping:
+            cls_mapping = cls_mapping.capitalize() if isinstance(cls_mapping, str) else cls_mapping
+            if isinstance(cls_mapping, str):
+                cls_name = f"Question{cls_mapping}"
+                import_path = f"surveyjs.questions.{element_type}.{cls_mapping}"
+                try:
+                    module = __import__(import_path, fromlist=[cls_name])
+                    cls = getattr(module, cls_name)
+                    return cls
+                except (AttributeError, ModuleNotFoundError) as e:
+                    logger.warning(
+                        "Could not load question class for type '%s': %s. "
+                        "Falling back to base Question.", element_type, e
+                    )
+                    return Question
+            else:
+                return cls_mapping
         else:
-            module_name = element_type
-            cls_name = '%sQuestion' % element_type
-
-        try:
-            import_path = 'surveyjs.questions.%s' % module_name
-            module = __import__(import_path, fromlist=[cls_name])
-            cls = getattr(module, cls_name)
-            return cls
-        except (AttributeError, ModuleNotFoundError) as e:
-            logger.warning(
-                "Could not load question class for type '%s': %s. "
-                "Falling back to base Question.", element_type, e
-            )
-            return Question
+            cls_name = f"Question{element_type_cap}"
+            import_path = 'surveyjs.questions.%s' % element_type
+            try:
+                module = __import__(import_path, fromlist=[cls_name])
+                return getattr(module, cls_name)
+            except (AttributeError, ModuleNotFoundError) as e:
+                logger.warning(
+                    "Could not load question class for type '%s': %s. "
+                    "Falling back to base Question.", element_type, e
+                )
+                return Question
 
     def get_question_object(self, element):
         """Create a question object from an element dict."""

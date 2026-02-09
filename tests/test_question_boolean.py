@@ -5,18 +5,18 @@
 
 import unittest
 
+from surveyjs.questions.boolean import QuestionBoolean
 from tests.utils import load_creator, load_form
 
 
-class TestBooleanSurvey(unittest.TestCase):
+class TestQuestionBoolean(unittest.TestCase):
 
     def setUp(self):
         self.survey = load_creator()
         self.q = self.survey.questions['agreeTerms']
 
     def test_class_type(self):
-        from surveyjs.questions.boolean_q import booleanQuestion
-        self.assertIsInstance(self.q, booleanQuestion)
+        self.assertIsInstance(self.q, QuestionBoolean)
 
     def test_type(self):
         self.assertEqual(self.q.type, 'boolean')

@@ -4,7 +4,7 @@
 from .question import Question
 
 
-class htmlQuestion(Question):
+class QuestionHtml(Question):
     """SurveyJS HTML question.
 
     Displays static HTML content. Not an input element.

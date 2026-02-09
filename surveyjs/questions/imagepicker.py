@@ -4,7 +4,7 @@
 from .question import Question
 
 
-class imagepickerQuestion(Question):
+class QuestionImagepicker(Question):
     """SurveyJS Image Picker question.
 
     Value is the selected image's value, or a list for multi-select.

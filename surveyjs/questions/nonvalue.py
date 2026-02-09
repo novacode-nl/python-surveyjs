@@ -6,7 +6,7 @@ from datetime import date, datetime
 from .question import Question
 
 
-class QuestionText(Question):
+class QuestionNonValue(Question):
     """SurveyJS Text (Single-Line Input) question.
 
     Supports inputType variants: text, number, date, datetime-local,

@@ -4,7 +4,7 @@
 from .question import Question
 
 
-class imageQuestion(Question):
+class QuestionImage(Question):
     """SurveyJS Image question.
 
     Displays a static image. Not an input element.

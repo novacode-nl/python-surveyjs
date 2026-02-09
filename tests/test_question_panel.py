@@ -5,18 +5,18 @@
 
 import unittest
 
+from surveyjs.questions.panel import QuestionPanel
 from tests.utils import load_creator, load_form
 
 
-class TestPanelSurvey(unittest.TestCase):
+class TestQuestionPanel(unittest.TestCase):
 
     def setUp(self):
         self.survey = load_creator()
         self.q = self.survey.questions['contactPanel']
 
     def test_class_type(self):
-        from surveyjs.questions.panel import panelQuestion
-        self.assertIsInstance(self.q, panelQuestion)
+        self.assertIsInstance(self.q, QuestionPanel)
 
     def test_type(self):
         self.assertEqual(self.q.type, 'panel')

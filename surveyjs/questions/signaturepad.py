@@ -4,7 +4,7 @@
 from .question import Question
 
 
-class signaturepadQuestion(Question):
+class QuestionSignaturepad(Question):
     """SurveyJS Signature Pad question.
 
     Value is typically a base64-encoded image string.

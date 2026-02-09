@@ -5,18 +5,19 @@
 
 import unittest
 
+from surveyjs.questions.imagepicker import QuestionImagepicker
 from tests.utils import load_creator, load_form
 
 
-class TestImagepickerSurvey(unittest.TestCase):
+class TestQuestionImagepicker(unittest.TestCase):
 
     def setUp(self):
         self.survey = load_creator()
         self.q = self.survey.questions['favoritePet']
 
     def test_class_type(self):
-        from surveyjs.questions.imagepicker import imagepickerQuestion
-        self.assertIsInstance(self.q, imagepickerQuestion)
+
+        self.assertIsInstance(self.q, QuestionImagepicker)
 
     def test_type(self):
         self.assertEqual(self.q.type, 'imagepicker')

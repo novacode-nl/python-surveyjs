@@ -5,18 +5,18 @@
 
 import unittest
 
+from surveyjs.questions.file import QuestionFile
 from tests.utils import load_creator, load_form
 
 
-class TestFileSurvey(unittest.TestCase):
+class TestQuestionFile(unittest.TestCase):
 
     def setUp(self):
         self.survey = load_creator()
         self.q = self.survey.questions['resume']
 
     def test_class_type(self):
-        from surveyjs.questions.file import fileQuestion
-        self.assertIsInstance(self.q, fileQuestion)
+        self.assertIsInstance(self.q, QuestionFile)
 
     def test_type(self):
         self.assertEqual(self.q.type, 'file')

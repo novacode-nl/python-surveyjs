@@ -5,18 +5,18 @@
 
 import unittest
 
+from surveyjs.questions.paneldynamic import QuestionPaneldynamic
 from tests.utils import load_creator, load_form
 
 
-class TestPanelDynamicSurvey(unittest.TestCase):
+class TestQuestionPaneldynamic(unittest.TestCase):
 
     def setUp(self):
         self.survey = load_creator()
         self.q = self.survey.questions['education']
 
     def test_class_type(self):
-        from surveyjs.questions.paneldynamic import paneldynamicQuestion
-        self.assertIsInstance(self.q, paneldynamicQuestion)
+        self.assertIsInstance(self.q, QuestionPaneldynamic)
 
     def test_type(self):
         self.assertEqual(self.q.type, 'paneldynamic')

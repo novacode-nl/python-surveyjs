@@ -4,7 +4,7 @@
 from .question import Question
 
 
-class matrixdropdownQuestion(Question):
+class QuestionMatrixdropdown(Question):
     """SurveyJS Multi-Select Matrix (matrixdropdown) question.
 
     Value is a dict mapping row names to dicts of column-name -> value.

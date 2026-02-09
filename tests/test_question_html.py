@@ -5,18 +5,18 @@
 
 import unittest
 
+from surveyjs.questions.html import QuestionHtml
 from tests.utils import load_creator, load_form
 
 
-class TestHtmlSurvey(unittest.TestCase):
+class TestQuestionHtml(unittest.TestCase):
 
     def setUp(self):
         self.survey = load_creator()
         self.q = self.survey.questions['infoHtml']
 
     def test_class_type(self):
-        from surveyjs.questions.html import htmlQuestion
-        self.assertIsInstance(self.q, htmlQuestion)
+        self.assertIsInstance(self.q, QuestionHtml)
 
     def test_type(self):
         self.assertEqual(self.q.type, 'html')

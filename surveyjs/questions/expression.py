@@ -4,7 +4,7 @@
 from .question import Question
 
 
-class expressionQuestion(Question):
+class QuestionExpression(Question):
     """SurveyJS Expression question.
 
     A read-only calculated field. Value is computed from an expression.

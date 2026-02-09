@@ -4,7 +4,7 @@
 from .question import Question
 
 
-class matrixQuestion(Question):
+class QuestionMatrix(Question):
     """SurveyJS Single-Select Matrix question.
 
     Value is a dict mapping row names to selected column values.

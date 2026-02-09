@@ -4,7 +4,7 @@
 from .question import Question
 
 
-class booleanQuestion(Question):
+class QuestionBoolean(Question):
     """SurveyJS Boolean (Yes/No) question.
 
     Value is typically True/False.

@@ -4,7 +4,7 @@
 from .question import Question
 
 
-class radiogroupQuestion(Question):
+class QuestionRadiogroup(Question):
     """SurveyJS Radio Button Group question."""
 
     @property

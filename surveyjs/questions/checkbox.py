@@ -4,7 +4,7 @@
 from .question import Question
 
 
-class checkboxQuestion(Question):
+class QuestionCheckbox(Question):
     """SurveyJS Checkbox (multiple selection) question.
 
     Value is typically a list of selected choice values.

@@ -4,7 +4,7 @@
 from .question import Question
 
 
-class multipletextQuestion(Question):
+class QuestionMultipletext(Question):
     """SurveyJS Multiple Textboxes question.
 
     Value is a dict mapping item names to their values.

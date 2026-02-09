@@ -5,18 +5,18 @@
 
 import unittest
 
+from surveyjs.questions.matrixdynamic import QuestionMatrixdynamic
 from tests.utils import load_creator, load_form
 
 
-class TestMatrixDynamicSurvey(unittest.TestCase):
+class TestQuestionMatrixDynamic(unittest.TestCase):
 
     def setUp(self):
         self.survey = load_creator()
         self.q = self.survey.questions['employeeList']
 
     def test_class_type(self):
-        from surveyjs.questions.matrixdynamic import matrixdynamicQuestion
-        self.assertIsInstance(self.q, matrixdynamicQuestion)
+        self.assertIsInstance(self.q, QuestionMatrixdynamic)
 
     def test_type(self):
         self.assertEqual(self.q.type, 'matrixdynamic')

@@ -5,18 +5,18 @@
 
 import unittest
 
+from surveyjs.questions.rating import QuestionRating
 from tests.utils import load_creator, load_form
 
 
-class TestRatingSurvey(unittest.TestCase):
+class TestQuestionRating(unittest.TestCase):
 
     def setUp(self):
         self.survey = load_creator()
         self.q = self.survey.questions['satisfaction']
 
     def test_class_type(self):
-        from surveyjs.questions.rating import ratingQuestion
-        self.assertIsInstance(self.q, ratingQuestion)
+        self.assertIsInstance(self.q, QuestionRating)
 
     def test_type(self):
         self.assertEqual(self.q.type, 'rating')

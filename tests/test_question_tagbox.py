@@ -5,18 +5,18 @@
 
 import unittest
 
+from surveyjs.questions.tagbox import QuestionTagbox
 from tests.utils import load_creator, load_form
 
 
-class TestTagboxSurvey(unittest.TestCase):
+class TestQuestionTagbox(unittest.TestCase):
 
     def setUp(self):
         self.survey = load_creator()
         self.q = self.survey.questions['skills']
 
     def test_class_type(self):
-        from surveyjs.questions.tagbox import tagboxQuestion
-        self.assertIsInstance(self.q, tagboxQuestion)
+        self.assertIsInstance(self.q, QuestionTagbox)
 
     def test_type(self):
         self.assertEqual(self.q.type, 'tagbox')

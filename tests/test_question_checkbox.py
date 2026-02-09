@@ -5,18 +5,18 @@
 
 import unittest
 
+from surveyjs.questions.checkbox import QuestionCheckbox
 from tests.utils import load_creator, load_form
 
 
-class TestCheckboxSurvey(unittest.TestCase):
+class TestQuestionCheckbox(unittest.TestCase):
 
     def setUp(self):
         self.survey = load_creator()
         self.q = self.survey.questions['hobbies']
 
     def test_class_type(self):
-        from surveyjs.questions.checkbox import checkboxQuestion
-        self.assertIsInstance(self.q, checkboxQuestion)
+        self.assertIsInstance(self.q, QuestionCheckbox)
 
     def test_type(self):
         self.assertEqual(self.q.type, 'checkbox')

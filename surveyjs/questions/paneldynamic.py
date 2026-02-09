@@ -4,7 +4,7 @@
 from .question import Question
 
 
-class paneldynamicQuestion(Question):
+class QuestionPaneldynamic(Question):
     """SurveyJS Dynamic Panel question.
 
     Allows users to add/remove groups of questions (panels).

@@ -5,18 +5,18 @@
 
 import unittest
 
+from surveyjs.questions.radiogroup import QuestionRadiogroup
 from tests.utils import load_creator, load_form
 
 
-class TestRadiogroupSurvey(unittest.TestCase):
+class TestQuestionRadiogroup(unittest.TestCase):
 
     def setUp(self):
         self.survey = load_creator()
         self.q = self.survey.questions['favoriteColor']
 
     def test_class_type(self):
-        from surveyjs.questions.radiogroup import radiogroupQuestion
-        self.assertIsInstance(self.q, radiogroupQuestion)
+        self.assertIsInstance(self.q, QuestionRadiogroup)
 
     def test_type(self):
         self.assertEqual(self.q.type, 'radiogroup')
