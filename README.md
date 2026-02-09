@@ -1,4 +1,4 @@
-# python-surveyjs-data
+# surveyjs (Python)
 
 SurveyJS (JSON Form Builder) data API for Python.
 
@@ -6,7 +6,7 @@ For information about the SurveyJS project, see https://surveyjs.io
 
 ## Introduction
 
-**python-surveyjs-data** is a Python package which loads and transforms
+**surveyjs** is a Python package which loads and transforms
 SurveyJS **Creator JSON** (survey schema) and **Form JSON** (submission data)
 into **usable Python objects**.
 
