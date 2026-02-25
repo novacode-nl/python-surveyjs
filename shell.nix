@@ -3,7 +3,7 @@
 }:
 
 pkgs.mkShell {
-  name = "pyhon-formio-data";
+  name = "pyhon-surveyjs";
   buildInputs = with pkgs; [
       python314
       poetry

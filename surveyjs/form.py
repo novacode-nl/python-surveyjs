@@ -16,8 +16,6 @@ class SurveyForm:
 
     Parses the form submission JSON against a SurveyCreator schema and creates
     Question objects with values populated from the submission.
-
-    Equivalent to the Form class in python-formio-data.
     """
 
     def __init__(

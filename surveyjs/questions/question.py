@@ -12,8 +12,6 @@ class Question:
 
     Holds the raw JSON element data, provides access to common properties
     (name, type, title, etc.) and handles value loading from form data.
-
-    Equivalent to the Component class in python-formio-data.
     """
 
     _none_value = None
@@ -97,7 +95,7 @@ class Question:
 
     @property
     def label(self):
-        """Alias for title (compatibility with formio-data)."""
+        """Alias for title."""
         return self.title
 
     @property

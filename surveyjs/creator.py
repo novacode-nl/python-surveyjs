@@ -17,8 +17,6 @@ class SurveyCreator:
 
     Parses the survey JSON schema and creates Question objects for each
     question element found in the schema.
-
-    Equivalent to the Builder class in python-formio-data.
     """
 
     def __init__(
