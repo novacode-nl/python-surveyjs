@@ -5,29 +5,26 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "surveyjs"
 version = "0.1.0"
-description = "SurveyJS (JSON Form Builder) data API for Python"
+description = "SurveyJS (JSON data) API for Python"
 readme = "README.md"
 license = {text = "MIT"}
 requires-python = ">=3.8"
 authors = [
-    {name = "Bob Leers <bob@novacode.nl>"}
+    {name = "Bob Leers", email = "bob@novacode.nl"}
 ]
+dependencies = []
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
     "License :: OSI Approved :: MIT License",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.8",
-    "Programming Language :: Python :: 3.9",
-    "Programming Language :: Python :: 3.10",
-    "Programming Language :: Python :: 3.11",
-    "Programming Language :: Python :: 3.12",
-    "Programming Language :: Python :: 3.13",
     "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: File Formats :: JSON",
+    "Topic :: File Formats :: JSON :: JSON Schema"
 ]
 
 [project.urls]
-Homepage = "https://github.com/python-surveyjs-data/python-surveyjs-data"
+Homepage = "https://github.com/novacode-nl/python-surveyjs"
 
 [tool.setuptools.packages.find]
 include = ["surveyjs*"]
