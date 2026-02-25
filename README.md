@@ -15,7 +15,7 @@ also captured as **Python objects**, which makes this API very versatile and usa
 
 **Notes about terms:**
   - **SurveyCreator:** The Survey Creator (form builder) schema which is the design of a Form.
-  - **Form:** A filled-in Form, aka Form submission.
+  - **SurveyForm:** A filled-in Survey Form, aka Form response, submission.
   - **Question:** Input (field) and layout elements in SurveyJS (Creator and Form). Question is not a semantic term for a layout element (e.g. panel), but we follow the SurveyJS convention of calling all components "questions".
 
 **Question types:**
@@ -24,9 +24,9 @@ also captured as **Python objects**, which makes this API very versatile and usa
 ## Features
 
   - Compatible with Python 3.8 and later
-  - Constructor of the **SurveyCreator** and **Form** class only requires
+  - Constructor of the **SurveyCreator** and **SurveyForm** class only requires
     the JSON (string or dict).
-  - Get a Form object's Questions as usable Python objects
+  - Get a SurveyForm object's Questions as usable Python objects
     e.g. datetime, boolean, list (for checkbox), dict (for matrix) etc.
   - Support for all SurveyJS question types
   - Open source (MIT License)
@@ -48,13 +48,13 @@ pip install -e .
 ## Usage Examples
 
 ```python
-from surveyjs import SurveyCreator, Form
+from surveyjs import SurveyCreator, SurveyForm
 
 # survey_json is a SurveyJS Creator JSON schema (string or dict)
 # form_json is a SurveyJS Form submission JSON (string or dict)
 
 creator = SurveyCreator(survey_json)
-form = Form(form_json, creator)
+form = SurveyForm(form_json, creator)
 
 # Text question
 print(form.input_questions['firstName'].label)
@@ -112,7 +112,6 @@ poetry run python -m unittest tests/test_nested_questions.py
 ```
 poetry run python -m unittest tests.test_question_ranking.TestQuestionRanking.test_choices
 ```
-
 
 ## License
 
