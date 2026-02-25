@@ -6,7 +6,7 @@
 import json
 import unittest
 
-from surveyjs import Form
+from surveyjs import SurveyForm
 from tests.utils import load_form, load_creator, readjson, readfile
 
 
@@ -47,7 +47,7 @@ class TestForm(unittest.TestCase):
         """Form can be created with creator_schema_json instead of creator."""
         schema = readfile('test_survey_schema.json')
         form_json = readjson('test_survey_form.json')
-        form = Form(form_json, creator_schema_json=schema)
+        form = SurveyForm(form_json, creator_schema_json=schema)
         self.assertEqual(form.get_value('firstName'), 'Alice')
 
     def test_form_constructor_both_raises(self):
@@ -56,20 +56,20 @@ class TestForm(unittest.TestCase):
         form_data = readjson('test_survey_form.json')
         creator = load_creator()
         with self.assertRaises(Exception):
-            Form(form_data, creator=creator, creator_schema_json=schema)
+            SurveyForm(form_data, creator=creator, creator_schema_json=schema)
 
     def test_form_constructor_neither_raises(self):
         """Providing neither survey nor survey_schema_json should raise."""
         form_data = readjson('test_survey_form.json')
         with self.assertRaises(Exception):
-            Form(form_data)
+            SurveyForm(form_data)
 
     def test_form_from_json_string(self):
         """Form should accept a JSON string for form_json."""
 
         form_json = readjson('test_survey_form.json')
         creator = load_creator()
-        form = Form(json.dumps(form_json), creator=creator)
+        form = SurveyForm(json.dumps(form_json), creator=creator)
         self.assertEqual(form.get_value('firstName'), 'Alice')
 
     def test_form_all_input_values_loaded(self):

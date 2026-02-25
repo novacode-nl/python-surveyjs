@@ -88,15 +88,31 @@ print(form.data.firstName.value)
 
 ### Run all tests
 
+From toplevel directory:
 ```
-python -m pytest tests/ -v
+poetry run python -m unittest
 ```
 
-### Run specific question type test
+### Run specific (questions) unittests
+
+All questions, from toplevel directory:
 
 ```
-python -m pytest tests/test_question_text.py -v
+poetry run python -m unittest tests/test_question_*.py
 ```
+
+Nested questions (complexity), from toplevel directory:
+
+```
+poetry run python -m unittest tests/test_nested_questions.py
+```
+
+### Run specific component unittest
+
+```
+poetry run python -m unittest tests.test_question_ranking.TestQuestionRanking.test_choices
+```
+
 
 ## License
 

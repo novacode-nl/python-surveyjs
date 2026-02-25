@@ -28,8 +28,8 @@ def load_creator():
 
 def load_form():
     """Load the test form with survey schema."""
-    from surveyjs import SurveyCreator, Form
+    from surveyjs import SurveyCreator, SurveyForm
     schema = readjson('test_survey_schema.json')
     form_json = readjson('test_survey_form.json')
     creator = SurveyCreator(schema)
-    return Form(form_json, creator=creator)
+    return SurveyForm(form_json, creator=creator)
