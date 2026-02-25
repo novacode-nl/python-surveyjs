@@ -5,12 +5,12 @@ import json
 import logging
 from collections import OrderedDict
 
-from surveyjs.survey_creator import SurveyCreator
+from surveyjs import SurveyCreator
 
 logger = logging.getLogger(__name__)
 
 
-class Form:
+class SurveyForm:
     """
     Represents a filled-in SurveyJS form (submission data).
 
@@ -93,6 +93,16 @@ class Form:
     def data(self):
         """Attribute-style access to input questions."""
         return self._data
+
+    @property
+    def components(self):
+        """ Alias for questions, including both input and layout questions."""
+        return self.questions
+
+    @property
+    def input_components(self):
+        """ Alias for questions, including input queastions."""
+        return self.input_questions
 
     def load_questions(self):
         """Load questions from the survey schema and populate values from
