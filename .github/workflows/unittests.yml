@@ -1,6 +1,27 @@
-- name: Test Python SurveyJS
+name: Test Python SurveyJS
 
 on:
   push:
     branches:
       - '**'
+
+jobs:
+  tests:
+    name: Basic unit tests
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Check out the repo
+      uses: actions/checkout@v3
+
+    - name: Set up Nix with direnv support
+      uses: aldoborrero/use-nix-action@v2
+      with:
+        nix_path: nixpkgs=channel:nixos-25.11
+
+    - name: Install basic dependencies via poetry
+      run: poetry install
+
+    - name: Run the tests
+      run: poetry run python -m unittest
