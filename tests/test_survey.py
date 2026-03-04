@@ -60,6 +60,20 @@ class TestSurvey(unittest.TestCase):
         self.assertEqual(self.survey.questions['country'].type, 'dropdown')
         self.assertEqual(self.survey.questions['agreeTerms'].type, 'boolean')
 
+    def test_question_custom_properties(self):
+        """Custom properties should be accessible on the question."""
+        age = self.survey.questions['age']
+        # 1st property
+        self.assertEqual(age.raw.get('customProperties')[0]['value'], 'change')
+        self.assertEqual(age.raw.get('customProperties')[0]['text'], 'change_age')
+        self.assertEqual(age.custom_properties[0]['value'], 'change')
+        self.assertEqual(age.custom_properties[0]['text'], 'change_age')
+        # 2nd property
+        self.assertEqual(age.raw.get('customProperties')[1]['value'], 'api_validate')
+        self.assertEqual(age.raw.get('customProperties')[1]['text'], 'validate_age')
+        self.assertEqual(age.custom_properties[1]['value'], 'api_validate')
+        self.assertEqual(age.custom_properties[1]['text'], 'validate_age')
+
     def test_nested_panel_questions(self):
         """Questions inside panels should be loaded."""
         self.assertIn('phone', self.survey.questions)

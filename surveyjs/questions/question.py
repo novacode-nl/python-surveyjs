@@ -193,6 +193,22 @@ class Question:
     def raw_value(self, value):
         self.form['raw_value'] = value
 
+    # -- custom properties ---
+    @property
+    def custom_properties(self):
+        """The list of customProperties.
+
+        Documentation:
+        https://surveyjs.io/form-library/documentation/customize-question-types/add-custom-properties-to-a-form
+
+        E.g. property type itemvalues:
+        - Customized text inputs for entering value-text pairs
+        - Use this type for arrays of objects with the following structure:
+          { value: any, text: string }.
+          For example, Dropdown, Checkboxes, and Radio Button Group questions use this type for the choices property.
+        """
+        return self.raw.get('customProperties', [])
+
     # --- Representation ---
 
     def __repr__(self):

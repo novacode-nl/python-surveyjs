@@ -22,7 +22,17 @@
                     "inputType": "number",
                     "min": 0,
                     "max": 150,
-                    "step": 1
+                    "step": 1,
+                    "customProperties": [
+                        {
+                            "value": "change",
+                            "text": "change_age"
+                        },
+                        {
+                            "value": "api_validate",
+                            "text": "validate_age"
+                        }
+                    ]
                 },
                 {
                     "type": "text",
