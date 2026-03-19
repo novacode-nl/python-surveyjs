@@ -6,7 +6,7 @@ For information about the SurveyJS project, see https://surveyjs.io
 
 ## Introduction
 
-**surveyjs** is a Python package which loads and transforms SurveyJS **Creator JSON** (survey schema) and **Form JSON** (submission data) into **usable Python objects**.
+**surveyjs** is a Python package which loads and transforms **SurveyJS Creator JSON** (survey schema) data and **Form JSON** (submission) data into **usable Python objects**.
 
 Its main aim is to provide easy access to a SurveyJS Form's questions (fields, layout elements, etc.) also captured as **Python objects**, which makes this API very versatile and usable.
 
@@ -17,7 +17,7 @@ Its main aim is to provide easy access to a SurveyJS Form's questions (fields, l
 - **Layout:** A structural element such as a page, panel, or dynamic panel that can contain other elements, including questions and nested layouts.
 - **Element:** The base concept for both Question and Layout elements in SurveyJS.
 
-**Question and layout classes (source code):**\
+**SurveyJS question and layout classes (source code):**\
 https://github.com/surveyjs/survey-library/tree/master/packages/survey-core/src \
 The file prefix `question` indicates a question (field) class.
 
