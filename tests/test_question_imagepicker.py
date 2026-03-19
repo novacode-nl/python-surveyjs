@@ -5,7 +5,7 @@
 
 import unittest
 
-from surveyjs.questions.imagepicker import QuestionImagepicker
+from surveyjs.elements.imagepicker import QuestionImagepicker
 from tests.utils import load_creator, load_form
 
 
@@ -51,7 +51,7 @@ class TestImagepickerForm(unittest.TestCase):
 
     def setUp(self):
         self.form = load_form()
-        self.q = self.form.input_questions['favoritePet']
+        self.q = self.form.questions['favoritePet']
 
     def test_value(self):
         self.assertEqual(self.q.value, 'cat')

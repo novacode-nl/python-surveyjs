@@ -5,7 +5,7 @@
 
 import unittest
 
-from surveyjs.questions.checkbox import QuestionCheckbox
+from surveyjs.elements.checkbox import QuestionCheckbox
 from tests.utils import load_creator, load_form
 
 
@@ -57,7 +57,7 @@ class TestCheckboxForm(unittest.TestCase):
 
     def setUp(self):
         self.form = load_form()
-        self.q = self.form.input_questions['hobbies']
+        self.q = self.form.questions['hobbies']
 
     def test_value_is_list(self):
         self.assertIsInstance(self.q.value, list)

@@ -5,7 +5,7 @@
 
 import unittest
 
-from surveyjs.questions.boolean import QuestionBoolean
+from surveyjs.elements.boolean import QuestionBoolean
 from tests.utils import load_creator, load_form
 
 
@@ -44,7 +44,7 @@ class TestBooleanForm(unittest.TestCase):
 
     def setUp(self):
         self.form = load_form()
-        self.q = self.form.input_questions['agreeTerms']
+        self.q = self.form.questions['agreeTerms']
 
     def test_value(self):
         self.assertEqual(self.q.value, 'agreed')

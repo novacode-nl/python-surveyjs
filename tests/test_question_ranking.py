@@ -5,7 +5,7 @@
 
 import unittest
 
-from surveyjs.questions.ranking import QuestionRanking
+from surveyjs.elements.ranking import QuestionRanking
 from tests.utils import load_creator, load_form
 
 
@@ -46,7 +46,7 @@ class TestRankingForm(unittest.TestCase):
 
     def setUp(self):
         self.form = load_form()
-        self.q = self.form.input_questions['priorityItems']
+        self.q = self.form.questions['priorityItems']
 
     def test_value_is_list(self):
         self.assertIsInstance(self.q.value, list)

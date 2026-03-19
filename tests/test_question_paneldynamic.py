@@ -5,7 +5,7 @@
 
 import unittest
 
-from surveyjs.questions.paneldynamic import QuestionPaneldynamic
+from surveyjs.elements.paneldynamic import QuestionPaneldynamic
 from tests.utils import load_creator, load_form
 
 
@@ -60,7 +60,7 @@ class TestPanelDynamicForm(unittest.TestCase):
 
     def setUp(self):
         self.form = load_form()
-        self.q = self.form.input_questions['education']
+        self.q = self.form.questions['education']
 
     def test_value_is_list(self):
         self.assertIsInstance(self.q.value, list)

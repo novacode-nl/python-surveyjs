@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.2.0
+
+Align to SurveyJS terminology and structure:
+- Rename `questions` package to `elements`; base class `Question` → `Element`.
+- Add `Question` and `Layout` subclasses of `Element` (new `question.py`, `layout.py`).
+- Rename `SurveyCreator` internals: `question_class_mapping` → `element_class_mapping`, `load_questions()` → `load_elements()`, `get_question_class()` → `get_element_class()`, `get_question_object()` → `get_element_object()`.
+- `SurveyCreator.elements` now holds all elements; `questions` is reserved for input-only fields.
+- Update `Panel` to use `Layout` as base class; `Html` and `Image` updated accordingly.
+- Update `SurveyForm` and all tests for the new naming.
+
 ## 0.1.1
 
 Add `custom_properties` getter to the Question class, stored as `customProperties` property in a SurveyJS Question JSON.

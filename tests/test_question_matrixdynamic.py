@@ -5,7 +5,7 @@
 
 import unittest
 
-from surveyjs.questions.matrixdynamic import QuestionMatrixdynamic
+from surveyjs.elements.matrixdynamic import QuestionMatrixdynamic
 from tests.utils import load_creator, load_form
 
 
@@ -50,7 +50,7 @@ class TestMatrixDynamicForm(unittest.TestCase):
 
     def setUp(self):
         self.form = load_form()
-        self.q = self.form.input_questions['employeeList']
+        self.q = self.form.questions['employeeList']
 
     def test_value_is_list(self):
         self.assertIsInstance(self.q.value, list)

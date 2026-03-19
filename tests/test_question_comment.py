@@ -5,7 +5,7 @@
 
 import unittest
 
-from surveyjs.questions.comment import QuestionComment
+from surveyjs.elements.comment import QuestionComment
 from tests.utils import load_creator, load_form
 
 
@@ -47,7 +47,7 @@ class TestCommentForm(unittest.TestCase):
 
     def setUp(self):
         self.form = load_form()
-        self.q = self.form.input_questions['bio']
+        self.q = self.form.questions['bio']
 
     def test_value(self):
         self.assertIn('Software developer', self.q.value)

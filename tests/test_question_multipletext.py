@@ -5,7 +5,7 @@
 
 import unittest
 
-from surveyjs.questions.multipletext import QuestionMultipletext
+from surveyjs.elements.multipletext import QuestionMultipletext
 from tests.utils import load_creator, load_form
 
 
@@ -49,7 +49,7 @@ class TestMultipleTextForm(unittest.TestCase):
 
     def setUp(self):
         self.form = load_form()
-        self.q = self.form.input_questions['address']
+        self.q = self.form.questions['address']
 
     def test_value_is_dict(self):
         self.assertIsInstance(self.q.value, dict)

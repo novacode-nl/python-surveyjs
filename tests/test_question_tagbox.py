@@ -5,7 +5,7 @@
 
 import unittest
 
-from surveyjs.questions.tagbox import QuestionTagbox
+from surveyjs.elements.tagbox import QuestionTagbox
 from tests.utils import load_creator, load_form
 
 
@@ -47,7 +47,7 @@ class TestTagboxForm(unittest.TestCase):
 
     def setUp(self):
         self.form = load_form()
-        self.q = self.form.input_questions['skills']
+        self.q = self.form.questions['skills']
 
     def test_value_is_list(self):
         self.assertIsInstance(self.q.value, list)

@@ -6,7 +6,7 @@
 import unittest
 from datetime import date, datetime
 
-from surveyjs.questions.text import QuestionText
+from surveyjs.elements.text import QuestionText
 from tests.utils import load_creator, load_form
 
 
@@ -80,39 +80,39 @@ class TestTextForm(unittest.TestCase):
         self.form = load_form()
 
     def test_value_string(self):
-        self.assertEqual(self.form.input_questions['firstName'].value, 'Alice')
+        self.assertEqual(self.form.questions['firstName'].value, 'Alice')
 
     def test_value_number(self):
-        self.assertEqual(self.form.input_questions['age'].value, 30)
+        self.assertEqual(self.form.questions['age'].value, 30)
 
     def test_value_email(self):
         self.assertEqual(
-            self.form.input_questions['email'].value, 'alice@example.com'
+            self.form.questions['email'].value, 'alice@example.com'
         )
 
     def test_to_number(self):
-        q = self.form.input_questions['age']
+        q = self.form.questions['age']
         self.assertEqual(q.to_number(), 30)
 
     def test_to_number_none(self):
         """to_number on a text (non-number) field returns None if not numeric."""
-        q = self.form.input_questions['firstName']
+        q = self.form.questions['firstName']
         self.assertIsNone(q.to_number())
 
     def test_to_date(self):
-        q = self.form.input_questions['birthDate']
+        q = self.form.questions['birthDate']
         result = q.to_date()
         self.assertIsInstance(result, date)
         self.assertEqual(result, date(1993, 5, 15))
 
     def test_to_datetime(self):
-        q = self.form.input_questions['appointmentTime']
+        q = self.form.questions['appointmentTime']
         result = q.to_datetime()
         self.assertIsInstance(result, datetime)
         self.assertEqual(result, datetime(2024, 6, 15, 10, 30))
 
     def test_to_dict(self):
-        q = self.form.input_questions['firstName']
+        q = self.form.questions['firstName']
         d = q.to_dict()
         self.assertEqual(d['name'], 'firstName')
         self.assertEqual(d['value'], 'Alice')

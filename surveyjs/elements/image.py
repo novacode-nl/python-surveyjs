@@ -1,17 +1,17 @@
 # Copyright 2026 Nova Code (https://www.novacode.nl)
 # See LICENSE file for full licensing details.
 
-from .question import Question
+from .layout import Layout
 
 
-class QuestionImage(Question):
+class QuestionImage(Layout):
     """SurveyJS Image question.
 
     Displays a static image. Not an input element.
     """
 
     @property
-    def is_input(self):
+    def is_question(self):
         """Image elements are display-only, not input questions."""
         return False
 

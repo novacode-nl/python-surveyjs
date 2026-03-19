@@ -15,7 +15,7 @@ class SurveyForm:
     Represents a filled-in SurveyJS form (submission data).
 
     Parses the form submission JSON against a SurveyCreator schema and creates
-    Question objects with values populated from the submission.
+    Question (Element) objects with values populated from the submission.
     """
 
     def __init__(
@@ -66,17 +66,17 @@ class SurveyForm:
         self.date_format = kwargs.get('date_format', '%m/%d/%Y')
         self.time_format = kwargs.get('time_format', '%H:%M:%S')
 
-        # All questions (input + layout) keyed by name
+        # All elements (question + layout) keyed by name
+        self.elements = OrderedDict()
+
+        # Questions (fields) keyed by name
         self.questions = OrderedDict()
 
-        # Input-only questions keyed by name
-        self.input_questions = OrderedDict()
+        # Elements keyed by id
+        self.element_ids = {}
 
-        # Questions keyed by id
-        self.question_ids = {}
-
-        # Load questions from survey schema + populate values from form data
-        self.load_questions()
+        # Load elements from survey schema + populate values from form data
+        self.load_elements()
 
         # Create attribute-style accessor
         self._data = FormData(self)
@@ -87,6 +87,18 @@ class SurveyForm:
             language=self.lang,
         )
 
+    # TODO?
+    # @property
+    # def elements(self):
+    #     return self._elements
+
+    # @elements.setter
+    # def elements(self, elements):
+    #     if isinstance(elements, OrderedDict):
+    #         self._elements = elements
+    #     else:
+    #         self._elements = OrderedDict(elements)
+
     @property
     def data(self):
         """Attribute-style access to input questions."""
@@ -94,38 +106,38 @@ class SurveyForm:
 
     @property
     def components(self):
-        """ Alias for questions, including both input and layout questions."""
-        return self.questions
+        """ Alias for elements, including both question and layout elements."""
+        return self.elements
 
     @property
     def input_components(self):
-        """ Alias for questions, including input queastions."""
-        return self.input_questions
+        """ Alias for questions."""
+        return self.questions
 
-    def load_questions(self):
-        """Load questions from the survey schema and populate values from
+    def load_elements(self):
+        """Load elements from the survey schema and populate values from
         form submission data."""
-        for key, creator_question in self.creator.questions.items():
-            # Create a new question object (don't affect the Survey's question)
-            question_obj = self.creator.get_question_object(creator_question.raw)
-            question_obj.load(
-                question_owner=self,
+        for key, creator_element in self.creator.elements.items():
+            # Create a new element object (don't affect the Survey's element)
+            element_obj = self.creator.get_element_object(creator_element.raw)
+            element_obj.load(
+                element_owner=self,
                 parent=None,
                 data=self.form,
                 is_form=True,
             )
-            self.questions[key] = question_obj
+            self.elements[key] = element_obj
 
-            if question_obj.id:
-                self.question_ids[question_obj.id] = question_obj
+            if element_obj.id:
+                self.element_ids[element_obj.id] = element_obj
 
     def get_question_by_name(self, name):
         """Get a question by its name."""
-        return self.input_questions.get(name)
+        return self.questions.get(name)
 
     def get_value(self, name):
         """Get the value of a question by name."""
-        question = self.input_questions.get(name)
+        question = self.questions.get(name)
         if question:
             return question.value
         return None
@@ -144,4 +156,4 @@ class FormData:
     def __getattr__(self, key):
         if key.startswith('_'):
             return super().__getattribute__(key)
-        return self._form.input_questions.get(key)
+        return self._form.questions.get(key)

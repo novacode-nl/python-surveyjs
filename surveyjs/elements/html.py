@@ -1,17 +1,17 @@
 # Copyright 2026 Nova Code (https://www.novacode.nl)
 # See LICENSE file for full licensing details.
 
-from .question import Question
+from .layout import Layout
 
 
-class QuestionHtml(Question):
+class QuestionHtml(Layout):
     """SurveyJS HTML question.
 
     Displays static HTML content. Not an input element.
     """
 
     @property
-    def is_input(self):
+    def is_question(self):
         """HTML elements are display-only, not input questions."""
         return False
 

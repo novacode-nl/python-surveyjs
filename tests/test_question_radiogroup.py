@@ -5,7 +5,7 @@
 
 import unittest
 
-from surveyjs.questions.radiogroup import QuestionRadiogroup
+from surveyjs.elements.radiogroup import QuestionRadiogroup
 from tests.utils import load_creator, load_form
 
 
@@ -53,7 +53,7 @@ class TestRadiogroupForm(unittest.TestCase):
 
     def setUp(self):
         self.form = load_form()
-        self.q = self.form.input_questions['favoriteColor']
+        self.q = self.form.questions['favoriteColor']
 
     def test_value(self):
         self.assertEqual(self.q.value, 'blue')

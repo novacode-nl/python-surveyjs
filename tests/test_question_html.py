@@ -5,7 +5,7 @@
 
 import unittest
 
-from surveyjs.questions.html import QuestionHtml
+from surveyjs.elements.html import QuestionHtml
 from tests.utils import load_creator, load_form
 
 
@@ -13,7 +13,7 @@ class TestQuestionHtml(unittest.TestCase):
 
     def setUp(self):
         self.survey = load_creator()
-        self.q = self.survey.questions['infoHtml']
+        self.q = self.survey.elements['infoHtml']
 
     def test_class_type(self):
         self.assertIsInstance(self.q, QuestionHtml)
@@ -29,10 +29,10 @@ class TestQuestionHtml(unittest.TestCase):
         self.assertIn('<p>', self.q.html)
 
     def test_not_in_input_questions(self):
-        self.assertNotIn('infoHtml', self.survey.input_questions)
+        self.assertNotIn('infoHtml', self.survey.questions)
 
     def test_in_questions(self):
-        self.assertIn('infoHtml', self.survey.questions)
+        self.assertIn('infoHtml', self.survey.elements)
 
 
 class TestHtmlForm(unittest.TestCase):
@@ -41,7 +41,7 @@ class TestHtmlForm(unittest.TestCase):
         self.form = load_form()
 
     def test_not_in_input_questions(self):
-        self.assertNotIn('infoHtml', self.form.input_questions)
+        self.assertNotIn('infoHtml', self.form.questions)
 
 
 if __name__ == '__main__':

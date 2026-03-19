@@ -5,7 +5,7 @@
 
 import unittest
 
-from surveyjs.questions.image import QuestionImage
+from surveyjs.elements.image import QuestionImage
 from tests.utils import load_creator, load_form
 
 
@@ -13,13 +13,17 @@ class TestQuestionImage(unittest.TestCase):
 
     def setUp(self):
         self.survey = load_creator()
-        self.q = self.survey.questions['thankYouImage']
+        self.q = self.survey.elements['thankYouImage']
 
     def test_class_type(self):
         self.assertIsInstance(self.q, QuestionImage)
 
     def test_type(self):
         self.assertEqual(self.q.type, 'image')
+
+    # TODO
+    # def test_is_question(self):
+    #     self.assertFalse(self.q.is_question)
 
     def test_is_input(self):
         self.assertFalse(self.q.is_input)
@@ -42,11 +46,11 @@ class TestQuestionImage(unittest.TestCase):
     def test_content_mode(self):
         self.assertEqual(self.q.content_mode, 'image')
 
-    def test_not_in_input_questions(self):
-        self.assertNotIn('thankYouImage', self.survey.input_questions)
+    def test_not_in_questions(self):
+        self.assertNotIn('thankYouImage', self.survey.questions)
 
-    def test_in_questions(self):
-        self.assertIn('thankYouImage', self.survey.questions)
+    def test_in_elements(self):
+        self.assertIn('thankYouImage', self.survey.elements)
 
 
 class TestImageForm(unittest.TestCase):
@@ -54,8 +58,8 @@ class TestImageForm(unittest.TestCase):
     def setUp(self):
         self.form = load_form()
 
-    def test_not_in_input_questions(self):
-        self.assertNotIn('thankYouImage', self.form.input_questions)
+    def test_not_in_questions(self):
+        self.assertNotIn('thankYouImage', self.form.questions)
 
 
 if __name__ == '__main__':

@@ -11,17 +11,20 @@ For information about the SurveyJS project, see https://surveyjs.io
 Its main aim is to provide easy access to a SurveyJS Form's questions (fields, layout elements, etc.) also captured as **Python objects**, which makes this API very versatile and usable.
 
 **Notes about terms:**
-- **SurveyCreator:** The Survey Creator (form builder) schema which is the design of a Form.
-- **SurveyForm:** A filled-in Survey Form, aka Form response, submission.
-- **Question:** Input (field) and layout elements in SurveyJS (Creator and Form). Question is not a semantic term for a layout element (e.g. panel), but we follow the SurveyJS convention of calling all components "questions".
+- **SurveyCreator:** The Survey Creator (form builder) that defines the structure and design of a Form, with a schema in JSON format.
+- **SurveyForm:** A filled-in or completed survey form, i.e. a form response or submission, with data in JSON format.
+- **Question:** Represents a form field, ranging from simple input types (e.g. text, checkbox, rating) to more complex elements (e.g. matrix).
+- **Layout:** A structural element such as a page, panel, or dynamic panel that can contain other elements, including questions and nested layouts.
+- **Element:** The base concept for both Question and Layout elements in SurveyJS.
 
-**Question types:**\
-Source code (file prefix `question`): https://github.com/surveyjs/survey-library/tree/master/packages/survey-core/src
+**Question and layout classes (source code):**\
+https://github.com/surveyjs/survey-library/tree/master/packages/survey-core/src\
+The file prefix `question` indicates a question (field) class.
 
 ## Features
 
 - Compatible with Python 3.8 and later.
-- Constructor of the **SurveyCreator** and **SurveyForm** class only requires the JSON (string or dict) and an optional language code (e.g. 'en', 'fr', etc.) for localization of question titles and choices.
+- Constructor of the **SurveyCreator** and **SurveyForm** class only requires the JSON (string or dict) and an optional language code (e.g. 'en', 'fr', etc.) for localization of questions (e.g. titles and choices).
 - Get a SurveyForm object's Questions as usable Python objects e.g. datetime, boolean, list (for checkbox), dict (for matrix) etc.
 - Support for all SurveyJS question types.
 - Open source (MIT License).
@@ -74,31 +77,31 @@ creator = SurveyCreator(survey_json)
 form = SurveyForm(form_json, creator)
 
 # Text question
-print(form.input_questions['firstName'].label)
+print(form.questions['firstName'].label)
 # 'First Name'
 
-print(form.input_questions['firstName'].value)
+print(form.questions['firstName'].value)
 # 'Bob'
 
 # Checkbox question
-print(form.input_questions['colors'].value)
+print(form.questions['colors'].value)
 # ['red', 'blue']
 
 # Rating question
-print(form.input_questions['satisfaction'].value)
+print(form.questions['satisfaction'].value)
 # 4
 
 # Boolean question
-print(form.input_questions['agree'].value)
+print(form.questions['agree'].value)
 # True
 
 # Matrix question
-print(form.input_questions['quality'].value)
+print(form.questions['quality'].value)
 # {'affordable': 'good', 'does-what-it-claims': 'excellent'}
 
-# Access by attribute
-print(form.data.firstName.value)
-# 'Bob'
+# Panel element
+print(form.elements['personal_data'])
+# <QuestionPanel>
 ```
 
 ## Unit Tests

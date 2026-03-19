@@ -16,10 +16,10 @@ class TestForm(unittest.TestCase):
         self.form = load_form()
 
     def test_form_questions_loaded(self):
-        self.assertGreater(len(self.form.questions), 0)
+        self.assertGreater(len(self.form.elements), 0)
 
-    def test_form_input_questions(self):
-        self.assertGreater(len(self.form.input_questions), 0)
+    def test_form_questions(self):
+        self.assertGreater(len(self.form.questions), 0)
 
     def test_form_data_accessor(self):
         """form.data.firstName should return the question object."""
@@ -86,11 +86,11 @@ class TestForm(unittest.TestCase):
                 f"Value mismatch for {name}"
             )
 
-    def test_non_input_not_in_input_questions(self):
+    def test_non_input_not_in_questions(self):
         """Panel, html, image should not be in input_questions."""
         non_input = ['contactPanel', 'infoHtml', 'thankYouImage']
         for name in non_input:
-            self.assertNotIn(name, self.form.input_questions)
+            self.assertNotIn(name, self.form.questions)
 
 
 if __name__ == '__main__':

@@ -1,14 +1,17 @@
 # Copyright 2026 Nova Code (https://www.novacode.nl)
 # See LICENSE file for full licensing details.
 
-import json
 import uuid
 from collections import OrderedDict
 
+# TODO
+# 1. Make a Question class that inherits from Element and all questions inherit from that,
+# so we can have common question properties (is_required, validators, etc.) in one place.
+# 2. Make a Layout class that inherits from Element and all layout classes (panel) inherit from that.
 
-class Question:
+class Element:
     """
-    Base class for all SurveyJS question types.
+    Base class for all SurveyJS element types.
 
     Holds the raw JSON element data, provides access to common properties
     (name, type, title, etc.) and handles value loading from form data.
@@ -19,16 +22,16 @@ class Question:
     def __init__(self, raw, survey, **kwargs):
         """
         @param raw: The raw JSON element dict from the survey schema
-        @param survey: The Survey instance that owns this question
+        @param survey: The Survey instance that owns this element
         """
         self.raw = raw
         self.survey = survey
 
         self._parent = None
-        self._question_owner = None
+        self._element_owner = None
 
-        # Child questions (for panels and other containers)
-        self.questions = OrderedDict()
+        # Child elements (for panels and other containers)
+        self._elements = OrderedDict()
 
         # Path tracking
         self.survey_path = []
@@ -47,10 +50,10 @@ class Question:
 
         self.default_value = self.raw.get('defaultValue')
 
-    def load(self, question_owner, parent=None, data=None, is_form=False):
-        """Load the question into its owner (Survey or Form) and populate
+    def load(self, element_owner, parent=None, data=None, is_form=False):
+        """Load the element into its owner (Survey or Form) and populate
         data from form submission if applicable."""
-        self.question_owner = question_owner
+        self.element_owner = element_owner
 
         if parent:
             self.parent = parent
@@ -60,7 +63,7 @@ class Question:
 
     def load_data(self, data, is_form=False):
         """Load value from form submission data."""
-        if self.is_input and data:
+        if self.is_question and data:
             try:
                 self.value = data[self.name]
             except KeyError:
@@ -70,22 +73,39 @@ class Question:
     # --- Properties ---
 
     @property
+    def is_question(self):
+        """Whether this is a question (has user-submitted values).
+        Layout elements (panel, html, image) override this to return False."""
+        return None
+
+    @property
+    def elements(self):
+        return self._elements
+
+    @elements.setter
+    def elements(self, elements):
+        if isinstance(elements, OrderedDict):
+            self._elements = elements
+        else:
+            self._elements = OrderedDict(elements)
+
+    @property
     def id(self):
         return self._id
 
     @property
     def name(self):
-        """The unique name/key of the question."""
+        """The unique name/key of the element."""
         return self.raw.get('name', '')
 
     @property
     def type(self):
-        """The SurveyJS question type."""
+        """The SurveyJS element type."""
         return self.raw.get('type', '')
 
     @property
     def title(self):
-        """The display title of the question."""
+        """The display title of the element."""
         title = self.raw.get('title')
         if not title:
             title = self.name
@@ -100,23 +120,17 @@ class Question:
 
     @property
     def description(self):
-        """The question description/help text."""
+        """The element description/help text."""
         return self.raw.get('description', '')
 
     @property
     def is_required(self):
-        """Whether the question is required."""
+        """Whether the element is required."""
         return self.raw.get('isRequired', False)
 
     @property
-    def is_input(self):
-        """Whether this is an input question (has user-submitted values).
-        Layout elements (panel, html, image) override this to return False."""
-        return True
-
-    @property
     def is_visible(self):
-        """Whether the question is visible."""
+        """Whether the element is visible."""
         return self.raw.get('visible', True)
 
     @property
@@ -157,18 +171,18 @@ class Question:
     def parent(self, parent):
         if parent:
             self._parent = parent
-            self._parent.questions[self.name] = self
+            self._parent.elements[self.name] = self
 
     @property
-    def question_owner(self):
-        """The question's owner (Survey or Form)."""
-        return self._question_owner
+    def element_owner(self):
+        """The element's owner (Survey or Form)."""
+        return self._element_owner
 
-    @question_owner.setter
-    def question_owner(self, question_owner):
-        self._question_owner = question_owner
-        if self.is_input:
-            self._question_owner.input_questions[self.name] = self
+    @element_owner.setter
+    def element_owner(self, element_owner):
+        self._element_owner = element_owner
+        if self.is_question:
+            self._element_owner.questions[self.name] = self
 
     # --- Value ---
 
@@ -215,7 +229,7 @@ class Question:
         return '<%s name=%s>' % (self.__class__.__name__, self.name)
 
     def to_dict(self):
-        """Return a dictionary representation of the question."""
+        """Return a dictionary representation of the element (question)."""
         return {
             'name': self.name,
             'type': self.type,

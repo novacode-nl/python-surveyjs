@@ -5,7 +5,7 @@
 
 import unittest
 
-from surveyjs.questions.matrix import QuestionMatrix
+from surveyjs.elements.matrix import QuestionMatrix
 from tests.utils import load_creator, load_form
 
 
@@ -51,7 +51,7 @@ class TestMatrixForm(unittest.TestCase):
 
     def setUp(self):
         self.form = load_form()
-        self.q = self.form.input_questions['qualityMatrix']
+        self.q = self.form.questions['qualityMatrix']
 
     def test_value_is_dict(self):
         self.assertIsInstance(self.q.value, dict)

@@ -5,7 +5,7 @@
 
 import unittest
 
-from surveyjs.questions.matrixdropdown import QuestionMatrixdropdown
+from surveyjs.elements.matrixdropdown import QuestionMatrixdropdown
 from tests.utils import load_creator, load_form
 
 
@@ -47,7 +47,7 @@ class TestMatrixDropdownForm(unittest.TestCase):
 
     def setUp(self):
         self.form = load_form()
-        self.q = self.form.input_questions['budgetMatrix']
+        self.q = self.form.questions['budgetMatrix']
 
     def test_value_is_dict(self):
         self.assertIsInstance(self.q.value, dict)

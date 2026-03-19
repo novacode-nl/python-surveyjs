@@ -5,7 +5,7 @@
 
 import unittest
 
-from surveyjs.questions.expression import QuestionExpression
+from surveyjs.elements.expression import QuestionExpression
 from tests.utils import load_creator, load_form
 
 
@@ -35,7 +35,7 @@ class TestExpressionForm(unittest.TestCase):
 
     def setUp(self):
         self.form = load_form()
-        self.q = self.form.input_questions['fullName']
+        self.q = self.form.questions['fullName']
 
     def test_value(self):
         self.assertEqual(self.q.value, 'Alice Smith')

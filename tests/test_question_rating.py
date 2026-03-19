@@ -5,7 +5,7 @@
 
 import unittest
 
-from surveyjs.questions.rating import QuestionRating
+from surveyjs.elements.rating import QuestionRating
 from tests.utils import load_creator, load_form
 
 
@@ -50,7 +50,7 @@ class TestRatingForm(unittest.TestCase):
 
     def setUp(self):
         self.form = load_form()
-        self.q = self.form.input_questions['satisfaction']
+        self.q = self.form.questions['satisfaction']
 
     def test_value(self):
         self.assertEqual(self.q.value, 8)

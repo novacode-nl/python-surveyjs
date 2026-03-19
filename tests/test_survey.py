@@ -34,22 +34,22 @@ class TestSurvey(unittest.TestCase):
         """All top-level and nested questions should be loaded."""
         self.assertGreater(len(self.survey.questions), 0)
 
-    def test_input_questions(self):
+    def test_questions(self):
         """Input questions should not include panel, html, image."""
-        for name, q in self.survey.input_questions.items():
+        for name, q in self.survey.questions.items():
             self.assertTrue(q.is_input, f'{name} should be an input question')
 
-    def test_non_input_questions_excluded(self):
+    def test_non_questions_excluded(self):
         """Panel, html, image should not be in input_questions."""
         non_input = ['contactPanel', 'infoHtml', 'thankYouImage']
         for name in non_input:
-            self.assertNotIn(name, self.survey.input_questions)
+            self.assertNotIn(name, self.survey.questions)
 
-    def test_non_input_questions_in_questions(self):
-        """Panel, html, image should still be in questions dict."""
+    def test_non_questions_in_elements(self):
+        """Panel, html, image should still be in elements dict."""
         non_input = ['contactPanel', 'infoHtml', 'thankYouImage']
         for name in non_input:
-            self.assertIn(name, self.survey.questions)
+            self.assertIn(name, self.survey.elements)
 
     def test_question_types(self):
         """Verify some expected question types."""
@@ -89,9 +89,9 @@ class TestSurvey(unittest.TestCase):
 
     def test_get_question_class_unknown(self):
         """Unknown question types should fall back to base Question."""
-        from surveyjs.questions.question import Question
-        cls = self.survey.get_question_class({'type': 'unknowntype'})
-        self.assertEqual(cls, Question)
+        from surveyjs.elements.element import Element
+        cls = self.survey.get_element_class({'type': 'unknowntype'})
+        self.assertEqual(cls, Element)
 
     def test_form_property(self):
         """Survey's form property should be an empty dict."""

@@ -5,7 +5,7 @@
 
 import unittest
 
-from surveyjs.questions.panel import QuestionPanel
+from surveyjs.elements.panel import QuestionPanel
 from tests.utils import load_creator, load_form
 
 
@@ -13,7 +13,7 @@ class TestQuestionPanel(unittest.TestCase):
 
     def setUp(self):
         self.survey = load_creator()
-        self.q = self.survey.questions['contactPanel']
+        self.q = self.survey.elements['contactPanel']
 
     def test_class_type(self):
         self.assertIsInstance(self.q, QuestionPanel)
@@ -37,10 +37,10 @@ class TestQuestionPanel(unittest.TestCase):
         self.assertEqual(len(self.q.elements), 2)
 
     def test_not_in_input_questions(self):
-        self.assertNotIn('contactPanel', self.survey.input_questions)
+        self.assertNotIn('contactPanel', self.survey.questions)
 
     def test_in_questions(self):
-        self.assertIn('contactPanel', self.survey.questions)
+        self.assertIn('contactPanel', self.survey.elements)
 
     def test_nested_questions_loaded(self):
         """Questions inside the panel should be loaded into the survey."""
@@ -54,7 +54,7 @@ class TestPanelForm(unittest.TestCase):
         self.form = load_form()
 
     def test_not_in_input_questions(self):
-        self.assertNotIn('contactPanel', self.form.input_questions)
+        self.assertNotIn('contactPanel', self.form.questions)
 
     def test_nested_values_accessible(self):
         """Questions inside panel should get values from the flat form data."""

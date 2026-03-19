@@ -5,7 +5,7 @@
 
 import unittest
 
-from surveyjs.questions.dropdown import QuestionDropdown
+from surveyjs.elements.dropdown import QuestionDropdown
 from tests.utils import load_creator, load_form
 
 
@@ -47,7 +47,7 @@ class TestDropdownForm(unittest.TestCase):
 
     def setUp(self):
         self.form = load_form()
-        self.q = self.form.input_questions['country']
+        self.q = self.form.questions['country']
 
     def test_value(self):
         self.assertEqual(self.q.value, 'us')

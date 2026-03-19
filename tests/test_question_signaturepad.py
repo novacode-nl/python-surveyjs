@@ -5,7 +5,7 @@
 
 import unittest
 
-from surveyjs.questions.signaturepad import QuestionSignaturepad
+from surveyjs.elements.signaturepad import QuestionSignaturepad
 from tests.utils import load_creator, load_form
 
 
@@ -47,7 +47,7 @@ class TestSignaturepadForm(unittest.TestCase):
 
     def setUp(self):
         self.form = load_form()
-        self.q = self.form.input_questions['signature']
+        self.q = self.form.questions['signature']
 
     def test_value_is_base64(self):
         self.assertTrue(self.q.value.startswith('data:image/png;base64,'))

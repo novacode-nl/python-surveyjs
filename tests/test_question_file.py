@@ -5,7 +5,7 @@
 
 import unittest
 
-from surveyjs.questions.file import QuestionFile
+from surveyjs.elements.file import QuestionFile
 from tests.utils import load_creator, load_form
 
 
@@ -41,7 +41,7 @@ class TestFileForm(unittest.TestCase):
 
     def setUp(self):
         self.form = load_form()
-        self.q = self.form.input_questions['resume']
+        self.q = self.form.questions['resume']
 
     def test_value_is_list(self):
         self.assertIsInstance(self.q.value, list)
