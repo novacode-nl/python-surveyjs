@@ -18,7 +18,7 @@ Its main aim is to provide easy access to a SurveyJS Form's questions (fields, l
 - **Element:** The base concept for both Question and Layout elements in SurveyJS.
 
 **Question and layout classes (source code):**\
-https://github.com/surveyjs/survey-library/tree/master/packages/survey-core/src\
+https://github.com/surveyjs/survey-library/tree/master/packages/survey-core/src \
 The file prefix `question` indicates a question (field) class.
 
 ## Features
