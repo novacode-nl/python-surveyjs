@@ -18,6 +18,7 @@
                 {
                     "type": "text",
                     "name": "age",
+                    "startWithNewLine": false,
                     "title": "Age",
                     "inputType": "number",
                     "min": 0,
@@ -37,6 +38,7 @@
                 {
                     "type": "text",
                     "name": "birthDate",
+                    "startWithNewLine": false,
                     "title": "Birth Date",
                     "inputType": "date"
                 },

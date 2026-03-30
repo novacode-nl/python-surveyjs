@@ -164,6 +164,12 @@ class Element:
         return self.raw.get('placeholder', '')
 
     @property
+    def start_with_new_line(self):
+        """Whether the element should start on a new line (for layout purposes).
+        Defaults to True if not specified."""
+        return self.raw.get('startWithNewLine', True)
+
+    @property
     def parent(self):
         return self._parent
 

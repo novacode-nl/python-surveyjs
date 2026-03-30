@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.2.3
+
+Add `start_with_new_line` property to Element class, mapped from  `startWithNewLine` in SurveyJS (Element) JSON.
+
+## 0.2.2
+
+Update README.
+
+## 0.2.1
+
+Update README.
+
 ## 0.2.0
 
 Align to SurveyJS terminology and structure:
