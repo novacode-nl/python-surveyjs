@@ -168,8 +168,22 @@ class Element:
     @property
     def start_with_new_line(self):
         """Whether the element should start on a new line (for layout purposes).
-        Defaults to True if not specified."""
+        Defaults to True if not specified.
+
+        Disable this property if you want to render the current question on the
+        same line or row with the previous question or panel."""
         return self.raw.get('startWithNewLine', True)
+
+    @property
+    def elements_on_same_line(self):
+        """Return sibling elements from the element owner that do not start
+        with a new line (i.e. ``start_with_new_line`` is False)."""
+        if not self._element_owner or self.start_with_new_line:
+            return []
+        return [
+            el for el in self._element_owner.elements.values()
+            if not el.start_with_new_line
+        ]
 
     @property
     def parent(self):

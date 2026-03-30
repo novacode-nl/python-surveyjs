@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.5
+
+Add `elements_on_same_line` property to Element class, which returns sibling elements with `start_with_new_line` property (SurveyJS: `startWithNewLine`) set to False.
+
 ## 0.2.4
 
 Fix `title` property in `Element` class to handle i18n title dicts.
