@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.2.4
+
+Fix `title` property in `Element` class to handle i18n title dicts.
+
+The fix handles the case where title is a dict (i18n object like `{"en": "Name", "fr": "Nom"}`) by extracting the string for the current language before it's used as a key in .get().\
+If the current language isn't in the dict, it falls back to the first available language, then to `self.name`.
+
 ## 0.2.3
 
 Add `start_with_new_line` property to Element class, mapped from  `startWithNewLine` in SurveyJS (Element) JSON.

@@ -107,6 +107,8 @@ class Element:
     def title(self):
         """The display title of the element."""
         title = self.raw.get('title')
+        if isinstance(title, dict):
+            title = title.get(self.language) or title.get(next(iter(title), None)) or self.name
         if not title:
             title = self.name
         if self.i18n.get(self.language):
