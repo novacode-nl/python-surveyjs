@@ -176,14 +176,33 @@ class Element:
 
     @property
     def elements_on_same_line(self):
-        """Return sibling elements from the element owner that do not start
-        with a new line (i.e. ``start_with_new_line`` is False)."""
-        if not self._element_owner or self.start_with_new_line:
+        """Return all elements on the same visual line as self, or []
+        if self is alone on its line.
+
+        A line group starts with an element whose start_with_new_line is
+        True (or the very first element) and includes all consecutive
+        followers with start_with_new_line False."""
+        if not self._element_owner:
             return []
-        return [
-            el for el in self._element_owner.elements.values()
-            if not el.start_with_new_line
-        ]
+
+        owner_els = list(self._element_owner.elements.values())
+
+        # Find the start of self's line group (walk back to the nearest
+        # element with start_with_new_line True, or index 0).
+        self_idx = owner_els.index(self)
+        start = self_idx
+        while start > 0 and not owner_els[start].start_with_new_line:
+            start -= 1
+
+        # Collect the group: start element + all consecutive followers
+        # with start_with_new_line False.
+        group = [owner_els[start]]
+        for el in owner_els[start + 1:]:
+            if el.start_with_new_line:
+                break
+            group.append(el)
+
+        return group if len(group) > 1 else []
 
     @property
     def parent(self):

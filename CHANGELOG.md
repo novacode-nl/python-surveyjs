@@ -1,19 +1,25 @@
 # Changelog
 
+## 0.2.6
+
+Fix Element `elements_on_same_line` property to return the correct sibling elements based on `start_with_new_line` property.
+
+This also adds the first sibling on the line, which could have no JSON `startWithNewLine` property (defaulting to `start_with_new_line` True) but still be on the same line as siblings with `start_with_new_line`.
+
 ## 0.2.5
 
-Add `elements_on_same_line` property to Element class, which returns sibling elements with `start_with_new_line` property (SurveyJS: `startWithNewLine`) set to False.
+Add Element `elements_on_same_line` property, which returns sibling elements with `start_with_new_line` property (SurveyJS: `startWithNewLine`) set to False.
 
 ## 0.2.4
 
-Fix `title` property in `Element` class to handle i18n title dicts.
+Fix Element `title` property to handle i18n title dicts.
 
 The fix handles the case where title is a dict (i18n object like `{"en": "Name", "fr": "Nom"}`) by extracting the string for the current language before it's used as a key in .get().\
 If the current language isn't in the dict, it falls back to the first available language, then to `self.name`.
 
 ## 0.2.3
 
-Add `start_with_new_line` property to Element class, mapped from  `startWithNewLine` in SurveyJS (Element) JSON.
+Add Element `start_with_new_line` property, mapped from  `startWithNewLine` in SurveyJS (Element) JSON.
 
 ## 0.2.2
 

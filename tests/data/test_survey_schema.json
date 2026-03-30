@@ -57,6 +57,7 @@
                 {
                     "type": "text",
                     "name": "appointmentTime",
+                    "startWithNewLine": true,
                     "title": "Appointment Time",
                     "inputType": "datetime-local"
                 },
