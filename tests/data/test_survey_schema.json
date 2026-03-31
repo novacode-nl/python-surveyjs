@@ -17,6 +17,21 @@
                 },
                 {
                     "type": "text",
+                    "name": "lastName",
+                    "startWithNewLine": false,
+                    "title": "Last Name",
+                    "description": "Enter your last name",
+                    "isRequired": true,
+                    "placeholder": "Doe"
+                },
+                {
+                    "type": "text",
+                    "name": "birthDate",
+                    "title": "Birth Date",
+                    "inputType": "date"
+                },
+                {
+                    "type": "text",
                     "name": "age",
                     "startWithNewLine": false,
                     "title": "Age",
@@ -34,13 +49,6 @@
                             "text": "validate_age"
                         }
                     ]
-                },
-                {
-                    "type": "text",
-                    "name": "birthDate",
-                    "startWithNewLine": false,
-                    "title": "Birth Date",
-                    "inputType": "date"
                 },
                 {
                     "type": "text",
