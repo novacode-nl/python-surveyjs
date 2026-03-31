@@ -22,7 +22,7 @@ class SurveyCreator:
     def __init__(
         self,
         schema_json,
-        language='en',
+        language='default',
         i18n=None,
         element_class_mapping={},
         **kwargs

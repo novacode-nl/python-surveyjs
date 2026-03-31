@@ -10,7 +10,10 @@
                 {
                     "type": "text",
                     "name": "firstName",
-                    "title": "First Name",
+                    "title": {
+                        "default": "First Name",
+                        "nl": "Voornaam"
+                    },
                     "description": "Enter your first name",
                     "isRequired": true,
                     "placeholder": "John"
@@ -19,7 +22,10 @@
                     "type": "text",
                     "name": "lastName",
                     "startWithNewLine": false,
-                    "title": "Last Name",
+                    "title": {
+                        "default": "Last Name",
+                        "nl": "Achternaam"
+                    },
                     "description": "Enter your last name",
                     "isRequired": true,
                     "placeholder": "Doe"
@@ -27,14 +33,20 @@
                 {
                     "type": "text",
                     "name": "birthDate",
-                    "title": "Birth Date",
+                    "title": {
+                        "default": "Birth Date",
+                        "nl": "Geboortedatum"
+                    },
                     "inputType": "date"
                 },
                 {
                     "type": "text",
                     "name": "age",
                     "startWithNewLine": false,
-                    "title": "Age",
+                    "title": {
+                        "default": "Age",
+                        "nl": "Leeftijd"
+                    },
                     "inputType": "number",
                     "min": 0,
                     "max": 150,
@@ -53,7 +65,10 @@
                 {
                     "type": "text",
                     "name": "email",
-                    "title": "Email",
+                    "title": {
+                        "default": "Email",
+                        "nl": "E-mail"
+                    },
                     "inputType": "email",
                     "maxLength": 100,
                     "validators": [
@@ -66,13 +81,19 @@
                     "type": "text",
                     "name": "appointmentTime",
                     "startWithNewLine": true,
-                    "title": "Appointment Time",
+                    "title": {
+                        "default": "Appointment Time",
+                        "nl": "Afspraaktijd"
+                    },
                     "inputType": "datetime-local"
                 },
                 {
                     "type": "comment",
                     "name": "bio",
-                    "title": "Biography",
+                    "title": {
+                        "default": "Biography",
+                        "nl": "Biografie"
+                    },
                     "description": "Tell us about yourself",
                     "maxLength": 500,
                     "rows": 4,
@@ -88,7 +109,10 @@
                 {
                     "type": "radiogroup",
                     "name": "favoriteColor",
-                    "title": "Favorite Color",
+                    "title": {
+                        "default": "Favorite Color",
+                        "nl": "Favoriete kleur"
+                    },
                     "isRequired": true,
                     "choices": [
                         {"value": "red", "text": "Red"},
@@ -104,7 +128,10 @@
                 {
                     "type": "checkbox",
                     "name": "hobbies",
-                    "title": "Hobbies",
+                    "title": {
+                        "default": "Hobbies",
+                        "nl": "Hobby's"
+                    },
                     "choices": [
                         {"value": "reading", "text": "Reading"},
                         {"value": "sports", "text": "Sports"},
@@ -122,7 +149,10 @@
                 {
                     "type": "dropdown",
                     "name": "country",
-                    "title": "Country",
+                    "title": {
+                        "default": "Country",
+                        "nl": "Land"
+                    },
                     "choices": [
                         {"value": "us", "text": "United States"},
                         {"value": "uk", "text": "United Kingdom"},
@@ -136,7 +166,10 @@
                 {
                     "type": "tagbox",
                     "name": "skills",
-                    "title": "Skills",
+                    "title": {
+                        "default": "Skills",
+                        "nl": "Vaardigheden"
+                    },
                     "choices": [
                         {"value": "python", "text": "Python"},
                         {"value": "javascript", "text": "JavaScript"},
@@ -151,7 +184,10 @@
                 {
                     "type": "imagepicker",
                     "name": "favoritePet",
-                    "title": "Favorite Pet",
+                    "title": {
+                        "default": "Favorite Pet",
+                        "nl": "Favoriet huisdier"
+                    },
                     "choices": [
                         {"value": "dog", "text": "Dog", "imageLink": "https://example.com/dog.png"},
                         {"value": "cat", "text": "Cat", "imageLink": "https://example.com/cat.png"},
@@ -167,7 +203,10 @@
                 {
                     "type": "ranking",
                     "name": "priorityItems",
-                    "title": "Prioritize Items",
+                    "title": {
+                        "default": "Prioritize Items",
+                        "nl": "Items prioriteren"
+                    },
                     "choices": [
                         {"value": "price", "text": "Price"},
                         {"value": "quality", "text": "Quality"},
@@ -186,7 +225,10 @@
                 {
                     "type": "boolean",
                     "name": "agreeTerms",
-                    "title": "I agree to the Terms of Service",
+                    "title": {
+                        "default": "I agree to the Terms of Service",
+                        "nl": "Ik ga akkoord met de servicevoorwaarden"
+                    },
                     "labelTrue": "Yes",
                     "labelFalse": "No",
                     "valueTrue": "agreed",
@@ -196,7 +238,10 @@
                 {
                     "type": "rating",
                     "name": "satisfaction",
-                    "title": "Overall Satisfaction",
+                    "title": {
+                        "default": "Overall Satisfaction",
+                        "nl": "Algemene tevredenheid"
+                    },
                     "rateMin": 1,
                     "rateMax": 10,
                     "rateStep": 1,
@@ -208,7 +253,10 @@
                 {
                     "type": "signaturepad",
                     "name": "signature",
-                    "title": "Your Signature",
+                    "title": {
+                        "default": "Your Signature",
+                        "nl": "Uw handtekening"
+                    },
                     "signatureWidth": 500,
                     "signatureHeight": 200,
                     "penColor": "#000000",
@@ -219,14 +267,20 @@
                 {
                     "type": "expression",
                     "name": "fullName",
-                    "title": "Full Name",
+                    "title": {
+                        "default": "Full Name",
+                        "nl": "Volledige naam"
+                    },
                     "expression": "{firstName} + ' Smith'",
                     "displayStyle": "none"
                 },
                 {
                     "type": "file",
                     "name": "resume",
-                    "title": "Upload Resume",
+                    "title": {
+                        "default": "Upload Resume",
+                        "nl": "CV uploaden"
+                    },
                     "storeDataAsText": true,
                     "allowMultiple": true,
                     "maxSize": 5242880,
@@ -241,7 +295,10 @@
                 {
                     "type": "matrix",
                     "name": "qualityMatrix",
-                    "title": "Rate the quality",
+                    "title": {
+                        "default": "Rate the quality",
+                        "nl": "Beoordeel de kwaliteit"
+                    },
                     "columns": [
                         {"value": "poor", "text": "Poor"},
                         {"value": "fair", "text": "Fair"},
@@ -258,7 +315,10 @@
                 {
                     "type": "matrixdropdown",
                     "name": "budgetMatrix",
-                    "title": "Annual Budget",
+                    "title": {
+                        "default": "Annual Budget",
+                        "nl": "Jaarlijks budget"
+                    },
                     "columns": [
                         {"name": "q1", "title": "Q1", "cellType": "text"},
                         {"name": "q2", "title": "Q2", "cellType": "text"},
@@ -274,7 +334,10 @@
                 {
                     "type": "matrixdynamic",
                     "name": "employeeList",
-                    "title": "Employee List",
+                    "title": {
+                        "default": "Employee List",
+                        "nl": "Werknemerslijst"
+                    },
                     "columns": [
                         {"name": "name", "title": "Name", "cellType": "text"},
                         {"name": "role", "title": "Role", "cellType": "dropdown", "choices": ["developer", "designer", "manager"]},
@@ -288,7 +351,10 @@
                 {
                     "type": "multipletext",
                     "name": "address",
-                    "title": "Address",
+                    "title": {
+                        "default": "Address",
+                        "nl": "Adres"
+                    },
                     "items": [
                         {"name": "street", "title": "Street"},
                         {"name": "city", "title": "City"},
@@ -306,19 +372,28 @@
                 {
                     "type": "panel",
                     "name": "contactPanel",
-                    "title": "Contact Information",
+                    "title": {
+                        "default": "Contact Information",
+                        "nl": "Contactgegevens"
+                    },
                     "state": "expanded",
                     "innerIndent": 1,
                     "elements": [
                         {
                             "type": "text",
                             "name": "phone",
-                            "title": "Phone Number"
+                            "title": {
+                                "default": "Phone Number",
+                                "nl": "Telefoonnummer"
+                            }
                         },
                         {
                             "type": "text",
                             "name": "website",
-                            "title": "Website",
+                            "title": {
+                                "default": "Website",
+                                "nl": "Website"
+                            },
                             "inputType": "url"
                         }
                     ]
@@ -326,7 +401,10 @@
                 {
                     "type": "paneldynamic",
                     "name": "education",
-                    "title": "Education History",
+                    "title": {
+                        "default": "Education History",
+                        "nl": "Opleidingsgeschiedenis"
+                    },
                     "templateTitle": "Education #{panelIndex}",
                     "panelCount": 1,
                     "minPanelCount": 0,
@@ -339,17 +417,26 @@
                         {
                             "type": "text",
                             "name": "institution",
-                            "title": "Institution"
+                            "title": {
+                                "default": "Institution",
+                                "nl": "Instelling"
+                            }
                         },
                         {
                             "type": "text",
                             "name": "degree",
-                            "title": "Degree"
+                            "title": {
+                                "default": "Degree",
+                                "nl": "Diploma"
+                            }
                         },
                         {
                             "type": "text",
                             "name": "year",
-                            "title": "Year",
+                            "title": {
+                                "default": "Year",
+                                "nl": "Jaar"
+                            },
                             "inputType": "number"
                         }
                     ]

@@ -12,40 +12,40 @@ from tests.utils import load_creator, load_form
 class TestQuestionPanel(unittest.TestCase):
 
     def setUp(self):
-        self.survey = load_creator()
-        self.q = self.survey.elements['contactPanel']
+        self.creator = load_creator()
+        self.panel = self.creator.elements['contactPanel']
 
     def test_class_type(self):
-        self.assertIsInstance(self.q, QuestionPanel)
+        self.assertIsInstance(self.panel, QuestionPanel)
 
     def test_type(self):
-        self.assertEqual(self.q.type, 'panel')
+        self.assertEqual(self.panel.type, 'panel')
 
     def test_panel_title(self):
-        self.assertEqual(self.q.panel_title, 'Contact Information')
+        self.assertEqual(self.panel.title, 'Contact Information')
 
     def test_is_input(self):
-        self.assertFalse(self.q.is_input)
+        self.assertFalse(self.panel.is_input)
 
     def test_state(self):
-        self.assertEqual(self.q.state, 'expanded')
+        self.assertEqual(self.panel.state, 'expanded')
 
     def test_inner_indent(self):
-        self.assertEqual(self.q.inner_indent, 1)
+        self.assertEqual(self.panel.inner_indent, 1)
 
     def test_elements(self):
-        self.assertEqual(len(self.q.elements), 2)
+        self.assertEqual(len(self.panel.elements), 2)
 
     def test_not_in_input_questions(self):
-        self.assertNotIn('contactPanel', self.survey.questions)
+        self.assertNotIn('contactPanel', self.creator.questions)
 
     def test_in_questions(self):
-        self.assertIn('contactPanel', self.survey.elements)
+        self.assertIn('contactPanel', self.creator.elements)
 
     def test_nested_questions_loaded(self):
         """Questions inside the panel should be loaded into the survey."""
-        self.assertIn('phone', self.survey.questions)
-        self.assertIn('website', self.survey.questions)
+        self.assertIn('phone', self.creator.questions)
+        self.assertIn('website', self.creator.questions)
 
 
 class TestPanelForm(unittest.TestCase):

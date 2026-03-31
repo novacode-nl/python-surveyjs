@@ -23,7 +23,7 @@ class SurveyForm:
         form_json,
         creator=None,
         creator_schema_json=None,
-        lang="en",
+        lang="default",
         **kwargs
     ):
         """

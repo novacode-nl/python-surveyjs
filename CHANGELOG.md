@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.2.7
+
+Set `SurveyCreator` and `SurveyForm` default language to `"default"`.\
+This aligns language behavior with SurveyJS Creator defaults and improves consistency when reading localized survey content.
+
 ## 0.2.6
 
 Fix Element `elements_on_same_line` property to return the correct sibling elements based on `start_with_new_line` property.

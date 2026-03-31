@@ -13,10 +13,6 @@ class QuestionPanel(Layout):
     """
 
     @property
-    def panel_title(self):
-        return self.raw.get('title', '')
-
-    @property
     def state(self):
         """Panel state: 'default', 'collapsed', or 'expanded'."""
         return self.raw.get('state', 'default')
