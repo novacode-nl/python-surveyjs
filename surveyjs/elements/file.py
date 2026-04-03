@@ -17,7 +17,18 @@ class QuestionFile(Question):
 
     @property
     def allow_multiple(self):
+        """Specifies whether users can upload multiple files."""
         return self.raw.get('allowMultiple', False)
+
+    @property
+    def max_files(self):
+        """Maximum number of files a user can upload. Applies only if allowMultiple is true.
+        Default value: 1000
+        Doc: https://surveyjs.io/form-library/documentation/api-reference/file-model#maxFiles"""
+        if self.allow_multiple:
+            return self.raw.get('maxFiles', 1000)
+        else:
+            return 1
 
     @property
     def max_size(self):
