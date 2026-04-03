@@ -1,12 +1,12 @@
 # surveyjs (Python)
 
-Python object API for SurveyJS Creator (form builder) and Form (response, submission) data.
+Python API for SurveyJS Creator (Form Builder) schema and Form response JSON.
 
 For information about the SurveyJS project, see https://surveyjs.io
 
 ## Introduction
 
-**surveyjs** is a Python package which loads and transforms **SurveyJS Creator JSON** (survey schema) data and **Form JSON** (submission) data into **usable Python objects**.
+**surveyjs** is a Python package that loads and transforms **SurveyJS Creator (Form Builder) JSON schema** and **Form response JSON** into **usable Python objects**.
 
 Its main aim is to provide easy access to a SurveyJS Form's questions (fields, layout elements, etc.) also captured as **Python objects**, which makes this API very versatile and usable.
 
