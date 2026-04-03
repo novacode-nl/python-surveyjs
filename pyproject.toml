@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "surveyjs"
-version = "0.2.9"
+version = "0.2.10"
 description = "Python API for SurveyJS Creator (Form Builder) JSON schema and Form response JSON."
 readme = "README.md"
 license = {text = "MIT"}
@@ -30,7 +30,6 @@ classifiers = [
 [project.urls]
 Homepage = "https://www.novaforms.io"
 Repository = "https://github.com/novacode-nl/python-surveyjs"
-Changelog = "https://github.com/novacode-nl/python-surveyjs/CHANGELOG.md"
 
 [tool.setuptools.packages.find]
 include = ["surveyjs*"]

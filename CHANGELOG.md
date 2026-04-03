@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.2.10
+
+Update pyproject.toml.
+
+## 0.2.9
+
+Update README and pyproject.toml with new description, author/maintainer info, and project URLs.
+
+## 0.2.8
+
+Add `max_files` property to `QuestionFile`.
+
 ## 0.2.7
 
 Set `SurveyCreator` and `SurveyForm` default language to `"default"`.\
