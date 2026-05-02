@@ -108,9 +108,14 @@ class SurveyCreator:
             if element_obj.id:
                 self.element_ids[element_obj.id] = element_obj
 
-            # Recurse into panel/page elements
-            if element['type'] in ('panel', 'paneldynamic'):
+            # Recurse into panel/paneldynamic nested elements. Note that
+            # paneldynamic stores its children under ``templateElements``
+            # (the per-row template), not ``elements``.
+            if element['type'] == 'panel':
                 nested = element.get('elements', [])
+                self._load_elements(nested, parent=element_obj)
+            elif element['type'] == 'paneldynamic':
+                nested = element.get('templateElements', element.get('elements', []))
                 self._load_elements(nested, parent=element_obj)
 
     def get_element_class(self, element):

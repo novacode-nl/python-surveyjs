@@ -70,10 +70,10 @@ Also consider [nix-direnv](https://github.com/nix-community/nix-direnv) to speed
 ```python
 from surveyjs import SurveyCreator, SurveyForm
 
-# survey_json is a SurveyJS Creator JSON schema (string or dict)
+# creator_json is a SurveyJS Creator JSON schema (string or dict)
 # form_json is a SurveyJS Form submission JSON (string or dict)
 
-creator = SurveyCreator(survey_json)
+creator = SurveyCreator(creator_json)
 form = SurveyForm(form_json, creator)
 
 # Text question

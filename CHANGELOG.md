@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.11
+
+Fix `SurveyCreator._load_elements` to recurse into `paneldynamic` children via `templateElements` (the per-row template) instead of `elements`, so nested questions inside dynamic panels are correctly registered.
+
 ## 0.2.10
 
 Update pyproject.toml.
