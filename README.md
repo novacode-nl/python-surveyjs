@@ -136,3 +136,5 @@ poetry run python -m unittest tests.test_question_ranking.TestQuestionRanking.te
 ## License
 
 [MIT](LICENSE)
+
+Copyright 2026 Nova Code ([https://www.novaforms.io](https://www.novaforms.io))

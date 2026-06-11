@@ -1,4 +1,4 @@
-# Copyright 2026 Nova Code (https://www.novacode.nl)
+# Copyright 2026 Nova Code (https://www.novaforms.io)
 """
 SurveyJS Python Package
 
@@ -10,7 +10,7 @@ It imports and exposes the following classes:
     - SurveyForm: Handles the rendering and processing of SurveyJS forms.
     - SurveyCreator: Provides functionality for creating and managing surveys.
 
-Copyright 2026 Nova Code (https://www.novacode.nl)
+Copyright 2026 Nova Code (https://www.novaforms.io)
 See LICENSE file for full licensing details.
 """
 # See LICENSE file for full licensing details.
