@@ -10,9 +10,12 @@
     "country": "us",
     "skills": ["python", "javascript", "go"],
     "favoritePet": "cat",
+    "tShirtSize": "m",
     "priorityItems": ["quality", "price", "support", "speed"],
     "agreeTerms": "agreed",
     "satisfaction": 8,
+    "volume": 45,
+    "priceRange": [100, 600],
     "signature": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUg==",
     "fullName": "Alice Smith",
     "resume": [

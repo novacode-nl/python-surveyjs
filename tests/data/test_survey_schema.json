@@ -201,6 +201,24 @@
                     "contentMode": "image"
                 },
                 {
+                    "type": "buttongroup",
+                    "name": "tShirtSize",
+                    "title": {
+                        "default": "T-Shirt Size",
+                        "nl": "T-shirtmaat"
+                    },
+                    "isRequired": true,
+                    "choices": [
+                        {"value": "s", "text": "Small"},
+                        {"value": "m", "text": "Medium", "iconName": "icon-medium", "iconSize": 32},
+                        {"value": "l", "text": "Large", "showCaption": false},
+                        {"value": "xl", "text": "Extra Large"}
+                    ],
+                    "showOtherItem": false,
+                    "allowClear": false,
+                    "colCount": 4
+                },
+                {
                     "type": "ranking",
                     "name": "priorityItems",
                     "title": {
@@ -249,6 +267,36 @@
                     "maxRateDescription": "Excellent",
                     "displayMode": "buttons",
                     "rateType": "stars"
+                },
+                {
+                    "type": "slider",
+                    "name": "volume",
+                    "title": {
+                        "default": "Volume",
+                        "nl": "Volume"
+                    },
+                    "sliderType": "single",
+                    "min": 0,
+                    "max": 100,
+                    "step": 5,
+                    "showLabels": true,
+                    "tooltipVisibility": "always",
+                    "allowClear": true
+                },
+                {
+                    "type": "slider",
+                    "name": "priceRange",
+                    "title": {
+                        "default": "Price Range",
+                        "nl": "Prijsklasse"
+                    },
+                    "sliderType": "range",
+                    "min": 0,
+                    "max": 1000,
+                    "step": 10,
+                    "allowSwap": false,
+                    "minRangeLength": 50,
+                    "maxRangeLength": 500
                 },
                 {
                     "type": "signaturepad",

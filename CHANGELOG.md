@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.2.12
+
+Add question types:
+
+- `buttongroup`: single-select, rendered as buttons; reuses the radiogroup choice handling and exposes item-level icon/caption properties.
+- `slider`: single-value or range; `to_number`/`to_range` accessors question types, with tests.
+
 ## 0.2.11
 
 Fix `SurveyCreator._load_elements` to recurse into `paneldynamic` children via `templateElements` (the per-row template) instead of `elements`, so nested questions inside dynamic panels are correctly registered.
@@ -53,6 +60,7 @@ Update README.
 ## 0.2.0
 
 Align to SurveyJS terminology and structure:
+
 - Rename `questions` package to `elements`; base class `Question` → `Element`.
 - Add `Question` and `Layout` subclasses of `Element` (new `question.py`, `layout.py`).
 - Rename `SurveyCreator` internals: `question_class_mapping` → `element_class_mapping`, `load_questions()` → `load_elements()`, `get_question_class()` → `get_element_class()`, `get_question_object()` → `get_element_object()`.
