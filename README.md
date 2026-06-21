@@ -1,4 +1,6 @@
 [![Build Status](https://github.com/novacode-nl/python-surveyjs/actions/workflows/unittests.yml/badge.svg?branch=main)](https://github.com/novacode-nl/python-surveyjs/actions/workflows/unittests.yml/badge.svg?branch=main)
+[![PyPI version](https://img.shields.io/pypi/v/surveyjs.svg)](https://pypi.org/project/surveyjs/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 # surveyjs (Python)
 
@@ -143,8 +145,8 @@ Copyright 2026 Nova Code ([https://www.novaforms.io](https://www.novaforms.io))
 
 ---
 
-Developed and maintained by [Nova Code](https://www.novaforms.io)
+Used in [Nova Forms](https://apps.odoo.com/apps/modules/19.0/formio) Form Builder & Forms App for [Odoo](https://www.odoo.com).
 
-[![Official SurveyJS Partner](docs/surveyjs-partner-badge.svg)](https://surveyjs.io/partner-solutions)
+Developed and maintained by [Nova Code](https://www.novaforms.io).
 
-Used in the Nova [Forms app for Odoo](https://apps.odoo.com/apps/modules/19.0/formio)
+Official SurveyJS Partner [<img src="docs/surveyjs-partner-badge.svg" alt="Official SurveyJS Partner" width="120" align="middle">](https://surveyjs.io/partner-solutions)
