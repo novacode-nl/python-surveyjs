@@ -1,3 +1,5 @@
+[![Build Status](https://github.com/novacode-nl/python-surveyjs/actions/workflows/unittests.yml/badge.svg?branch=main)](https://github.com/novacode-nl/python-surveyjs/actions/workflows/unittests.yml/badge.svg?branch=main)
+
 # surveyjs (Python)
 
 Python API for SurveyJS Creator (Form Builder) schema and Form response JSON.
@@ -141,4 +143,8 @@ Copyright 2026 Nova Code ([https://www.novaforms.io](https://www.novaforms.io))
 
 ---
 
-Developed and maintained by [Nova Code](https://www.novaforms.io) · Used in the Nova [Forms app for Odoo](https://apps.odoo.com/apps/modules/19.0/formio)
+Developed and maintained by [Nova Code](https://www.novaforms.io)
+
+[![Official SurveyJS Partner](docs/surveyjs-partner-badge.svg)](https://surveyjs.io/partner-solutions)
+
+Used in the Nova [Forms app for Odoo](https://apps.odoo.com/apps/modules/19.0/formio)
