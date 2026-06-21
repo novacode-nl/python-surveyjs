@@ -6,7 +6,7 @@ For information about the SurveyJS project, see https://surveyjs.io
 
 ## Introduction
 
-**surveyjs** is a Python package that loads and transforms **SurveyJS Creator (Form Builder) JSON schema** and **Form response JSON** into **usable Python objects**.
+**surveyjs** is a Python package that parses and transforms **SurveyJS Creator (Form Builder) JSON schema** and **Form response JSON** into **usable Python objects**.
 
 Its main aim is to provide easy access to a SurveyJS Form's questions (fields, layout elements, etc.) also captured as **Python objects**, which makes this API very versatile and usable.
 
@@ -138,3 +138,7 @@ poetry run python -m unittest tests.test_question_ranking.TestQuestionRanking.te
 [MIT](LICENSE)
 
 Copyright 2026 Nova Code ([https://www.novaforms.io](https://www.novaforms.io))
+
+---
+
+Developed and maintained by [Nova Code](https://www.novaforms.io) · Used in the Nova [Forms app for Odoo](https://apps.odoo.com/apps/modules/19.0/formio)
