@@ -181,11 +181,16 @@ class Element:
 
         A line group starts with an element whose start_with_new_line is
         True (or the very first element) and includes all consecutive
-        followers with start_with_new_line False."""
-        if not self._element_owner:
+        followers with start_with_new_line False.
+
+        Siblings are taken from the element's parent (e.g. a panel's child
+        elements) when nested, and otherwise from the element owner (the
+        top-level Survey/Form elements)."""
+        container = self._parent if self._parent is not None else self._element_owner
+        if not container:
             return []
 
-        owner_els = list(self._element_owner.elements.values())
+        owner_els = list(container.elements.values())
 
         # Find the start of self's line group (walk back to the nearest
         # element with start_with_new_line True, or index 0).

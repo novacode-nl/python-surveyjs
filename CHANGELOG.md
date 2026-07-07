@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.3.0
+
+**Breaking:** on `SurveyCreator` / `SurveyForm`, element accessors are split into root vs. flat, with consistent `all_`-prefixed flat variants and formio `component` aliases:
+
+- `elements` — **root** (top-level) elements, keyed by name. Nested children are reached via each container's own `elements`.
+- `all_elements` — **flat** map of every element (including nested), keyed by name.
+- `components` / `all_components` — aliases of `elements` / `all_elements`.
+- `element_ids` renamed to `all_element_ids` — flat map of every element keyed by internal id (with alias `all_component_ids`). There is no root-level id map: ids are unique across the whole tree, so an id registry is inherently global.
+- The previously added `root_elements` property is removed (use `elements`).
+
+Fixes enabled by the split:
+
+- `SurveyForm` now builds a proper element tree: nested elements carry their container as `parent`, instead of the previous flat `parent=None` copies of every element.
+- `Element.elements_on_same_line` resolves siblings from the element's parent when nested (a panel's children), so `startWithNewLine` grouping works inside panels, not only at the top level.
+
 ## 0.2.12
 
 Add question types:

@@ -42,14 +42,20 @@ class SurveyCreator:
 
         self.element_class_mapping = element_class_mapping
 
-        # All elements (question + layout) keyed by name
+        # Every element (question + layout) keyed by name — flat: also
+        # includes elements nested inside panels.
+        self.all_elements = OrderedDict()
+
+        # Root (top-level) elements keyed by name; nested children are
+        # reached via each container's `elements`.
         self.elements = OrderedDict()
 
         # Questions (fields) keyed by name (no panels, html, image)
         self.questions = OrderedDict()
 
-        # Elements keyed by internal id
-        self.element_ids = OrderedDict()
+        # Every element keyed by internal id — flat (ids are unique across
+        # the whole tree, so this registry is inherently global).
+        self.all_element_ids = OrderedDict()
 
         # Load all elements from the schema
         self.load_elements()
@@ -68,7 +74,18 @@ class SurveyCreator:
 
     @property
     def components(self):
+        """Alias for `elements` (root, top-level)."""
         return self.elements
+
+    @property
+    def all_components(self):
+        """Alias for `all_elements` (flat — includes nested)."""
+        return self.all_elements
+
+    @property
+    def all_component_ids(self):
+        """Alias for `all_element_ids` (flat — keyed by internal id)."""
+        return self.all_element_ids
 
     @property
     def input_components(self):
@@ -103,10 +120,12 @@ class SurveyCreator:
                 data=None,
                 is_form=False,
             )
-            self.elements[element_obj.name] = element_obj
+            self.all_elements[element_obj.name] = element_obj
+            if parent is None:
+                self.elements[element_obj.name] = element_obj
 
             if element_obj.id:
-                self.element_ids[element_obj.id] = element_obj
+                self.all_element_ids[element_obj.id] = element_obj
 
             # Recurse into panel/paneldynamic nested elements. Note that
             # paneldynamic stores its children under ``templateElements``

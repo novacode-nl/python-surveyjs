@@ -5,6 +5,7 @@
 
 import unittest
 
+from surveyjs import SurveyCreator
 from tests.utils import load_creator, load_form
 
 
@@ -113,6 +114,47 @@ class TestFormStartWithNewLine(unittest.TestCase):
         self.assertNotIn('birthDate', names_same_line)
         self.assertNotIn('age', names_same_line)
         self.assertNotIn('email', names_same_line)
+
+
+class TestNestedStartWithNewLine(unittest.TestCase):
+    """elements_on_same_line must scope to the element's siblings.
+
+    For nested elements (a panel's children) siblings come from the parent
+    panel, not the top-level Survey/Form. The panel's children are absent from
+    the owner's `elements`, so the property must resolve them via `parent`."""
+
+    def setUp(self):
+        schema = {
+            'elements': [
+                {
+                    'type': 'panel',
+                    'name': 'addressPanel',
+                    'elements': [
+                        {'type': 'text', 'name': 'city'},
+                        {'type': 'text', 'name': 'zip', 'startWithNewLine': False},
+                        {'type': 'text', 'name': 'country'},
+                    ],
+                },
+            ],
+        }
+        self.creator = SurveyCreator(schema)
+
+    def test_nested_elements_on_same_line(self):
+        """A panel child groups with its panel siblings, not top-level elements."""
+        elements_same_line = self.creator.questions['city'].elements_on_same_line
+        names_same_line = [el.name for el in elements_same_line]
+        self.assertEqual(names_same_line, ['city', 'zip'])
+
+        elements_same_line = self.creator.questions['zip'].elements_on_same_line
+        names_same_line = [el.name for el in elements_same_line]
+        self.assertEqual(names_same_line, ['city', 'zip'])
+
+    def test_nested_default_start_with_new_line_alone(self):
+        """A panel child that starts a new line is alone on its line."""
+        self.assertEqual(
+            self.creator.questions['country'].elements_on_same_line, []
+        )
+
 
 if __name__ == '__main__':
     unittest.main()

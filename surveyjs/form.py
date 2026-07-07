@@ -66,14 +66,20 @@ class SurveyForm:
         self.date_format = kwargs.get('date_format', '%m/%d/%Y')
         self.time_format = kwargs.get('time_format', '%H:%M:%S')
 
-        # All elements (question + layout) keyed by name
+        # Every element (question + layout) keyed by name — flat: also
+        # includes elements nested inside panels.
+        self.all_elements = OrderedDict()
+
+        # Root (top-level) elements keyed by name; nested children are
+        # reached via each container's `elements`.
         self.elements = OrderedDict()
 
         # Questions (fields) keyed by name
         self.questions = OrderedDict()
 
-        # Elements keyed by id
-        self.element_ids = {}
+        # Every element keyed by internal id — flat (ids are unique across
+        # the whole tree, so this registry is inherently global).
+        self.all_element_ids = OrderedDict()
 
         # Load elements from survey schema + populate values from form data
         self.load_elements()
@@ -106,8 +112,18 @@ class SurveyForm:
 
     @property
     def components(self):
-        """ Alias for elements, including both question and layout elements."""
+        """Alias for `elements` (root, top-level)."""
         return self.elements
+
+    @property
+    def all_components(self):
+        """Alias for `all_elements` (flat — includes nested)."""
+        return self.all_elements
+
+    @property
+    def all_component_ids(self):
+        """Alias for `all_element_ids` (flat — keyed by internal id)."""
+        return self.all_element_ids
 
     @property
     def input_components(self):
@@ -116,8 +132,14 @@ class SurveyForm:
 
     def load_elements(self):
         """Load elements from the survey schema and populate values from
-        form submission data."""
-        for key, creator_element in self.creator.elements.items():
+        form submission data.
+
+        Only root elements are instantiated here; a container's nested
+        children are built by its own `load_data` (with the container set as
+        their parent). Every element is then registered into `all_elements`
+        (flat) and `all_element_ids`, and root elements into `elements`,
+        mirroring the Creator so `parent` distinguishes root from nested."""
+        for creator_element in self.creator.elements.values():
             # Create a new element object (don't affect the Survey's element)
             element_obj = self.creator.get_element_object(creator_element.raw)
             element_obj.load(
@@ -126,10 +148,17 @@ class SurveyForm:
                 data=self.form,
                 is_form=True,
             )
-            self.elements[key] = element_obj
+            self._register_element(element_obj)
 
-            if element_obj.id:
-                self.element_ids[element_obj.id] = element_obj
+    def _register_element(self, element_obj):
+        """Register an element and all its descendants into the maps."""
+        self.all_elements[element_obj.name] = element_obj
+        if element_obj.parent is None:
+            self.elements[element_obj.name] = element_obj
+        if element_obj.id:
+            self.all_element_ids[element_obj.id] = element_obj
+        for child in element_obj.elements.values():
+            self._register_element(child)
 
     def get_question_by_name(self, name):
         """Get a question by its name."""
