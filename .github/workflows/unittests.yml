@@ -13,7 +13,7 @@ jobs:
 
     steps:
     - name: Check out the repo
-      uses: actions/checkout@v3
+      uses: actions/checkout@v5
 
     # Install Nix directly and run each step inside `nix-shell` instead of
     # relying on direnv, which avoids the HatsuneMiku3939/direnv-action digest
