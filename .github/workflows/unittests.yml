@@ -19,6 +19,9 @@ jobs:
       uses: aldoborrero/use-nix-action@v2
       with:
         nix_path: nixpkgs=channel:nixos-25.11
+        # direnv-action requires the release asset to carry a digest; only
+        # recent direnv releases have one, so pin to a version that does.
+        direnvVersion: "2.37.1"
 
     - name: Install basic dependencies via poetry
       run: poetry install
