@@ -15,12 +15,15 @@ jobs:
     - name: Check out the repo
       uses: actions/checkout@v3
 
-    # Install Nix directly. The dev shell (shell.nix -> nix/pkgs.nix) pins its
-    # own nixpkgs via fetchTarball, so no NIX_PATH/channel is needed here. We run
-    # each step inside `nix-shell` instead of relying on direnv, which avoids the
-    # HatsuneMiku3939/direnv-action digest requirement entirely.
+    # Install Nix directly and run each step inside `nix-shell` instead of
+    # relying on direnv, which avoids the HatsuneMiku3939/direnv-action digest
+    # requirement entirely. The dev shell's own deps come from shell.nix ->
+    # nix/pkgs.nix (pinned via fetchTarball), but `nix-shell` itself still needs
+    # <nixpkgs> on NIX_PATH to build its `--run` bash wrapper, so set nix_path.
     - name: Install Nix
       uses: cachix/install-nix-action@v31
+      with:
+        nix_path: nixpkgs=channel:nixos-25.11
 
     - name: Install basic dependencies via poetry
       run: nix-shell --run "poetry install"
