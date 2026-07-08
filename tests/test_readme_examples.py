@@ -93,9 +93,20 @@ class TestReadmeExamples(unittest.TestCase):
     def test_page_title(self):
         self.assertEqual(self.creator.pages[0].title, 'Personal')
 
-    def test_page_elements(self):
-        self.assertEqual(list(self.creator.pages[0].elements),
-                         ['firstName', 'birthDate', 'contact'])
+    def test_page_elements_are_objects_keyed_by_name(self):
+        """`elements` is an OrderedDict of Element objects; list() gives keys."""
+        elements = self.creator.pages[0].elements
+        self.assertEqual(list(elements), ['firstName', 'birthDate', 'contact'])
+        self.assertEqual(repr(elements['firstName']), '<QuestionText name=firstName>')
+        self.assertEqual(
+            [repr(e) for e in elements.values()],
+            ['<QuestionText name=firstName>',
+             '<QuestionText name=birthDate>',
+             '<QuestionPanel name=contact>'],
+        )
+
+    def test_page_questions_excludes_layout(self):
+        self.assertEqual(list(self.creator.pages[0].questions), ['firstName', 'birthDate'])
 
     def test_element_knows_its_page(self):
         self.assertEqual(self.form.questions['birthDate'].page.name, 'personal')

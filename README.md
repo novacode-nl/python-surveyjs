@@ -161,8 +161,20 @@ key is represented by a single implicit page, so there is only one code path.
 creator.pages[0].title
 # 'Personal'
 
-list(creator.pages[0].elements)
+# a page's root elements: an OrderedDict of Element objects, keyed by name
+# (the same shape as creator.elements / form.elements)
+creator.pages[0].elements['firstName']
+# <QuestionText name=firstName>
+
+list(creator.pages[0].elements.values())
+# [<QuestionText name=firstName>, <QuestionText name=birthDate>, <QuestionPanel name=contact>]
+
+list(creator.pages[0].elements)          # dict keys, i.e. the element names
 # ['firstName', 'birthDate', 'contact']
+
+# .questions is the same, filtered to input questions (no panel/html/image)
+list(creator.pages[0].questions)
+# ['firstName', 'birthDate']
 
 # every element knows its page
 form.questions['birthDate'].page.name

@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.4.1
+
+README: Clarify that a page's `elements` are objects, keyed by name
+
+`Page.elements` is an OrderedDict mapping name -> Element, the same shape as `SurveyCreator.elements` / `SurveyForm.elements`.\
+The Usage Examples showed only `list(creator.pages[0].elements)`, which yields the dict's *keys*, so the snippet printed strings while the container holds Element objects.
+Correct output, misleading impression.
+
+Show the dict access and `.values()` first, label the `list(...)` line as the element names, and note that `page.questions` is the same map filtered to input questions.
+
+The matching README test asserted only `list(elements) == [names]`, which would have passed even if `elements` really were a list of strings.\
+It now also asserts that `elements['firstName']` is a `QuestionText` and that `.values()` are Element objects, so the ambiguity cannot creep back.
+
 ## 0.4.0
 
 Adds first-class **pages**, **paths**, **panel instances**, and **`inputType` parsing**.
