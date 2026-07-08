@@ -151,30 +151,61 @@ form.questions['elapsed'].value
 
 ### Pages
 
-Pages are objects. A schema with a top-level `elements` array and no `pages`
-key is represented by a single implicit page, so there is only one code path.
+Both **SurveyCreator** and **SurveyForm** have a `pages` property: a list of
+`Page` objects in schema order. They mirror each other — same names, same
+titles, same order — but hold different element objects. A creator's page
+holds the *schema* elements (no submitted values); a form's page holds that
+form's elements, with values populated.
+
+A schema with a top-level `elements` array and no `pages` key is represented
+by a single implicit page named `page1`, so there is only one code path.
 
 ```python
+# the same pages on both, in schema order
 [page.name for page in creator.pages]
 # ['personal', 'history']
 
-creator.pages[0].title
+[page.name for page in form.pages]
+# ['personal', 'history']
+
+form.pages[0].title
 # 'Personal'
 
-# a page's root elements: an OrderedDict of Element objects, keyed by name
-# (the same shape as creator.elements / form.elements)
-creator.pages[0].elements['firstName']
+# look a page up by name, on either class
+form.get_page_by_name('history')
+# <Page name=history>
+```
+
+A page's root elements are an `OrderedDict` of Element objects keyed by name —
+the same shape as `creator.elements` / `form.elements`.
+
+```python
+form.pages[0].elements['firstName']
 # <QuestionText name=firstName>
 
-list(creator.pages[0].elements.values())
+list(form.pages[0].elements.values())
 # [<QuestionText name=firstName>, <QuestionText name=birthDate>, <QuestionPanel name=contact>]
 
-list(creator.pages[0].elements)          # dict keys, i.e. the element names
+list(form.pages[0].elements)             # dict keys, i.e. the element names
 # ['firstName', 'birthDate', 'contact']
 
 # .questions is the same, filtered to input questions (no panel/html/image)
-list(creator.pages[0].questions)
+list(form.pages[0].questions)
 # ['firstName', 'birthDate']
+```
+
+Read values from a **form** page — a creator page describes the schema, so its
+elements have no submitted value:
+
+```python
+form.pages[0].elements['firstName'].value
+# 'Bob'
+
+form.pages[0].elements['birthDate'].value
+# datetime.date(1985, 6, 14)
+
+creator.pages[0].elements['birthDate'].value
+# None      (a schema has no submission data)
 
 # every element knows its page
 form.questions['birthDate'].page.name

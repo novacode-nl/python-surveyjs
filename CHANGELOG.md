@@ -1,5 +1,23 @@
 # Changelog
 
+## 0.4.2
+
+README: document `pages` on both `SurveyCreator` and `SurveyForm` classes.
+
+Both `SurveyCreator` and `SurveyForm` expose a `pages` property. They mirror
+each other — same names, titles, and order — but hold different element
+objects: a creator's page holds the schema elements, a form's page holds that
+form's elements with values populated.
+
+The Usage Examples read everything off `creator.pages`. Following them to fetch
+a value yields `None`, because a schema carries no submission data. Values now
+come from `form.pages`, with the creator case kept as an annotated contrast.
+
+Tests pin both: that `get_page_by_name()` works on either class, and that the
+two classes' pages hold distinct element objects — without which a future
+change could make `SurveyForm` reuse the creator's elements while the README
+and tests both still passed.
+
 ## 0.4.1
 
 README: Clarify that a page's `elements` are objects, keyed by name

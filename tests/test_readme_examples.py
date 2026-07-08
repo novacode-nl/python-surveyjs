@@ -87,15 +87,20 @@ class TestReadmeExamples(unittest.TestCase):
 
     # --- Pages ---
 
-    def test_page_names(self):
+    def test_both_classes_have_pages(self):
         self.assertEqual([page.name for page in self.creator.pages], ['personal', 'history'])
+        self.assertEqual([page.name for page in self.form.pages], ['personal', 'history'])
 
     def test_page_title(self):
-        self.assertEqual(self.creator.pages[0].title, 'Personal')
+        self.assertEqual(self.form.pages[0].title, 'Personal')
+
+    def test_get_page_by_name_on_either_class(self):
+        self.assertEqual(repr(self.form.get_page_by_name('history')), '<Page name=history>')
+        self.assertEqual(repr(self.creator.get_page_by_name('history')), '<Page name=history>')
 
     def test_page_elements_are_objects_keyed_by_name(self):
         """`elements` is an OrderedDict of Element objects; list() gives keys."""
-        elements = self.creator.pages[0].elements
+        elements = self.form.pages[0].elements
         self.assertEqual(list(elements), ['firstName', 'birthDate', 'contact'])
         self.assertEqual(repr(elements['firstName']), '<QuestionText name=firstName>')
         self.assertEqual(
@@ -106,7 +111,19 @@ class TestReadmeExamples(unittest.TestCase):
         )
 
     def test_page_questions_excludes_layout(self):
-        self.assertEqual(list(self.creator.pages[0].questions), ['firstName', 'birthDate'])
+        self.assertEqual(list(self.form.pages[0].questions), ['firstName', 'birthDate'])
+
+    def test_values_come_from_a_form_page(self):
+        self.assertEqual(self.form.pages[0].elements['firstName'].value, 'Bob')
+        self.assertEqual(self.form.pages[0].elements['birthDate'].value, date(1985, 6, 14))
+
+    def test_a_creator_page_element_has_no_submitted_value(self):
+        """A creator describes the schema; only a form carries submission data."""
+        self.assertIsNone(self.creator.pages[0].elements['birthDate'].value)
+
+    def test_creator_and_form_pages_hold_distinct_elements(self):
+        self.assertIsNot(self.form.pages[0].elements['firstName'],
+                         self.creator.pages[0].elements['firstName'])
 
     def test_element_knows_its_page(self):
         self.assertEqual(self.form.questions['birthDate'].page.name, 'personal')
