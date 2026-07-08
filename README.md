@@ -29,7 +29,9 @@ The file prefix `question` indicates a question (field) class.
 
 - Compatible with Python 3.8 and later.
 - Constructor of the **SurveyCreator** and **SurveyForm** class only requires the JSON (string or dict) and an optional language code (e.g. 'en', 'fr', etc.) for localization of questions (e.g. titles and choices).
-- Get a SurveyForm object's Questions as usable Python objects e.g. datetime, boolean, list (for checkbox), dict (for matrix) etc.
+- Get a SurveyForm object's Questions as usable Python objects e.g. date, datetime, boolean, list (for checkbox), dict (for matrix) etc. Every question exposes both `raw_value` (exactly as submitted) and `value` (parsed according to its SurveyJS `inputType`).
+- **Pages** and **paths**: iterate a survey's pages as objects, and address any element — however deeply nested — by a stable path such as `education[0].year`.
+- **Dynamic panels** are materialized per row of submission data, with values populated.
 - Supports a growing set of SurveyJS question types; additional types will be added over time and contributions via PRs are welcome.
 - Open source (MIT License).
 
@@ -71,6 +73,8 @@ Also consider [nix-direnv](https://github.com/nix-community/nix-direnv) to speed
 
 ## Usage Examples
 
+### Questions and values
+
 ```python
 from surveyjs import SurveyCreator, SurveyForm
 
@@ -81,31 +85,159 @@ creator = SurveyCreator(creator_json)
 form = SurveyForm(form_json, creator)
 
 # Text question
-print(form.questions['firstName'].label)
+form.questions['firstName'].label
 # 'First Name'
 
-print(form.questions['firstName'].value)
+form.questions['firstName'].value
 # 'Bob'
 
 # Checkbox question
-print(form.questions['colors'].value)
+form.questions['colors'].value
 # ['red', 'blue']
 
 # Rating question
-print(form.questions['satisfaction'].value)
+form.questions['satisfaction'].value
 # 4
 
 # Boolean question
-print(form.questions['agree'].value)
+form.questions['agree'].value
 # True
 
 # Matrix question
-print(form.questions['quality'].value)
+form.questions['quality'].value
 # {'affordable': 'good', 'does-what-it-claims': 'excellent'}
 
 # Panel element
-print(form.elements['personal_data'])
-# <QuestionPanel>
+form.elements['personal_data']
+# <QuestionPanel name=personal_data>
+```
+
+### Input types: `value` vs. `raw_value`
+
+A question's `value` is its `raw_value` parsed according to the SurveyJS
+`inputType`. Questions without an `inputType` are unaffected — the two are
+equal.
+
+```python
+# {"type": "text", "name": "birthDate", "inputType": "date"}
+
+form.questions['birthDate'].value
+# datetime.date(1985, 6, 14)
+
+form.questions['birthDate'].raw_value
+# '1985-06-14'
+```
+
+`date` yields a `date`, `datetime-local` a `datetime`, `time` a `time`,
+`month` a `date` (first of the month), `week` a `date` (Monday of the ISO
+week), and `number`/`range` an `int`/`float`. Types with no parser (text,
+email, url, …) pass through unchanged.
+
+`value` is read-only — assign `raw_value` instead. If a submitted value cannot
+be parsed, `value` is `None` while `raw_value` keeps the original, which is how
+you tell a malformed submission from an empty one.
+
+To register an `inputType` of your own (or override a built-in):
+
+```python
+from datetime import timedelta
+from surveyjs import register_input_type
+
+register_input_type('duration', lambda v: timedelta(seconds=int(v)))
+
+form.questions['elapsed'].value
+# datetime.timedelta(seconds=90)
+```
+
+### Pages
+
+Pages are objects. A schema with a top-level `elements` array and no `pages`
+key is represented by a single implicit page, so there is only one code path.
+
+```python
+[page.name for page in creator.pages]
+# ['personal', 'history']
+
+creator.pages[0].title
+# 'Personal'
+
+list(creator.pages[0].elements)
+# ['firstName', 'birthDate', 'contact']
+
+# every element knows its page
+form.questions['birthDate'].page.name
+# 'personal'
+```
+
+### Paths
+
+`path` is an element's position in the survey tree; `input_path` is where its
+value lives in the submission data. They differ because a `panel` groups
+elements visually without nesting their data.
+
+```python
+form.all_elements['phone'].path_str
+# 'contact.phone'          (inside the 'contact' panel)
+
+form.all_elements['phone'].input_path
+# ['phone']                (panels are transparent to the data)
+
+form.get_element_by_path('contact.phone').value
+# '+31 6 1234 5678'
+```
+
+### Dynamic panels
+
+A `SurveyCreator` holds a dynamic panel's *template*. A `SurveyForm`
+materializes one set of child elements per row of submission data, with values
+populated.
+
+```python
+education = form.questions['education']
+
+education.panels
+# [<PanelInstance name=education[0]>]
+
+education.panels[0]['graduated'].value
+# datetime.date(2015, 5, 30)
+
+education.get_panel_value(0, 'school')
+# 'MIT'
+
+# rows are addressable by path
+form.get_element_by_path('education[0].graduated').input_path
+# ['education', 0, 'graduated']    -> data['education'][0]['graduated']
+```
+
+Because each row reuses the template's names, instance children are addressed
+by path rather than by name: they are deliberately absent from `questions` and
+`all_elements`.
+
+### Matrix columns and multiple-text items
+
+A matrix column with `cellType: "text"` may declare its own `inputType`, and so
+may a `multipletext` item. Each parses independently.
+
+```python
+# columns: [{"name": "employer"},
+#           {"name": "started", "cellType": "text", "inputType": "date"}]
+jobs = form.questions['jobs']
+
+jobs.get_column('started').input_type
+# 'date'
+
+jobs.get_cell_value(0, 'started')
+# datetime.date(2020, 1, 6)
+
+jobs.get_cell_raw_value(0, 'started')
+# '2020-01-06'
+
+jobs.get_row_value(0)
+# {'employer': 'Nova Code', 'started': datetime.date(2020, 1, 6)}
+
+# items: [{"name": "from", "inputType": "date"}]
+form.questions['dates'].item_values
+# {'from': datetime.date(2024, 7, 8)}
 ```
 
 ## Unit Tests
@@ -149,4 +281,4 @@ Used in [Nova Forms](https://apps.odoo.com/apps/modules/19.0/formio) Form Builde
 
 Developed and maintained by [Nova Code](https://www.novaforms.io).
 
-Official SurveyJS Partner [<img src="docs/surveyjs-partner-badge.svg" alt="Official SurveyJS Partner" width="120" align="middle">](https://surveyjs.io/partner-solutions)
+Official [SurveyJS Partner](https://surveyjs.io/partner-solutions) [<img src="docs/surveyjs-partner-badge.svg" alt="Official SurveyJS Partner" width="120" align="middle">](https://surveyjs.io/partner-solutions)

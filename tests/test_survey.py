@@ -23,7 +23,7 @@ class TestSurvey(unittest.TestCase):
         self.assertEqual(len(self.survey.pages), 5)
 
     def test_pages_names(self):
-        names = [p['name'] for p in self.survey.pages]
+        names = [p.name for p in self.survey.pages]
         self.assertIn('page_basic_input', names)
         self.assertIn('page_choice', names)
         self.assertIn('page_special', names)
@@ -90,8 +90,10 @@ class TestSurvey(unittest.TestCase):
     def test_get_question_class_unknown(self):
         """Unknown question types should fall back to base Question."""
         from surveyjs.elements.element import Element
-        cls = self.survey.get_element_class({'type': 'unknowntype'})
+        with self.assertLogs('surveyjs.creator', level='WARNING') as cm:
+            cls = self.survey.get_element_class({'type': 'unknowntype'})
         self.assertEqual(cls, Element)
+        self.assertIn("Could not load question class for type 'unknowntype'", cm.output[0])
 
     def test_form_property(self):
         """Survey's form property should be an empty dict."""

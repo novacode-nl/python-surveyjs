@@ -16,6 +16,16 @@ See LICENSE file for full licensing details.
 # See LICENSE file for full licensing details.
 
 from surveyjs.creator import SurveyCreator
+from surveyjs.elements.inputtype import parse_input_value, register_input_type
 from surveyjs.form import SurveyForm
+from surveyjs.page import Page
+from surveyjs.text import interpolate_text
 
-__all__ = ['SurveyCreator', 'SurveyForm']
+__all__ = [
+    'SurveyCreator',
+    'SurveyForm',
+    'Page',
+    'register_input_type',
+    'parse_input_value',
+    'interpolate_text',
+]

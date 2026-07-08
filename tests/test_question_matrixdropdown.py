@@ -28,7 +28,7 @@ class TestQuestionMatrixdropdown(unittest.TestCase):
         self.assertEqual(len(self.q.columns), 3)
 
     def test_column_names(self):
-        col_names = [c['name'] for c in self.q.columns]
+        col_names = [c.name for c in self.q.columns]
         self.assertIn('q1', col_names)
         self.assertIn('q2', col_names)
         self.assertIn('status', col_names)

@@ -1,20 +1,20 @@
 # Copyright 2026 Nova Code (https://www.novaforms.io)
 # See LICENSE file for full licensing details.
 
+from .column import MatrixColumnsMixin
 from .question import Question
 
 
-class QuestionMatrixdynamic(Question):
+class QuestionMatrixdynamic(MatrixColumnsMixin, Question):
     """SurveyJS Dynamic Matrix (matrixdynamic) question.
 
-    Value is a list of dicts, where each dict maps column names to values.
+    `raw_value` is a list of dicts, each mapping column names to values.
     Example: [{"col1": "val1", "col2": "val2"}, {"col1": "val3", "col2": "val4"}]
-    """
 
-    @property
-    def columns(self):
-        """Get the matrix columns."""
-        return self.raw.get('columns', [])
+    The question declares no `inputType`, so its `value` is that same list,
+    unparsed. Individual *columns* may declare one, so `get_cell_value()` and
+    `get_row_value()` parse per column, while `rows_data` stays as submitted.
+    """
 
     @property
     def row_count(self):
@@ -47,8 +47,8 @@ class QuestionMatrixdynamic(Question):
 
     @property
     def rows_data(self):
-        """Get the list of row data dicts."""
-        val = self.value
+        """Get the list of row data dicts, exactly as submitted."""
+        val = self.raw_value
         if val and isinstance(val, list):
             return val
         return []
@@ -58,9 +58,24 @@ class QuestionMatrixdynamic(Question):
         """Number of rows in submitted data."""
         return len(self.rows_data)
 
-    def get_cell_value(self, row_index, column_name):
-        """Get a specific cell value by row index and column name."""
+    def get_row_raw_value(self, row_index):
+        """Get a row's cell dict, exactly as submitted."""
         data = self.rows_data
-        if 0 <= row_index < len(data):
-            return data[row_index].get(column_name)
-        return None
+        if 0 <= row_index < len(data) and isinstance(data[row_index], dict):
+            return data[row_index]
+        return {}
+
+    def get_row_value(self, row_index):
+        """Get a row's cell dict, each cell parsed per its own column."""
+        return self._parse_row(self.get_row_raw_value(row_index))
+
+    def get_cell_raw_value(self, row_index, column_name):
+        """Get a specific cell value, exactly as submitted."""
+        return self.get_row_raw_value(row_index).get(column_name)
+
+    def get_cell_value(self, row_index, column_name):
+        """Get a specific cell value, parsed per its column's `inputType`."""
+        raw = self.get_cell_raw_value(row_index, column_name)
+        if raw is None:
+            return None
+        return self._parse_cell(column_name, raw)

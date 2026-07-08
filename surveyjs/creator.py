@@ -4,9 +4,9 @@
 import json
 import logging
 from collections import OrderedDict
-from copy import deepcopy
 
 from surveyjs.elements.element import Element
+from surveyjs.page import Page
 
 logger = logging.getLogger(__name__)
 
@@ -42,6 +42,10 @@ class SurveyCreator:
 
         self.element_class_mapping = element_class_mapping
 
+        # Pages, in schema order. Pages are not elements: they never appear
+        # in the element registries below.
+        self.pages = []
+
         # Every element (question + layout) keyed by name — flat: also
         # includes elements nested inside panels.
         self.all_elements = OrderedDict()
@@ -53,9 +57,10 @@ class SurveyCreator:
         # Questions (fields) keyed by name (no panels, html, image)
         self.questions = OrderedDict()
 
-        # Every element keyed by internal id — flat (ids are unique across
-        # the whole tree, so this registry is inherently global).
-        self.all_element_ids = OrderedDict()
+        # Every element keyed by dotted path — flat. Paths are unique across
+        # the whole tree (unlike names, which collide between the template
+        # children of two paneldynamics), so this registry is lossless.
+        self.all_element_paths = OrderedDict()
 
         # Load all elements from the schema
         self.load_elements()
@@ -69,10 +74,6 @@ class SurveyCreator:
         return self.schema.get('description', '')
 
     @property
-    def pages(self):
-        return self.schema.get('pages', [])
-
-    @property
     def components(self):
         """Alias for `elements` (root, top-level)."""
         return self.elements
@@ -83,28 +84,49 @@ class SurveyCreator:
         return self.all_elements
 
     @property
-    def all_component_ids(self):
-        """Alias for `all_element_ids` (flat — keyed by internal id)."""
-        return self.all_element_ids
+    def all_component_paths(self):
+        """Alias for `all_element_paths` (flat — keyed by dotted path)."""
+        return self.all_element_paths
 
     @property
     def input_components(self):
         return self.questions
 
     def load_elements(self):
-        """Load elements from the schema, handling both pages-based and
-        flat elements-based schemas."""
-        pages = self.schema.get('pages')
-        if pages:
-            for page in pages:
-                elements = page.get('elements', [])
-                self._load_elements(elements)
-        else:
-            # Single page: elements at top level
-            elements = self.schema.get('elements', [])
-            self._load_elements(elements)
+        """Load pages and their elements from the schema, handling both
+        pages-based and flat elements-based schemas."""
+        pages_raw = self.schema.get('pages')
+        implicit = not pages_raw
+        if implicit:
+            # Pages-less schema: elements at top level become one implicit page.
+            pages_raw = [{'elements': self.schema.get('elements', [])}]
 
-    def _load_elements(self, elements, parent=None):
+        for index, page_raw in enumerate(pages_raw):
+            page = Page(
+                page_raw,
+                self,
+                index=index,
+                language=self.language,
+                i18n=self.i18n,
+                implicit=implicit,
+            )
+            self.pages.append(page)
+            self._load_elements(page_raw.get('elements', []), page=page)
+
+    def get_page_by_name(self, name):
+        """Get a page by its name."""
+        for page in self.pages:
+            if page.name == name:
+                return page
+        return None
+
+    def get_element_by_path(self, path):
+        """Get an element by its path — a dotted string or a list of names."""
+        if not isinstance(path, str):
+            path = '.'.join(path)
+        return self.all_element_paths.get(path)
+
+    def _load_elements(self, elements, parent=None, page=None):
         """Recursively load elements from the schema."""
         for element in elements:
             if 'type' not in element:
@@ -121,11 +143,13 @@ class SurveyCreator:
                 is_form=False,
             )
             self.all_elements[element_obj.name] = element_obj
+            self.all_element_paths[element_obj.path_str] = element_obj
             if parent is None:
                 self.elements[element_obj.name] = element_obj
-
-            if element_obj.id:
-                self.all_element_ids[element_obj.id] = element_obj
+                if page is not None:
+                    # Back-links element -> page; nested children inherit it
+                    # through their parent container.
+                    page.add_element(element_obj)
 
             # Recurse into panel/paneldynamic nested elements. Note that
             # paneldynamic stores its children under ``templateElements``

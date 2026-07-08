@@ -28,7 +28,7 @@ class TestQuestionMatrixDynamic(unittest.TestCase):
         self.assertEqual(len(self.q.columns), 3)
 
     def test_column_names(self):
-        col_names = [c['name'] for c in self.q.columns]
+        col_names = [c.name for c in self.q.columns]
         self.assertIn('name', col_names)
         self.assertIn('role', col_names)
         self.assertIn('salary', col_names)

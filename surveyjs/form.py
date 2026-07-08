@@ -5,7 +5,8 @@ import json
 import logging
 from collections import OrderedDict
 
-from surveyjs import SurveyCreator
+from surveyjs.creator import SurveyCreator
+from surveyjs.page import Page
 
 logger = logging.getLogger(__name__)
 
@@ -66,6 +67,11 @@ class SurveyForm:
         self.date_format = kwargs.get('date_format', '%m/%d/%Y')
         self.time_format = kwargs.get('time_format', '%H:%M:%S')
 
+        # Pages, in schema order — mirrors the creator's pages, but holding
+        # this form's element objects. Pages are not elements: they never
+        # appear in the element registries below.
+        self.pages = []
+
         # Every element (question + layout) keyed by name — flat: also
         # includes elements nested inside panels.
         self.all_elements = OrderedDict()
@@ -77,9 +83,10 @@ class SurveyForm:
         # Questions (fields) keyed by name
         self.questions = OrderedDict()
 
-        # Every element keyed by internal id — flat (ids are unique across
-        # the whole tree, so this registry is inherently global).
-        self.all_element_ids = OrderedDict()
+        # Every element keyed by dotted path — flat. Paths are unique across
+        # the whole tree (unlike names, which collide between the template
+        # children of two paneldynamics), and match the creator's paths.
+        self.all_element_paths = OrderedDict()
 
         # Load elements from survey schema + populate values from form data
         self.load_elements()
@@ -92,18 +99,6 @@ class SurveyForm:
             self.creator_schema_json,
             language=self.lang,
         )
-
-    # TODO?
-    # @property
-    # def elements(self):
-    #     return self._elements
-
-    # @elements.setter
-    # def elements(self, elements):
-    #     if isinstance(elements, OrderedDict):
-    #         self._elements = elements
-    #     else:
-    #         self._elements = OrderedDict(elements)
 
     @property
     def data(self):
@@ -121,9 +116,9 @@ class SurveyForm:
         return self.all_elements
 
     @property
-    def all_component_ids(self):
-        """Alias for `all_element_ids` (flat — keyed by internal id)."""
-        return self.all_element_ids
+    def all_component_paths(self):
+        """Alias for `all_element_paths` (flat — keyed by dotted path)."""
+        return self.all_element_paths
 
     @property
     def input_components(self):
@@ -131,44 +126,85 @@ class SurveyForm:
         return self.questions
 
     def load_elements(self):
-        """Load elements from the survey schema and populate values from
-        form submission data.
+        """Load pages and elements from the survey schema and populate values
+        from form submission data.
 
         Only root elements are instantiated here; a container's nested
         children are built by its own `load_data` (with the container set as
         their parent). Every element is then registered into `all_elements`
-        (flat) and `all_element_ids`, and root elements into `elements`,
-        mirroring the Creator so `parent` distinguishes root from nested."""
-        for creator_element in self.creator.elements.values():
-            # Create a new element object (don't affect the Survey's element)
-            element_obj = self.creator.get_element_object(creator_element.raw)
-            element_obj.load(
-                element_owner=self,
-                parent=None,
-                data=self.form,
-                is_form=True,
+        (flat) and `all_element_paths`, and root elements into `elements`,
+        mirroring the Creator so `parent` distinguishes root from nested.
+
+        Pages mirror the creator's pages one-for-one, but hold this form's
+        element objects rather than the creator's."""
+        for creator_page in self.creator.pages:
+            page = Page(
+                creator_page.raw,
+                self,
+                index=creator_page.index,
+                language=self.lang,
+                i18n=self.creator.i18n,
+                implicit=creator_page.implicit,
             )
-            self._register_element(element_obj)
+            self.pages.append(page)
+
+            for creator_element in creator_page.elements.values():
+                # Create a new element object (don't affect the Survey's element)
+                element_obj = self.creator.get_element_object(creator_element.raw)
+                element_obj.load(
+                    element_owner=self,
+                    parent=None,
+                    data=self.form,
+                    is_form=True,
+                )
+                page.add_element(element_obj)
+                self._register_element(element_obj)
+
+    def get_page_by_name(self, name):
+        """Get a page by its name."""
+        for page in self.pages:
+            if page.name == name:
+                return page
+        return None
 
     def _register_element(self, element_obj):
-        """Register an element and all its descendants into the maps."""
-        self.all_elements[element_obj.name] = element_obj
-        if element_obj.parent is None:
-            self.elements[element_obj.name] = element_obj
-        if element_obj.id:
-            self.all_element_ids[element_obj.id] = element_obj
-        for child in element_obj.elements.values():
+        """Register an element and all its descendants into the maps.
+
+        Elements inside a materialised panel instance are filed by path only:
+        every row reuses the template's names, so a name-keyed map cannot hold
+        them (which row would `all_elements['year']` be?)."""
+        self.all_element_paths[element_obj.path_str] = element_obj
+
+        if not element_obj.in_repeating_context:
+            self.all_elements[element_obj.name] = element_obj
+            if element_obj.parent is None:
+                self.elements[element_obj.name] = element_obj
+
+        for child in element_obj.registrable_children:
             self._register_element(child)
+
+    def get_element_by_path(self, path):
+        """Get an element by its path — a dotted string or a list of names."""
+        if not isinstance(path, str):
+            path = '.'.join(path)
+        return self.all_element_paths.get(path)
 
     def get_question_by_name(self, name):
         """Get a question by its name."""
         return self.questions.get(name)
 
     def get_value(self, name):
-        """Get the value of a question by name."""
+        """Get a question's value by name, parsed per its `inputType`."""
         question = self.questions.get(name)
         if question:
             return question.value
+        return None
+
+    def get_raw_value(self, name):
+        """Get a question's value by name, exactly as submitted."""
+        question = self.questions.get(name)
+        if question:
+            return question.raw_value
         return None
 
 
