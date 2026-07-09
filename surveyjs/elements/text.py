@@ -43,6 +43,13 @@ class QuestionText(Question):
     def input_type(self):
         return self.raw.get('inputType', 'text')
 
+    def __repr__(self):
+        """Includes `input_type`: it decides how `value` is parsed, so it is
+        the one property that distinguishes two otherwise identical text
+        questions."""
+        return '<%s name=%s input_type=%s>' % (
+            self.__class__.__name__, self.name, self.input_type)
+
     def _parse_as(self, parser):
         """Parse this question's `raw_value` with `parser`, or None.
 

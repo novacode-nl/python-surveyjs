@@ -50,7 +50,7 @@ class MultipleTextItem:
         return parse_input_value(self.input_type, self.raw_value)
 
     def __repr__(self):
-        return '<MultipleTextItem name=%s>' % self.name
+        return '<MultipleTextItem name=%s input_type=%s>' % (self.name, self.input_type)
 
     def to_dict(self):
         """Emits `raw_value` under `value`, so the dict stays JSON-serialisable."""

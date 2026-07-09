@@ -8,7 +8,7 @@ matching test fails and the README must be updated with it.
 """
 
 import unittest
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta
 
 from surveyjs import SurveyCreator, SurveyForm, register_input_type
 from surveyjs.elements.inputtype import INPUT_TYPE_PARSERS
@@ -19,6 +19,8 @@ CREATOR_JSON = {
         {'name': 'personal', 'title': 'Personal', 'elements': [
             {'type': 'text', 'name': 'firstName', 'title': 'First Name'},
             {'type': 'text', 'name': 'birthDate', 'title': 'Birth Date', 'inputType': 'date'},
+            {'type': 'text', 'name': 'appointment', 'title': 'Appointment',
+             'inputType': 'datetime-local'},
             {'type': 'panel', 'name': 'contact', 'elements': [
                 {'type': 'text', 'name': 'phone', 'title': 'Phone'}]},
         ]},
@@ -38,6 +40,7 @@ CREATOR_JSON = {
 FORM_JSON = {
     'firstName': 'Bob',
     'birthDate': '1985-06-14',
+    'appointment': '2024-03-15T13:45',
     'phone': '+31 6 1234 5678',
     'education': [{'school': 'MIT', 'graduated': '2015-05-30'}],
     'jobs': [{'employer': 'Nova Code', 'started': '2020-01-06'}],
@@ -66,6 +69,16 @@ class TestReadmeExamples(unittest.TestCase):
         q = self.form.questions['birthDate']
         self.assertEqual(q.value, date(1985, 6, 14))
         self.assertEqual(q.raw_value, '1985-06-14')
+
+    def test_date_question_yields_a_date_not_a_datetime(self):
+        """datetime subclasses date, so assertEqual alone would not catch it."""
+        self.assertNotIsInstance(self.form.questions['birthDate'].value, datetime)
+
+    def test_datetime_question_yields_a_datetime(self):
+        q = self.form.questions['appointment']
+        self.assertEqual(q.value, datetime(2024, 3, 15, 13, 45))
+        self.assertIsInstance(q.value, datetime)
+        self.assertEqual(q.raw_value, '2024-03-15T13:45')
 
     def test_value_is_read_only(self):
         with self.assertRaises(AttributeError):
@@ -101,17 +114,21 @@ class TestReadmeExamples(unittest.TestCase):
     def test_page_elements_are_objects_keyed_by_name(self):
         """`elements` is an OrderedDict of Element objects; list() gives keys."""
         elements = self.form.pages[0].elements
-        self.assertEqual(list(elements), ['firstName', 'birthDate', 'contact'])
-        self.assertEqual(repr(elements['firstName']), '<QuestionText name=firstName>')
+        self.assertEqual(list(elements),
+                         ['firstName', 'birthDate', 'appointment', 'contact'])
+        self.assertEqual(repr(elements['firstName']),
+                         '<QuestionText name=firstName input_type=text>')
         self.assertEqual(
             [repr(e) for e in elements.values()],
-            ['<QuestionText name=firstName>',
-             '<QuestionText name=birthDate>',
+            ['<QuestionText name=firstName input_type=text>',
+             '<QuestionText name=birthDate input_type=date>',
+             '<QuestionText name=appointment input_type=datetime-local>',
              '<QuestionPanel name=contact>'],
         )
 
     def test_page_questions_excludes_layout(self):
-        self.assertEqual(list(self.form.pages[0].questions), ['firstName', 'birthDate'])
+        self.assertEqual(list(self.form.pages[0].questions),
+                         ['firstName', 'birthDate', 'appointment'])
 
     def test_values_come_from_a_form_page(self):
         self.assertEqual(self.form.pages[0].elements['firstName'].value, 'Bob')

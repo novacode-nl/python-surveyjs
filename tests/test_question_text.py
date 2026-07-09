@@ -119,5 +119,31 @@ class TestTextForm(unittest.TestCase):
         self.assertEqual(d['type'], 'text')
 
 
+class TestQuestionTextRepr(unittest.TestCase):
+    """`input_type` decides how `value` is parsed, so the repr shows it."""
+
+    def setUp(self):
+        self.survey = load_creator()
+
+    def test_repr_shows_the_declared_input_type(self):
+        self.assertEqual(repr(self.survey.questions['birthDate']),
+                         '<QuestionText name=birthDate input_type=date>')
+        self.assertEqual(repr(self.survey.questions['appointmentTime']),
+                         '<QuestionText name=appointmentTime input_type=datetime-local>')
+
+    def test_repr_shows_the_default_input_type(self):
+        """A text question with no declared inputType is a plain text input."""
+        self.assertEqual(repr(self.survey.questions['firstName']),
+                         '<QuestionText name=firstName input_type=text>')
+
+    def test_other_question_types_keep_the_plain_repr(self):
+        """Only a text question carries an inputType; every other type would
+        show an empty one, so `Element.__repr__` is left alone."""
+        self.assertEqual(repr(self.survey.questions['hobbies']),
+                         '<QuestionCheckbox name=hobbies>')
+        self.assertEqual(repr(self.survey.elements['contactPanel']),
+                         '<QuestionPanel name=contactPanel>')
+
+
 if __name__ == '__main__':
     unittest.main()

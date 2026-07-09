@@ -1,8 +1,8 @@
 # Contributing to the python-surveyjs project
 
-First off, thank you for taking the time to contribute! Contributions are
-welcome and appreciated — bug reports, feature requests, documentation
-improvements, and code.
+First off, thank you for taking the time to contribute!\
+Contributions are welcome and appreciated — bug reports, feature requests,
+documentation improvements, tests and code.
 
 This project is open source and released under the [MIT License](LICENSE).
 
@@ -43,6 +43,36 @@ alternatives you have considered.
 6. Commit your work with clear, descriptive commit messages.
 7. Open a pull request against the `main` branch, describing what your change
    does and why.
+
+Note that we cannot merge your pull request until you have signed a Contributor
+License Agreement (see below). It's worth starting that process early, since it
+involves an email exchange.
+
+## Contributor License Agreement (CLA)
+
+Before we can accept your contribution, we ask that you sign a Contributor
+License Agreement (CLA). This protects both you and the project, and ensures we
+have the rights necessary to distribute your contribution under the project's
+license.
+
+To request the Agreement, please send an email to
+[cla@novaforms.io](mailto:cla@novaforms.io). We will reply with the appropriate
+document to sign.
+
+There are two forms of the Agreement:
+
+- **Individual Contributor License Agreement (ICLA).** The ICLA
+  (“CLA”) concerns a modified version of the
+  [Apache Software Foundation Individual Contributor License Agreement v2.2](https://apache.org/licenses/icla.pdf).
+  Sign this if you are contributing as an individual.
+
+- **Corporate Contributor License Agreement (CCLA).** The CCLA
+  (“CLA”) concerns a modified version of the
+  [Apache Software Foundation Software Grant and Corporate Contributor License Agreement v r190612](https://apache.org/licenses/cla-corporate.pdf).
+  Sign this if you are contributing on behalf of an employer or other
+  organization.
+
+We are unable to merge contributions until the relevant CLA has been signed.
 
 ## Development Setup
 
@@ -87,32 +117,6 @@ add.
   ```
 
 - Update documentation when you change behavior.
-
-## Contributor License Agreement (CLA)
-
-Before we can accept your contribution, we ask that you sign a Contributor
-License Agreement (CLA). This protects both you and the project, and ensures we
-have the rights necessary to distribute your contribution under the project's
-license.
-
-To request the Agreement, please send an email to
-[cla@novaforms.io](mailto:cla@novaforms.io). We will reply with the appropriate
-document to sign.
-
-There are two forms of the Agreement:
-
-- **Individual Contributor License Agreement (ICLA).** The ICLA
-  (“CLA”) concerns a modified version of the
-  [Apache Software Foundation Individual Contributor License Agreement v2.2](https://apache.org/licenses/icla.pdf).
-  Sign this if you are contributing as an individual.
-
-- **Corporate Contributor License Agreement (CCLA).** The CCLA
-  (“CLA”) concerns a modified version of the
-  [Apache Software Foundation Software Grant and Corporate Contributor License Agreement v r190612](https://apache.org/licenses/cla-corporate.pdf).
-  Sign this if you are contributing on behalf of an employer or other
-  organization.
-
-We are unable to merge contributions until the relevant CLA has been signed.
 
 ## License
 

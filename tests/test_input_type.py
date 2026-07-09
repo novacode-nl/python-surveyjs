@@ -328,8 +328,16 @@ class TestMultipleTextItemInputType(unittest.TestCase):
             'name': 'date', 'title': 'date', 'inputType': 'date', 'value': '2024-07-08',
         })
 
-    def test_item_repr(self):
-        self.assertEqual(repr(self.q.get_item('date')), '<MultipleTextItem name=date>')
+    def test_item_repr_shows_input_type(self):
+        self.assertEqual(repr(self.q.get_item('date')),
+                         '<MultipleTextItem name=date input_type=date>')
+        self.assertEqual(repr(self.q.get_item('when')),
+                         '<MultipleTextItem name=when input_type=datetime-local>')
+
+    def test_item_repr_shows_the_default_input_type(self):
+        """An item with no declared inputType is a plain text input."""
+        self.assertEqual(repr(self.q.get_item('note')),
+                         '<MultipleTextItem name=note input_type=text>')
 
 
 class TestValueContract(unittest.TestCase):

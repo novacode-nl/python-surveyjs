@@ -1,5 +1,30 @@
 # Changelog
 
+## 0.4.3
+
+Show `input_type` in reprs, fix `element_class_mapping` string values, and
+remove the unreachable `nonvalue` module.
+
+**Reprs:**
+
+- `QuestionText`, `MultipleTextItem` and `MatrixColumn` now include `input_type` in their `repr()`. It decides how `value` is parsed, so it is the one property that distinguishes two otherwise identical text elements.
+- `MatrixColumn` always shows `cell_type`, and appends `input_type` only when the column has one: `<MatrixColumn name=when cell_type=text input_type=date>` versus `<MatrixColumn name=role cell_type=dropdown>`. Previously the two fields *swapped*, so a text column's repr hid its `cell_type` and two columns' reprs could not be compared.
+- `Element.__repr__` is unchanged (`<QuestionPanel name=contact>`): types that carry no `inputType` have nothing to add.
+
+**Fixes:**
+
+- **`element_class_mapping` string values never worked.** Two defects: the mapping name was `.capitalize()`d, mangling `QuestionText` into `Questiontext`; and the import path appended the class name as if it were a module, so `__import__('surveyjs.elements.text.QuestionText')` raised `ModuleNotFoundError`. Every string mapping silently fell back to the base `Element` with a warning. The name is now used verbatim and the module resolved correctly. Class-object mapping values were unaffected and still work.
+- A string mapping may now also be a dotted path to a class of your own — `{'text': 'myapp.widgets.MyText'}` — not only a bare class name looked up in this library's `surveyjs.elements.<type>` module. Without this the repaired string form could only name classes that already live inside the package, which a caller could reference as a class object anyway.
+- An unresolvable mapping is caught as `ImportError` rather than `ModuleNotFoundError`, so a broken import *inside* a user's module degrades to the same warning instead of escaping.
+
+**Removed:**
+
+- `surveyjs.elements.nonvalue` (`QuestionNonValue`). It was unreachable: the loader derives `Question` + `'nonvalue'.capitalize()` = `QuestionNonvalue`, which never matched the class's CamelCase `QuestionNonValue`, so a `"type": "nonvalue"` element always fell back to `Element`. Nothing referenced it, no test covered it, and SurveyJS has no `nonvalue` question type — `QuestionNonValue` is a survey-core *base class* for html/image/expression, which already map to `QuestionHtml`, `QuestionImage` and `QuestionExpression` here. The module was a frozen copy of the pre-0.4.0 `text.py`, still carrying the `to_date()` bug 0.4.0 fixed and still reading `value` where `raw_value` is now correct.
+
+**README:**
+
+- The Questions and values example now shows a `date` and a `datetime-local` question parsed into `datetime.date` / `datetime.datetime` objects, and the reprs it prints carry the new `input_type` field.
+
 ## 0.4.2
 
 README: document `pages` on both `SurveyCreator` and `SurveyForm` classes.
@@ -184,7 +209,7 @@ Add `custom_properties` getter to the Question class, stored as `customPropertie
 This is useful for accessing any additional metadata or configuration that may be included in the survey schema but is not part of the standard question properties.
 
 More info:
-https://surveyjs.io/form-library/documentation/customize-question-types/add-custom-properties-to-a-form
+<https://surveyjs.io/form-library/documentation/customize-question-types/add-custom-properties-to-a-form>
 
 ## 0.1.0
 

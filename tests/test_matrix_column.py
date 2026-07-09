@@ -93,10 +93,29 @@ class TestMatrixColumn(unittest.TestCase):
     def test_parse_unparseable(self):
         self.assertIsNone(self.q.get_column('when').parse('nope'))
 
-    def test_repr_and_to_dict(self):
-        column = self.q.get_column('when')
-        self.assertEqual(repr(column), '<MatrixColumn name=when>')
-        self.assertEqual(column.to_dict(), {
+    def test_repr_shows_cell_type_and_input_type(self):
+        self.assertEqual(repr(self.q.get_column('when')),
+                         '<MatrixColumn name=when cell_type=text input_type=date>')
+
+    def test_repr_of_a_non_text_column_omits_input_type(self):
+        """A dropdown cell has no inputType; print no empty field for it."""
+        self.assertEqual(repr(self.q.get_column('role')),
+                         '<MatrixColumn name=role cell_type=dropdown>')
+
+    def test_repr_always_shows_cell_type(self):
+        """cell_type is meaningful for every column, so it never disappears —
+        two columns' reprs are directly comparable."""
+        for name in ('when', 'at', 'amount', 'role', 'note'):
+            column = self.q.get_column(name)
+            self.assertIn('cell_type=%s' % column.cell_type, repr(column))
+
+    def test_repr_of_a_text_column_without_an_explicit_input_type(self):
+        """`note` inherits the question's cellType; input_type defaults to text."""
+        self.assertEqual(repr(self.q.get_column('note')),
+                         '<MatrixColumn name=note cell_type=text input_type=text>')
+
+    def test_to_dict(self):
+        self.assertEqual(self.q.get_column('when').to_dict(), {
             'name': 'when', 'title': 'when', 'cellType': 'text', 'inputType': 'date',
         })
 

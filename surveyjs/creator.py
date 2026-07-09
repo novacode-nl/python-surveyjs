@@ -170,22 +170,28 @@ class SurveyCreator:
 
         cls_mapping = self.element_class_mapping.get(element_type)
         if cls_mapping:
-            cls_mapping = cls_mapping.capitalize() if isinstance(cls_mapping, str) else cls_mapping
-            if isinstance(cls_mapping, str):
-                cls_name = cls_mapping
-                import_path = f"surveyjs.elements.{element_type}.{cls_mapping}"
-                try:
-                    module = __import__(import_path, fromlist=[cls_name])
-                    cls = getattr(module, cls_name)
-                    return cls
-                except (AttributeError, ModuleNotFoundError) as e:
-                    logger.warning(
-                        "Could not load element class for type '%s': %s. "
-                        "Falling back to base Question Element.", element_type, e
-                    )
-                    return Element
-            else:
+            if not isinstance(cls_mapping, str):
                 return cls_mapping
+
+            # A string names a class: either bare (looked up in this
+            # library's `surveyjs.elements.<type>` module) or as a dotted
+            # path to a class of your own, e.g. 'myapp.widgets.MyText'.
+            # The name is used verbatim — capitalising it would mangle the
+            # CamelCase the class actually has.
+            if '.' in cls_mapping:
+                module_path, cls_name = cls_mapping.rsplit('.', 1)
+            else:
+                module_path, cls_name = 'surveyjs.elements.%s' % element_type, cls_mapping
+
+            try:
+                module = __import__(module_path, fromlist=[cls_name])
+                return getattr(module, cls_name)
+            except (AttributeError, ImportError) as e:
+                logger.warning(
+                    "Could not load element class for type '%s': %s. "
+                    "Falling back to base Question Element.", element_type, e
+                )
+                return Element
         else:
             cls_name = f"Question{element_type_cap}"
             import_path = 'surveyjs.elements.%s' % element_type

@@ -57,7 +57,13 @@ class MatrixColumn:
         return parse_input_value(self.input_type, raw_cell_value)
 
     def __repr__(self):
-        return '<MatrixColumn name=%s>' % self.name
+        """`cell_type` is always meaningful, so it is always shown. Only a
+        text cell has an `inputType`; append it when there is one rather than
+        print an empty field."""
+        if self.input_type:
+            return '<MatrixColumn name=%s cell_type=%s input_type=%s>' % (
+                self.name, self.cell_type, self.input_type)
+        return '<MatrixColumn name=%s cell_type=%s>' % (self.name, self.cell_type)
 
     def to_dict(self):
         return {

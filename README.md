@@ -6,7 +6,7 @@
 
 Python API for SurveyJS Creator (Form Builder) schema and Form response JSON.
 
-For information about the SurveyJS project, see https://surveyjs.io
+For information about the SurveyJS project, see <https://surveyjs.io>
 
 ## Introduction
 
@@ -22,7 +22,7 @@ Its main aim is to provide easy access to a SurveyJS Form's questions (fields, l
 - **Element:** The base concept for both Question and Layout elements in SurveyJS.
 
 **SurveyJS question and layout classes (source code):**\
-https://github.com/surveyjs/survey-library/tree/master/packages/survey-core/src \
+<https://github.com/surveyjs/survey-library/tree/master/packages/survey-core/src> \
 The file prefix `question` indicates a question (field) class.
 
 ## Features
@@ -37,7 +37,7 @@ The file prefix `question` indicates a question (field) class.
 
 ## Installation
 
-The source code is currently hosted on GitHub at: https://github.com/novacode-nl/python-surveyjs
+The source code is currently hosted on GitHub at: <https://github.com/novacode-nl/python-surveyjs>
 
 ### PyPI - Python Package Index
 
@@ -102,6 +102,14 @@ form.questions['satisfaction'].value
 # Boolean question
 form.questions['agree'].value
 # True
+
+# Date question (inputType 'date')
+form.questions['birthDate'].value
+# datetime.date(1985, 6, 14)
+
+# Datetime question (inputType 'datetime-local')
+form.questions['appointment'].value
+# datetime.datetime(2024, 3, 15, 13, 45)
 
 # Matrix question
 form.questions['quality'].value
@@ -181,17 +189,20 @@ the same shape as `creator.elements` / `form.elements`.
 
 ```python
 form.pages[0].elements['firstName']
-# <QuestionText name=firstName>
+# <QuestionText name=firstName input_type=text>
 
 list(form.pages[0].elements.values())
-# [<QuestionText name=firstName>, <QuestionText name=birthDate>, <QuestionPanel name=contact>]
+# [<QuestionText name=firstName input_type=text>,
+#  <QuestionText name=birthDate input_type=date>,
+#  <QuestionText name=appointment input_type=datetime-local>,
+#  <QuestionPanel name=contact>]
 
 list(form.pages[0].elements)             # dict keys, i.e. the element names
-# ['firstName', 'birthDate', 'contact']
+# ['firstName', 'birthDate', 'appointment', 'contact']
 
 # .questions is the same, filtered to input questions (no panel/html/image)
 list(form.pages[0].questions)
-# ['firstName', 'birthDate']
+# ['firstName', 'birthDate', 'appointment']
 ```
 
 Read values from a **form** page — a creator page describes the schema, so its
@@ -306,7 +317,7 @@ Nested questions (complexity), from toplevel directory:
 poetry run python -m unittest tests/test_nested_questions.py
 ```
 
-### Run specific component unittest
+### Run specific element/question unittest
 
 ```
 poetry run python -m unittest tests.test_question_ranking.TestQuestionRanking.test_choices
