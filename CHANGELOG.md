@@ -1,5 +1,30 @@
 # Changelog
 
+## 0.5.0
+
+Add form and question validations (validators).
+
+**New API:**
+
+- `SurveyForm.validation_errors()` collects errors across every input question and returns them keyed by question name — `{'age': {'numeric': "The 'Age' should be at least 18"}}`. A valid submission yields an empty dict; questions with no errors are omitted. The result is a plain dict, so reading an absent key raises instead of silently inserting an empty entry.
+- `Element.validation_errors()` returns a single question's errors, keyed by error type. It checks two kinds of rule, which never collide because they apply to opposite states: the `isRequired` flag (keyed `required`, only when the answer is empty), and each entry in the `validators` array (only when the answer is non-empty, matching SurveyJS, which passes validators on empty input).
+- `Element.is_empty()` — whether a question holds no answer. `None`, `''`, `[]` and `{}` are empty; `False` and `0` are answers, not emptiness.
+- `Element.required_error_text` — the question's `requiredErrorText`, used as the required message when set.
+
+**Validators** (the `validators` array), faithful to SurveyJS's semantics and default English messages:
+
+- `numeric` — number check plus `minValue`/`maxValue` range.
+- `text` — `minLength`/`maxLength` bounds and the `allowDigits` no-digits rule.
+- `answercount` — `minCount`/`maxCount` on multi-select answers.
+- `regex` — `regex` pattern (with `caseInsensitive`), tested against each element of an array answer; an un-compilable pattern is treated as no constraint rather than an error.
+- `email` — SurveyJS's own e-mail pattern.
+
+Each validator honours a per-rule `text` override, and otherwise translates its default message through the same i18n map the required message uses, filling `{0}`/`{1}`/`{2}` placeholders. The `expression` validator is **not** implemented — evaluating a SurveyJS expression needs a runtime this library does not carry — and any unrecognised `type` is skipped rather than mis-evaluated.
+
+**Extensibility:**
+
+- `surveyjs.elements.validators.register_validator(type_name)` — a decorator to register or override the function for a validator `type`, mirroring `register_input_type`.
+
 ## 0.4.3
 
 Show `input_type` in reprs, fix `element_class_mapping` string values, and
@@ -121,7 +146,7 @@ Adds first-class **pages**, **paths**, **panel instances**, and **`inputType` pa
 
 ## 0.3.0
 
-**Breaking:** on `SurveyCreator` / `SurveyForm`, element accessors are split into root vs. flat, with consistent `all_`-prefixed flat variants and formio `component` aliases:
+**Breaking:** on `SurveyCreator` / `SurveyForm`, element accessors are split into root vs. flat, with consistent `all_`-prefixed flat variants and `component` aliases:
 
 - `elements` — **root** (top-level) elements, keyed by name. Nested children are reached via each container's own `elements`.
 - `all_elements` — **flat** map of every element (including nested), keyed by name.

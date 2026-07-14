@@ -5,6 +5,7 @@ from collections import OrderedDict
 
 from ..text import interpolate_text
 from .inputtype import parse_input_value
+from .validators import run_validators
 
 # TODO
 # 1. Make a Question class that inherits from Element and all questions inherit from that,
@@ -251,6 +252,12 @@ class Element:
         return self.raw.get('validators', [])
 
     @property
+    def required_error_text(self):
+        """Custom message shown when a required element is left empty, or None
+        to fall back to the default template."""
+        return self.raw.get('requiredErrorText')
+
+    @property
     def input_type(self):
         """The input type (for text questions)."""
         return self.raw.get('inputType', '')
@@ -477,6 +484,53 @@ class Element:
           For example, Dropdown, Checkboxes, and Radio Button Group questions use this type for the choices property.
         """
         return self.raw.get('customProperties', [])
+
+    # --- Validation ---
+
+    def is_empty(self):
+        """Whether this element holds no answer.
+
+        None is empty; so is an empty string, list or dict (an unanswered
+        checkbox, tagbox, matrix, etc.). Zero and False are answers, not
+        emptiness."""
+        value = self.value
+        if value is None:
+            return True
+        if isinstance(value, (str, list, dict)):
+            return len(value) == 0
+        return False
+
+    def validation_errors(self):
+        """Validation errors for this element, keyed by error type.
+
+        Mirrors formio-data's ``Component.validation_errors``: returns an
+        empty dict when the element is valid, otherwise a dict such as
+        ``{'required': 'First name is required'}`` or
+        ``{'numeric': "The 'Age' should be at least 18"}``.
+
+        Two kinds of rule are checked:
+
+        - the ``isRequired`` flag, keyed ``required`` — only when the answer
+          is empty;
+        - each entry in the ``validators`` array (numeric, text, answercount,
+          regex, email), keyed by its `type` — only when the answer is
+          non-empty, since SurveyJS validators pass on empty input.
+
+        The two are mutually exclusive per element, so their keys never
+        collide.
+
+        @return dict: {error_type: message}
+        """
+        errors = {}
+        empty = self.is_empty()
+        if self.is_required and empty:
+            msg_tmpl = self.required_error_text or '{{field}} is required'
+            if self.i18n.get(self.language):
+                msg_tmpl = self.i18n[self.language].get(msg_tmpl, msg_tmpl)
+            errors['required'] = msg_tmpl.replace('{{field}}', self.label)
+        if not empty:
+            errors.update(run_validators(self))
+        return errors
 
     # --- Representation ---
 

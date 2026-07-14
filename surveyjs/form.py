@@ -3,7 +3,7 @@
 
 import json
 import logging
-from collections import OrderedDict
+from collections import OrderedDict, defaultdict
 
 from surveyjs.creator import SurveyCreator
 from surveyjs.page import Page
@@ -206,6 +206,27 @@ class SurveyForm:
         if question:
             return question.raw_value
         return None
+
+    def validation_errors(self):
+        """Collect validation errors across every input question.
+
+        Mirrors formio-data's ``Form.validation_errors``: asks each question
+        for its own errors and aggregates them, keyed by question
+        name. A question with no errors is omitted, so an empty result means
+        the whole submission is valid.
+
+        @return dict: {question_name: {error_type: message}}. A question that
+            returns a list of errors is stored as that list.
+        """
+        errors = defaultdict(dict)
+        for name, question in self.questions.items():
+            question_errors = question.validation_errors()
+            if isinstance(question_errors, dict):
+                for error_type, val in question_errors.items():
+                    errors[name].update({error_type: val})
+            elif isinstance(question_errors, list) and question_errors:
+                errors[name] = question_errors
+        return dict(errors)
 
 
 class FormData:
