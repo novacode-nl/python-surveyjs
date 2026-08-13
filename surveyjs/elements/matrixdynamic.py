@@ -58,6 +58,14 @@ class QuestionMatrixdynamic(MatrixColumnsMixin, Question):
         """Number of rows in submitted data."""
         return len(self.rows_data)
 
+    def _iter_rows(self):
+        """A dynamic matrix's rows are its submitted list, keyed by position:
+        `legs[0].country`."""
+        return (
+            (index, row if isinstance(row, dict) else {})
+            for index, row in enumerate(self.rows_data)
+        )
+
     def get_row_raw_value(self, row_index):
         """Get a row's cell dict, exactly as submitted."""
         data = self.rows_data

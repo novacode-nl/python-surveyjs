@@ -1,6 +1,8 @@
 # Copyright 2026 Nova Code (https://www.novaforms.io)
 # See LICENSE file for full licensing details.
 
+from collections import OrderedDict
+
 from .inputtype import parse_input_value
 
 
@@ -52,6 +54,24 @@ class MatrixColumn:
     def is_required(self):
         return self.raw.get('isRequired', False)
 
+    @property
+    def cell_raw(self):
+        """This column as the definition of the question one of its cells is.
+
+        A column already reads like an element — a name, a title, choices, an
+        `isRequired` — with its type spelled `cellType` and, where the column
+        says nothing, taken from the question it belongs to. This is that
+        element definition: what the matrix builds each of its cells from.
+        """
+        raw = dict(self.raw)
+        raw['type'] = self.cell_type
+        raw['name'] = self.name
+        if self.input_type:
+            raw['inputType'] = self.input_type
+        if 'choices' not in raw and self.choices:
+            raw['choices'] = self.choices
+        return raw
+
     def parse(self, raw_cell_value):
         """Parse one raw cell value according to this column's `inputType`."""
         return parse_input_value(self.input_type, raw_cell_value)
@@ -79,16 +99,112 @@ class MatrixColumnsMixin:
 
     Both expose `columns` as `MatrixColumn` objects and parse their cells per
     the owning column's `inputType`.
+
+    On a form, both also materialise their cells as *questions*: a column
+    declares a `cellType`, which is a question type, so every cell is a
+    question of that type holding that cell's value. See `cells()`.
     """
 
     def __init__(self, raw, survey, **kwargs):
         super().__init__(raw, survey, **kwargs)
         self._columns = [MatrixColumn(column, self) for column in self.raw.get('columns', [])]
+        self._rows_cells = OrderedDict()
 
     @property
     def columns(self):
         """The column definitions, as `MatrixColumn` objects."""
         return self._columns
+
+    # --- Cells as questions ------------------------------------------------
+    #
+    # A column is a definition, shared by every row; a cell is one value of
+    # it. Reading a cell through `get_cell_value()` gives the value typed by
+    # the column's `inputType` and nothing else — enough for a text or a
+    # number, and not for a cell whose `cellType` is a question type with
+    # behaviour of its own (a dropdown resolving what its choices mean, a
+    # boolean knowing its own labels).
+    #
+    # So each cell is also built as a question of that `cellType`, through the
+    # survey's element class mapping — the same mapping that decides every
+    # other question's class, so an application that extends a type gets its
+    # class in a matrix too. Cells are registered by path (`legs[0].country`)
+    # like a dynamic panel's row children, never by name: a name repeats in
+    # every row.
+    #
+    # Costs one element per cell on a form. A dynamic panel has always worked
+    # this way; a matrix with hundreds of rows now pays the same.
+
+    def load_data(self, data, is_form=False):
+        """Load the matrix value, then materialise a question per cell.
+
+        Only on the form path: a Creator has no submission data, so it has no
+        rows — its columns are the whole story there.
+        """
+        super().load_data(data, is_form=is_form)
+        if not is_form:
+            return
+        self._rows_cells = OrderedDict(
+            (row_key, self._materialise_cells(row_key, row))
+            for row_key, row in self._iter_rows()
+        )
+
+    def _iter_rows(self):
+        """Yield `(row_key, row_data)` per row of the submitted value.
+
+        Implemented by each matrix type: their rows are keyed differently — a
+        dynamic matrix by position, a matrixdropdown by row name.
+        """
+        raise NotImplementedError
+
+    def _materialise_cells(self, row_key, row):
+        """Build one question per column for `row`, holding that cell's value."""
+        cells = OrderedDict()
+        for column in self._columns:
+            if not column.name:
+                continue
+            element_obj = self.survey.get_element_object(column.cell_raw)
+            if not element_obj:
+                continue
+            element_obj.row_key = row_key
+            element_obj.load(
+                element_owner=self.element_owner,
+                parent=self,
+                data=row if isinstance(row, dict) else {},
+                is_form=True,
+                # Column names repeat in every row: file these by path only.
+                register_with_owner=False,
+                register_with_parent=False,
+            )
+            cells[column.name] = element_obj
+        return cells
+
+    @property
+    def nests_data(self):
+        """A matrix's value holds one dict per row, so a cell's value is
+        nested under the matrix's own name and its row's key."""
+        return True
+
+    @property
+    def registrable_children(self):
+        """A matrix's cells live in its rows, not in `elements`."""
+        children = super().registrable_children
+        for cells in self._rows_cells.values():
+            children.extend(cells.values())
+        return children
+
+    @property
+    def rows_cells(self):
+        """`{row key: {column name: cell question}}` for every submitted row."""
+        return self._rows_cells
+
+    def cells(self, row_key):
+        """The cell questions of one row, keyed by column name (empty when
+        there is no such row)."""
+        return self._rows_cells.get(row_key, OrderedDict())
+
+    def get_cell(self, row_key, column_name):
+        """One cell as a question, or None."""
+        return self.cells(row_key).get(column_name)
 
     @property
     def column_names(self):

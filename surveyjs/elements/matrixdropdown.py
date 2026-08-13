@@ -36,6 +36,33 @@ class QuestionMatrixdropdown(MatrixColumnsMixin, Question):
     def row_count(self):
         return len(self.rows)
 
+    @property
+    def row_names(self):
+        """The name of each row, in schema order.
+
+        A row is authored either as a bare value or as `{'value': …, 'text': …}`,
+        and it is the value that keys the submitted data.
+        """
+        names = []
+        for row in self.rows:
+            name = row.get('value') if isinstance(row, dict) else row
+            if name is not None:
+                names.append(name)
+        return names
+
+    def _iter_rows(self):
+        """A matrixdropdown's rows are the ones its schema declares, keyed by
+        name: `quality[speed].rating`.
+
+        The schema rather than the submitted value, so a row nobody answered
+        still has its cells — a matrixdropdown shows every row it declares,
+        answered or not.
+        """
+        return (
+            (name, self.get_row_raw_value(name))
+            for name in self.row_names
+        )
+
     def get_row_raw_value(self, row_name):
         """Get a row's cell dict, exactly as submitted."""
         val = self.raw_value

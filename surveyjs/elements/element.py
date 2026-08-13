@@ -131,7 +131,9 @@ class Element:
 
         segments = list(self._parent.path)
         if self._panel_index is not None:
-            segments[-1] = '%s[%d]' % (segments[-1], self._panel_index)
+            # `%s`, not `%d`: a row key is a row *index* in a dynamic panel or
+            # a dynamic matrix, and a row *name* in a matrixdropdown.
+            segments[-1] = '%s[%s]' % (segments[-1], self._panel_index)
         return segments + [self.name]
 
     @property
@@ -342,12 +344,29 @@ class Element:
     @property
     def panel_index(self):
         """Index of the panel instance this element belongs to, or None if it
-        is not inside a repeating container."""
+        is not inside a repeating container.
+
+        The dynamic-panel spelling of :attr:`row_key`; both read and write the
+        same value."""
         return self._panel_index
 
     @panel_index.setter
     def panel_index(self, index):
         self._panel_index = index
+
+    @property
+    def row_key(self):
+        """Which row of a repeating container this element belongs to, or None.
+
+        An int for the containers whose value is a list of rows — a dynamic
+        panel, a dynamic matrix — and the row's name for a matrixdropdown,
+        whose value is keyed by row instead. It is what makes the element
+        addressable: `education[0].year`, `quality[speed].rating`."""
+        return self._panel_index
+
+    @row_key.setter
+    def row_key(self, key):
+        self._panel_index = key
 
     @property
     def _effective_panel_index(self):
@@ -362,8 +381,15 @@ class Element:
         return None
 
     def _interpolate(self, text):
-        """Apply SurveyJS text piping to `text` for this element's row."""
-        return interpolate_text(text, self._effective_panel_index)
+        """Apply SurveyJS text piping to `text` for this element's row.
+
+        `{panelIndex}` is a *number* the respondent reads as "row 3", so only
+        a row index can fill it in; a matrixdropdown's rows are named, and the
+        placeholder is left as authored there."""
+        row_key = self._effective_panel_index
+        if not isinstance(row_key, int):
+            row_key = None
+        return interpolate_text(text, row_key)
 
     @property
     def panel_instance(self):

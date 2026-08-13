@@ -1,5 +1,35 @@
 # Changelog
 
+## 0.6.0
+
+A matrix's cells are questions.
+
+A column declares a `cellType`, which is a question type — so a cell is a question of that type holding one value. Until now a cell was only ever a *value*: `get_cell_value()` types it by the column's `inputType`, which is all a text or a number needs, and nothing at all for a cell whose type has behaviour of its own. A dropdown cell could not resolve what its choices mean, a boolean cell could not tell you its own labels, and an application that extends a question type got its class everywhere except inside a matrix.
+
+A `matrixdynamic` and a `matrixdropdown` now build one question per cell on a form, through the survey's element class mapping — the same mapping that decides every other question's class.
+
+**New API:**
+
+- `question.get_cell(row_key, column_name)` — one cell, as a question.
+- `question.cells(row_key)` — a row's cells, keyed by column name.
+- `question.rows_cells` — every row's cells, keyed by row key.
+- `MatrixColumn.cell_raw` — the column as the element definition its cells are built from (its `cellType` as `type`, its own choices or the question's).
+- `Element.row_key` — which row of a repeating container an element belongs to. An int where the value is a list of rows (a dynamic panel, a dynamic matrix), the row's name for a matrixdropdown. `panel_index` is the dynamic-panel spelling of the same value and keeps working.
+- `QuestionMatrixdropdown.row_names` — the declared rows, in schema order.
+
+Cells are registered by path, like a dynamic panel's row children, and never by name — a column name repeats in every row:
+
+```python
+form.get_element_by_path('employeeList[1].role').value_text   # 'designer'
+form.get_element_by_path('budgetMatrix[marketing].status')
+```
+
+A cell's `input_path` locates its value in the submission: `['employeeList', 2, 'salary']`, and `['budgetMatrix', 'development', 'q1']` where rows are named.
+
+Everything that read a matrix as values still does: `rows_data`, `get_row_value()`, `get_cell_value()`, `columns` and `parse()` are unchanged. A Creator materialises no cells — it has no submission, so it has no rows.
+
+Costs one element per cell of a submitted matrix, on the form path. A dynamic panel has always worked this way; a large matrix now pays the same.
+
 ## 0.5.0
 
 Add form and question validations (validators).
