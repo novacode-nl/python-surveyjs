@@ -12,6 +12,8 @@ from datetime import date, datetime, timedelta
 
 from surveyjs import SurveyCreator, SurveyForm, register_input_type
 from surveyjs.elements.inputtype import INPUT_TYPE_PARSERS
+from surveyjs.elements.text import QuestionText
+from surveyjs.elements.validators import VALIDATORS, register_validator
 
 CREATOR_JSON = {
     'title': 'Demo',
@@ -30,10 +32,29 @@ CREATOR_JSON = {
                 {'type': 'text', 'name': 'graduated', 'inputType': 'date'}]},
             {'type': 'matrixdynamic', 'name': 'jobs', 'cellType': 'text', 'columns': [
                 {'name': 'employer'},
-                {'name': 'started', 'cellType': 'text', 'inputType': 'date'}]},
+                {'name': 'started', 'cellType': 'text', 'inputType': 'date'},
+                {'name': 'role', 'cellType': 'dropdown', 'choices': [
+                    {'value': 'dev', 'text': 'Developer'},
+                    {'value': 'design', 'text': 'Designer'}]}]},
+            {'type': 'matrixdropdown', 'name': 'budget',
+             'columns': [{'name': 'status', 'cellType': 'dropdown', 'choices': [
+                 {'value': 'open', 'text': 'Open'},
+                 {'value': 'done', 'text': 'Done'}]}],
+             'rows': [{'value': 'marketing', 'text': 'Marketing'}]},
             {'type': 'multipletext', 'name': 'dates', 'items': [
                 {'name': 'from', 'inputType': 'date'}]},
         ]},
+    ],
+}
+
+#: The README's Validation section: a schema of its own, since the demo
+#: submission above is valid and an error needs a rule to break.
+VALIDATION_JSON = {
+    'elements': [
+        {'type': 'text', 'name': 'email', 'title': 'Email', 'isRequired': True,
+         'validators': [{'type': 'email'}]},
+        {'type': 'text', 'name': 'age', 'title': 'Age', 'inputType': 'number',
+         'validators': [{'type': 'numeric', 'minValue': 18}]},
     ],
 }
 
@@ -43,7 +64,8 @@ FORM_JSON = {
     'appointment': '2024-03-15T13:45',
     'phone': '+31 6 1234 5678',
     'education': [{'school': 'MIT', 'graduated': '2015-05-30'}],
-    'jobs': [{'employer': 'Nova Code', 'started': '2020-01-06'}],
+    'jobs': [{'employer': 'Nova Code', 'started': '2020-01-06', 'role': 'dev'}],
+    'budget': {'marketing': {'status': 'done'}},
     'dates': {'from': '2024-07-08'},
 }
 
@@ -195,12 +217,118 @@ class TestReadmeExamples(unittest.TestCase):
         self.assertEqual(jobs.get_cell_raw_value(0, 'started'), '2020-01-06')
 
     def test_row_value(self):
-        self.assertEqual(self.form.questions['jobs'].get_row_value(0),
-                         {'employer': 'Nova Code', 'started': date(2020, 1, 6)})
+        self.assertEqual(
+            self.form.questions['jobs'].get_row_value(0),
+            {'employer': 'Nova Code', 'started': date(2020, 1, 6), 'role': 'dev'})
 
     def test_multipletext_item_values(self):
         self.assertEqual(self.form.questions['dates'].item_values,
                          {'from': date(2024, 7, 8)})
+
+    # --- Matrix cells as questions ---
+
+    def test_cell_is_a_question_of_its_column_cell_type(self):
+        cell = self.form.questions['jobs'].get_cell(0, 'role')
+        self.assertEqual(repr(cell), '<QuestionDropdown name=role>')
+        self.assertEqual(cell.value, 'dev')
+
+    def test_cell_behaves_like_its_type(self):
+        """The point of the exercise: a dropdown cell resolves its choices."""
+        self.assertEqual(self.form.questions['jobs'].get_cell(0, 'role').value_text,
+                         'Developer')
+
+    def test_cells_of_one_row_and_every_row(self):
+        jobs = self.form.questions['jobs']
+        self.assertEqual(list(jobs.cells(0)), ['employer', 'started', 'role'])
+        self.assertEqual(
+            [repr(cell) for cell in jobs.cells(0).values()],
+            ['<QuestionText name=employer input_type=text>',
+             '<QuestionText name=started input_type=date>',
+             '<QuestionDropdown name=role>'],
+        )
+        self.assertEqual(list(jobs.rows_cells), [0])
+
+    def test_column_cell_raw(self):
+        self.assertEqual(
+            self.form.questions['jobs'].get_column('started').cell_raw,
+            {'name': 'started', 'cellType': 'text', 'inputType': 'date', 'type': 'text'})
+
+    def test_a_creator_materialises_no_cells(self):
+        """A schema has no submission, so it has no rows."""
+        self.assertEqual(self.creator.questions['jobs'].rows_cells, {})
+
+    def test_cells_are_addressed_by_path_never_by_name(self):
+        self.assertEqual(self.form.get_element_by_path('jobs[0].role').value_text,
+                         'Developer')
+        self.assertEqual(self.form.questions['jobs'].get_cell(0, 'started').input_path,
+                         ['jobs', 0, 'started'])
+        self.assertNotIn('role', self.form.questions)
+
+    def test_matrixdropdown_rows_are_keyed_by_name(self):
+        self.assertEqual(self.form.questions['budget'].row_names, ['marketing'])
+        cell = self.form.get_element_by_path('budget[marketing].status')
+        self.assertEqual(cell.value_text, 'Done')
+        self.assertEqual(cell.input_path, ['budget', 'marketing', 'status'])
+
+    # --- Validation ---
+
+    def test_form_validation_errors_keyed_by_question_name(self):
+        creator = SurveyCreator(VALIDATION_JSON)
+        form = SurveyForm({'email': 'not-an-address', 'age': '16'}, creator)
+        self.assertEqual(
+            form.validation_errors(),
+            {'email': {'email': 'Please enter a valid e-mail address.'},
+             'age': {'numeric': "The 'Age' should be at least 18"}})
+
+    def test_question_validation_errors_keyed_by_error_type(self):
+        form = SurveyForm({'email': 'not-an-address', 'age': '16'},
+                          SurveyCreator(VALIDATION_JSON))
+        self.assertEqual(form.questions['age'].validation_errors(),
+                         {'numeric': "The 'Age' should be at least 18"})
+        self.assertFalse(form.questions['age'].is_empty())
+
+    def test_required_fires_only_on_an_empty_answer(self):
+        form = SurveyForm({'email': ''}, SurveyCreator(VALIDATION_JSON))
+        self.assertEqual(form.validation_errors(),
+                         {'email': {'required': 'Email is required'}})
+
+    def test_a_valid_submission_yields_an_empty_dict(self):
+        form = SurveyForm({'email': 'bob@novaforms.io', 'age': '42'},
+                          SurveyCreator(VALIDATION_JSON))
+        self.assertEqual(form.validation_errors(), {})
+
+    # --- Extending ---
+
+    def test_register_validator(self):
+        snapshot = dict(VALIDATORS)
+        self.addCleanup(lambda: (VALIDATORS.clear(), VALIDATORS.update(snapshot)))
+
+        @register_validator('creditcard')
+        def _creditcard(value, rule, element):
+            return None if str(value).startswith('4') else 'Invalid card number.'
+
+        creator = SurveyCreator({'elements': [
+            {'type': 'text', 'name': 'card', 'title': 'Card',
+             'validators': [{'type': 'creditcard'}]}]})
+        self.assertEqual(SurveyForm({'card': '1234'}, creator).validation_errors(),
+                         {'card': {'creditcard': 'Invalid card number.'}})
+        self.assertEqual(SurveyForm({'card': '4111'}, creator).validation_errors(), {})
+
+    def test_element_class_mapping_with_a_class(self):
+        class MyText(QuestionText):
+            @property
+            def value(self):
+                return (super().value or '').strip()
+
+        creator = SurveyCreator({'elements': [{'type': 'text', 'name': 'a'}]},
+                                element_class_mapping={'text': MyText})
+        form = SurveyForm({'a': '  padded  '}, creator)
+        self.assertIsInstance(form.questions['a'], MyText)
+        self.assertEqual(form.questions['a'].value, 'padded')
+
+    def test_unmapped_type_resolves_by_convention(self):
+        creator = SurveyCreator({'elements': [{'type': 'text', 'name': 'a'}]})
+        self.assertIsInstance(creator.questions['a'], QuestionText)
 
 
 if __name__ == '__main__':

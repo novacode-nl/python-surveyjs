@@ -32,8 +32,29 @@ The file prefix `question` indicates a question (field) class.
 - Get a **SurveyForm object's Questions** as usable **Python objects** e.g. date, datetime, boolean, list (for checkbox), dict (for matrix) etc. Every question exposes both `raw_value` (exactly as submitted) and `value` (parsed according to its SurveyJS `inputType`).
 - **Pages** and **paths**: iterate a survey's pages as objects, and address any element — however deeply nested — by a stable path such as `education[0].year`.
 - **Dynamic panels** are materialized per row of submission data, with values populated.
-- Supports a growing set of SurveyJS question types; additional types will be added over time and contributions via PRs are welcome.
+- **Matrix cells are questions**: a column's `cellType` decides a cell's class, so a dropdown cell resolves its own choices and a date cell parses its own value.
+- **Validation**: `validation_errors()` on a whole form or a single question, covering the `isRequired` flag and SurveyJS's `validators` array (numeric, text, answercount, regex, email).
+- **Extensible**: register an `inputType` parser, a validator, or a question class of your own (see [Extending](#extending)).
+- Supports [23 SurveyJS question types](#supported-question-types); additional types will be added over time and contributions via PRs are welcome.
 - Open source (MIT License).
+
+## Supported question types
+
+Each type below is implemented by its own class in `surveyjs/elements/` and covered
+by its own test module. A type that is not listed still loads: it falls back to the
+base `Element`, so its `raw_value`, `title` and position in the tree are available;
+only the behaviour specific to that type is missing.
+
+| Category | Types |
+|---|---|
+| Text input | `text`, `comment`, `multipletext` |
+| Choice | `dropdown`, `checkbox`, `radiogroup`, `tagbox`, `buttongroup`, `imagepicker`, `boolean`, `ranking` |
+| Scale | `rating`, `slider` |
+| Matrix | `matrix`, `matrixdropdown`, `matrixdynamic` |
+| Layout | `panel`, `paneldynamic`, `html`, `image` |
+| Other | `file`, `signaturepad`, `expression` |
+
+Missing a type you need? [Contributions](CONTRIBUTING.md) are welcome.
 
 ## Installation
 
@@ -72,6 +93,10 @@ If you're using [direnv](https://direnv.net/), use `direnv allow` after changing
 Also consider [nix-direnv](https://github.com/nix-community/nix-direnv) to speed up the experience (it can re-use a cached local installation).
 
 ## Usage Examples
+
+Every snippet below is executed by [`tests/test_readme_examples.py`](tests/test_readme_examples.py)
+against the same demo survey, so an example that stopped being true fails the build
+rather than misleading you. Change a snippet, change its test.
 
 ### Questions and values
 
@@ -274,7 +299,8 @@ may a `multipletext` item. Each parses independently.
 
 ```python
 # columns: [{"name": "employer"},
-#           {"name": "started", "cellType": "text", "inputType": "date"}]
+#           {"name": "started", "cellType": "text", "inputType": "date"},
+#           {"name": "role", "cellType": "dropdown", "choices": [...]}]
 jobs = form.questions['jobs']
 
 jobs.get_column('started').input_type
@@ -287,12 +313,184 @@ jobs.get_cell_raw_value(0, 'started')
 # '2020-01-06'
 
 jobs.get_row_value(0)
-# {'employer': 'Nova Code', 'started': datetime.date(2020, 1, 6)}
+# {'employer': 'Nova Code', 'started': datetime.date(2020, 1, 6), 'role': 'dev'}
 
 # items: [{"name": "from", "inputType": "date"}]
 form.questions['dates'].item_values
 # {'from': datetime.date(2024, 7, 8)}
 ```
+
+### Matrix cells as questions
+
+A column's `cellType` *is* a question type, so on a **SurveyForm** every cell of a
+submitted row is built as a question of that type. That is what gives a cell the
+behaviour of its type: a dropdown cell resolves what its value means, where
+`get_cell_value()` only ever types the value by the column's `inputType`.
+
+```python
+jobs.get_cell(0, 'role')
+# <QuestionDropdown name=role>
+
+jobs.get_cell(0, 'role').value
+# 'dev'
+
+jobs.get_cell(0, 'role').value_text      # what a dropdown cell knows and a value does not
+# 'Developer'
+
+list(jobs.cells(0).values())             # one row of cells, in column order
+# [<QuestionText name=employer input_type=text>,
+#  <QuestionText name=started input_type=date>,
+#  <QuestionDropdown name=role>]
+
+list(jobs.cells(0))                      # dict keys, i.e. the column names
+# ['employer', 'started', 'role']
+
+list(jobs.rows_cells)                    # every submitted row, by row key
+# [0]
+```
+
+A **SurveyCreator** materializes no cells: it has no submission, so it has no rows.
+The column as the element definition its cells are built from is `cell_raw`:
+
+```python
+jobs.get_column('started').cell_raw
+# {'name': 'started', 'cellType': 'text', 'inputType': 'date', 'type': 'text'}
+```
+
+Like a dynamic panel's row children, cells are registered by **path** and never by
+name — a column name repeats in every row:
+
+```python
+form.get_element_by_path('jobs[0].role').value_text
+# 'Developer'
+
+jobs.get_cell(0, 'started').input_path
+# ['jobs', 0, 'started']       -> data['jobs'][0]['started']
+
+'role' in form.questions
+# False
+```
+
+A `matrixdropdown` keys its rows by **name** rather than position, and those names
+are addressable the same way:
+
+```python
+# rows: [{"value": "marketing", "text": "Marketing"}]
+form.questions['budget'].row_names
+# ['marketing']
+
+form.get_element_by_path('budget[marketing].status').value_text
+# 'Done'
+
+form.get_element_by_path('budget[marketing].status').input_path
+# ['budget', 'marketing', 'status']
+```
+
+`row_key` is which row of a repeating container an element belongs to — an int
+where the data is a list of rows (a dynamic panel, a dynamic matrix), the row's
+name for a `matrixdropdown`. `panel_index` is the dynamic-panel spelling of the
+same value, and keeps working.
+
+Reading a matrix as plain values is unchanged: `rows_data`, `get_row_value()`,
+`get_cell_value()` and `columns` all behave exactly as before. Cells cost one
+element per cell of a submitted matrix, on the form path only.
+
+### Validation
+
+`validation_errors()` reports what a submission gets wrong. On a **SurveyForm** it
+collects errors across every input question, keyed by question name; an empty dict
+means the whole submission is valid.
+
+```python
+# {"type": "text", "name": "email", "title": "Email", "isRequired": true,
+#  "validators": [{"type": "email"}]}
+# {"type": "text", "name": "age", "title": "Age", "inputType": "number",
+#  "validators": [{"type": "numeric", "minValue": 18}]}
+
+form = SurveyForm({'email': 'not-an-address', 'age': '16'}, creator)
+
+form.validation_errors()
+# {'email': {'email': 'Please enter a valid e-mail address.'},
+#  'age': {'numeric': "The 'Age' should be at least 18"}}
+```
+
+The result is a plain dict, so reading an absent key raises instead of silently
+inserting an empty entry. A single question answers for itself, keyed by error
+type:
+
+```python
+form.questions['age'].validation_errors()
+# {'numeric': "The 'Age' should be at least 18"}
+
+form.questions['age'].is_empty()
+# False
+```
+
+Two kinds of rule are checked, and they never collide because they apply to
+opposite states:
+
+- the **`isRequired`** flag, keyed `required`, only when the answer is empty;
+- each entry in the **`validators`** array, keyed by its `type`, only when the
+  answer is non-empty, matching SurveyJS, which passes validators on empty input.
+
+```python
+SurveyForm({'email': ''}, creator).validation_errors()
+# {'email': {'required': 'Email is required'}}
+```
+
+Supported validator types are `numeric`, `text`, `answercount`, `regex` and
+`email`, with SurveyJS's own default messages; a validator's own `text` overrides
+the message. An unknown type is skipped rather than guessed at. That includes
+`expression`, which needs a SurveyJS expression runtime this library does not
+carry, so its rules are ignored rather than mis-evaluated. To add a type, see
+[Extending](#extending).
+
+## Extending
+
+Three registration points let you teach the library something it does not already
+know, or override what it does.
+
+### Input types
+
+`register_input_type` adds or replaces the parser behind a question's `inputType`
+(see [Input types](#input-types-value-vs-raw_value) above).
+
+### Validators
+
+`register_validator` adds or replaces the function behind a validator `type`. It
+receives the question's parsed `value`, the rule dict and the element, and returns
+an error message, or `None` when the value passes. Usable as a decorator:
+
+```python
+from surveyjs.elements.validators import register_validator
+
+@register_validator('creditcard')
+def _creditcard(value, rule, element):
+    return None if luhn_ok(value) else 'Invalid card number.'
+```
+
+### Question classes
+
+`element_class_mapping` decides which class a question type is built as — for every
+question of that type, including one inside a matrix cell or a dynamic panel row.
+Pass a class, or a dotted path to one:
+
+```python
+from surveyjs import SurveyCreator
+from surveyjs.elements.text import QuestionText
+
+class MyText(QuestionText):
+    @property
+    def value(self):
+        return (super().value or '').strip()
+
+creator = SurveyCreator(creator_json, element_class_mapping={'text': MyText})
+
+# or by dotted path, resolved on load
+creator = SurveyCreator(creator_json, element_class_mapping={'text': 'myapp.widgets.MyText'})
+```
+
+A type with no mapping resolves by convention to `surveyjs.elements.<type>.Question<Type>`.
 
 ## Unit Tests
 
@@ -323,6 +521,20 @@ poetry run python -m unittest tests/test_nested_questions.py
 poetry run python -m unittest tests.test_question_ranking.TestQuestionRanking.test_choices
 ```
 
+## Contributing
+
+Contributions are welcome — a new question type, a validator, a bug fix. See
+[CONTRIBUTING.md](CONTRIBUTING.md) for how to set up, test and submit a change.
+
+Note that the [Usage Examples](#usage-examples) are executed as tests: a change
+that alters documented output must update
+[`tests/test_readme_examples.py`](tests/test_readme_examples.py) alongside the
+README.
+
+## Changelog
+
+Release notes are in [CHANGELOG.md](CHANGELOG.md).
+
 ## License
 
 [MIT](LICENSE)
@@ -330,8 +542,6 @@ poetry run python -m unittest tests.test_question_ranking.TestQuestionRanking.te
 Copyright 2026 Nova Code ([https://www.novaforms.io](https://www.novaforms.io))
 
 ---
-
-Used in [Nova Forms](https://apps.odoo.com/apps/modules/19.0/formio) Form Builder & Forms App for [Odoo](https://www.odoo.com).
 
 Developed and maintained by [Nova Code](https://www.novaforms.io).
 
