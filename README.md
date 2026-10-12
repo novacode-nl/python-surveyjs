@@ -28,8 +28,9 @@ The file prefix `question` indicates a question (field) class.
 ## Features
 
 - Compatible with Python 3.8 and later.
-- Constructor of the **SurveyCreator** and **SurveyForm** class only requires the JSON (string or dict) and an optional language code (e.g. 'en', 'fr', etc.) for localization of questions (e.g. titles and choices).
-- Get a **SurveyForm object's Questions** as usable **Python objects** e.g. date, datetime, boolean, list (for checkbox), dict (for matrix) etc. Every question exposes both `raw_value` (exactly as submitted) and `value` (parsed according to its SurveyJS `inputType`).
+- Constructor of the **SurveyCreator** and **SurveyForm** class only requires the JSON (string or dict) and an optional language code (e.g. 'en', 'fr', etc.).
+- **Translations**: every displayed text (titles, descriptions, choices, boolean labels, error messages, …) is translated, from SurveyJS localizable strings and/or an `i18n` map (see [Translations](#translations)).
+- Get a **SurveyForm object's Questions** as usable **Python objects** e.g. date, datetime, boolean, list (for checkbox), dict (for matrix) etc. Every question exposes both `raw_value` (exactly as submitted) and `value` (parsed according to its SurveyJS type and `inputType`).
 - **Pages** and **paths**: iterate a survey's pages as objects, and address any element — however deeply nested — by a stable path such as `education[0].year`.
 - **Dynamic panels** are materialized per row of submission data, with values populated.
 - **Matrix cells are questions**: a column's `cellType` decides a cell's class, so a dropdown cell resolves its own choices and a date cell parses its own value.
@@ -147,9 +148,9 @@ form.elements['personal_data']
 
 ### Input types: `value` vs. `raw_value`
 
-A question's `value` is its `raw_value` parsed according to the SurveyJS
-`inputType`. Questions without an `inputType` are unaffected — the two are
-equal.
+A question's `raw_value` is its answer exactly as submitted; `value` is that
+answer as a Python object. For a text question, `value` is parsed according to
+its SurveyJS `inputType`:
 
 ```python
 # {"type": "text", "name": "birthDate", "inputType": "date"}
@@ -165,6 +166,31 @@ form.questions['birthDate'].raw_value
 `month` a `date` (first of the month), `week` a `date` (Monday of the ISO
 week), and `number`/`range` an `int`/`float`. Types with no parser (text,
 email, url, …) pass through unchanged.
+
+A **boolean** question's `value` is always `True`, `False` or `None`, whatever
+its `valueTrue`/`valueFalse`; `value_text` is the matching label:
+
+```python
+# {"type": "boolean", "name": "consent", "valueTrue": "agreed", "valueFalse": "declined"}
+
+form.questions['consent'].raw_value
+# 'agreed'
+
+form.questions['consent'].value
+# True
+
+form.questions['consent'].value_text
+# 'Yes'
+```
+
+The questions that hold other questions — `multipletext`, `matrixdynamic`,
+`matrixdropdown` and `paneldynamic` — return a parsed copy from `value`: a new
+dict or list with the same keys and rows as `raw_value`, each value inside
+parsed by its own item, column or question (see
+[Dynamic panels](#dynamic-panels) and
+[Matrix columns and multiple-text items](#matrix-columns-and-multiple-text-items)).
+Other questions (dropdown, checkbox, rating, …) submit JSON values that are
+already Python objects, so their `value` equals `raw_value`.
 
 `value` is read-only — assign `raw_value` instead. If a submitted value cannot
 be parsed, `value` is `None` while `raw_value` keeps the original, which is how
@@ -283,6 +309,13 @@ education.panels[0]['graduated'].value
 education.get_panel_value(0, 'school')
 # 'MIT'
 
+# the whole value: a parsed copy of raw_value
+education.value
+# [{'school': 'MIT', 'graduated': datetime.date(2015, 5, 30)}]
+
+education.raw_value
+# [{'school': 'MIT', 'graduated': '2015-05-30'}]
+
 # rows are addressable by path
 form.get_element_by_path('education[0].graduated').input_path
 # ['education', 0, 'graduated']    -> data['education'][0]['graduated']
@@ -315,9 +348,22 @@ jobs.get_cell_raw_value(0, 'started')
 jobs.get_row_value(0)
 # {'employer': 'Nova Code', 'started': datetime.date(2020, 1, 6), 'role': 'dev'}
 
+# the whole value: every row, each cell parsed — raw_value stays as submitted
+jobs.value
+# [{'employer': 'Nova Code', 'started': datetime.date(2020, 1, 6), 'role': 'dev'}]
+
+jobs.raw_value
+# [{'employer': 'Nova Code', 'started': '2020-01-06', 'role': 'dev'}]
+
 # items: [{"name": "from", "inputType": "date"}]
 form.questions['dates'].item_values
 # {'from': datetime.date(2024, 7, 8)}
+
+form.questions['dates'].value
+# {'from': datetime.date(2024, 7, 8)}
+
+form.questions['dates'].raw_value
+# {'from': '2024-07-08'}
 ```
 
 ### Matrix cells as questions
@@ -391,8 +437,9 @@ where the data is a list of rows (a dynamic panel, a dynamic matrix), the row's
 name for a `matrixdropdown`. `panel_index` is the dynamic-panel spelling of the
 same value, and keeps working.
 
-Reading a matrix as plain values is unchanged: `rows_data`, `get_row_value()`,
-`get_cell_value()` and `columns` all behave exactly as before. Cells cost one
+Reading a matrix as values still works without cells: `value`,
+`get_row_value()` and `get_cell_value()` parse, `rows_data` and the `*_raw_value`
+accessors return the submission as is. Cells cost one
 element per cell of a submitted matrix, on the form path only.
 
 ### Validation
@@ -444,6 +491,53 @@ the message. An unknown type is skipped rather than guessed at. That includes
 `expression`, which needs a SurveyJS expression runtime this library does not
 carry, so its rules are ignored rather than mis-evaluated. To add a type, see
 [Extending](#extending).
+
+### Translations
+
+Every text a respondent reads is translated: titles, descriptions,
+placeholders, choice texts (and so `value_text`), boolean labels, button
+texts, and validation messages. SurveyJS offers two ways to translate, and both
+apply, in this order:
+
+1. **Localizable strings** in the schema — a dict keyed by locale. The
+   survey's language is picked, else `default`, else the first locale given.
+2. An **`i18n` map**, `{language: {source text: translation}}`, passed to the
+   `SurveyCreator`. It translates the text from step 1; a text it does not
+   list is kept as is.
+
+```python
+# {"type": "boolean", "name": "agree",
+#  "title": {"default": "I agree", "fr": "J'accepte"}},
+# {"type": "dropdown", "name": "color", "choices": ["Red", "Blue"]}
+i18n = {'fr': {'Yes': 'Oui', 'No': 'Non', 'Red': 'Rouge', 'Blue': 'Bleu'}}
+
+creator = SurveyCreator(creator_json, language='fr', i18n=i18n)
+form = SurveyForm(form_json, creator)
+
+form.questions['agree'].title
+# "J'accepte"
+
+form.questions['agree'].value_text
+# 'Oui'
+
+form.questions['color'].value_text
+# 'Rouge'
+```
+
+A form uses its creator's `language` unless you pass `lang`, which then
+applies to the whole form — pages, questions, and everything nested in panels,
+dynamic panels and matrix cells. The creator keeps its own language, so one
+creator can serve forms in several languages:
+
+```python
+form_en = SurveyForm(form_json, creator, lang='default')
+
+form_en.questions['agree'].title
+# 'I agree'
+
+form_en.questions['agree'].value_text
+# 'Yes'
+```
 
 ## Extending
 

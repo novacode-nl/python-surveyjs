@@ -36,7 +36,7 @@ class QuestionPanel(Layout):
 
         for element in self._layout_elements:
             if 'type' in element:
-                element_obj = self.survey.get_element_object(element)
+                element_obj = self.survey.get_element_object(element, language=self.language)
                 if element_obj:
                     element_obj.load(
                         element_owner=self.element_owner,

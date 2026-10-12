@@ -33,11 +33,11 @@ class QuestionRating(Question):
 
     @property
     def min_rate_description(self):
-        return self.raw.get('minRateDescription', '')
+        return self.translate(self.raw.get('minRateDescription', ''))
 
     @property
     def max_rate_description(self):
-        return self.raw.get('maxRateDescription', '')
+        return self.translate(self.raw.get('maxRateDescription', ''))
 
     @property
     def display_mode(self):

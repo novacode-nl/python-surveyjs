@@ -4,7 +4,9 @@
 """Tests for the paneldynamic question type."""
 
 import unittest
+from datetime import date
 
+from surveyjs import SurveyCreator, SurveyForm
 from surveyjs.elements.paneldynamic import QuestionPaneldynamic
 from tests.utils import load_creator, load_form
 
@@ -89,6 +91,55 @@ class TestPanelDynamicForm(unittest.TestCase):
 
     def test_get_panel_value_nonexistent_field(self):
         self.assertIsNone(self.q.get_panel_value(0, 'nonexistent'))
+
+
+
+TYPED_SCHEMA = {'elements': [
+    {'type': 'paneldynamic', 'name': 'jobs', 'templateElements': [
+        {'type': 'text', 'name': 'start', 'inputType': 'date'},
+        {'type': 'boolean', 'name': 'current', 'valueTrue': 'yes', 'valueFalse': 'no'},
+        {'type': 'panel', 'name': 'details', 'elements': [
+            {'type': 'text', 'name': 'hours', 'inputType': 'number'},
+        ]},
+        {'type': 'matrixdynamic', 'name': 'tasks', 'columns': [
+            {'name': 'due', 'cellType': 'text', 'inputType': 'date'},
+        ]},
+    ]},
+]}
+
+TYPED_DATA = {'jobs': [
+    {'start': '2024-03-15', 'current': 'yes', 'hours': '38',
+     'tasks': [{'due': '2024-04-01'}], 'extra': 'kept'},
+    {'start': 'bad-date', 'current': 'no'},
+]}
+
+
+class TestPanelDynamicValue(unittest.TestCase):
+    """`value` is `raw_value` with every answer parsed by its own question."""
+
+    def setUp(self):
+        form = SurveyForm(TYPED_DATA, creator=SurveyCreator(TYPED_SCHEMA))
+        self.q = form.questions['jobs']
+
+    def test_value(self):
+        self.assertEqual(self.q.value, [
+            {'start': date(2024, 3, 15), 'current': True, 'hours': 38,
+             'tasks': [{'due': date(2024, 4, 1)}], 'extra': 'kept'},
+            {'start': None, 'current': False},
+        ])
+
+    def test_raw_value_untouched(self):
+        self.assertEqual(self.q.raw_value, TYPED_DATA['jobs'])
+
+    def test_panel_instance_value(self):
+        self.assertEqual(self.q.get_panel(1).value, {'start': None, 'current': False})
+
+    def test_creator_value_is_raw(self):
+        """A Creator has no panel instances to parse with."""
+        schema = {'elements': [dict(TYPED_SCHEMA['elements'][0],
+                                    defaultValue=[{'start': '2024-03-15'}])]}
+        q = SurveyCreator(schema).questions['jobs']
+        self.assertEqual(q.value, [{'start': '2024-03-15'}])
 
 
 if __name__ == '__main__':

@@ -3,7 +3,7 @@
 
 from collections import OrderedDict
 
-from .inputtype import parse_input_value
+from .inputtype import parse_boolean, parse_input_value
 
 
 class MatrixColumn:
@@ -11,7 +11,9 @@ class MatrixColumn:
 
     Columns are not survey elements — they have no `type` and never appear in
     an owner's registries — but a column whose `cellType` is `text` may carry
-    an `inputType`, so every cell in that column parses accordingly.
+    an `inputType`, so every cell in that column parses accordingly. A
+    `boolean` cell parses to a Python bool, honouring the column's
+    `valueTrue` / `valueFalse`.
 
     A column has no value of its own: its cells live in the question's rows.
     Use `parse(raw_cell_value)` to type one, or the question's
@@ -29,7 +31,7 @@ class MatrixColumn:
     @property
     def title(self):
         """The column's display title, falling back to its name."""
-        return self.raw.get('title') or self.name
+        return self.question.translate(self.raw.get('title')) or self.question.translate(self.name)
 
     @property
     def cell_type(self):
@@ -73,7 +75,18 @@ class MatrixColumn:
         return raw
 
     def parse(self, raw_cell_value):
-        """Parse one raw cell value according to this column's `inputType`."""
+        """Parse one raw cell value according to this column's `inputType`,
+        or to a bool for a `boolean` cell (None if unrecognised)."""
+        if self.cell_type == 'boolean':
+            if raw_cell_value is None:
+                return None
+            try:
+                return parse_boolean(
+                    raw_cell_value,
+                    self.raw.get('valueTrue', True),
+                    self.raw.get('valueFalse', False))
+            except ValueError:
+                return None
         return parse_input_value(self.input_type, raw_cell_value)
 
     def __repr__(self):
@@ -162,7 +175,7 @@ class MatrixColumnsMixin:
         for column in self._columns:
             if not column.name:
                 continue
-            element_obj = self.survey.get_element_object(column.cell_raw)
+            element_obj = self.survey.get_element_object(column.cell_raw, language=self.language)
             if not element_obj:
                 continue
             element_obj.row_key = row_key

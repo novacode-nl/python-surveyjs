@@ -16,16 +16,7 @@ class QuestionRanking(Question):
 
     @property
     def choices_values(self):
-        result = []
-        for choice in self.choices:
-            if isinstance(choice, dict):
-                result.append({
-                    'value': choice.get('value'),
-                    'text': choice.get('text', str(choice.get('value', '')))
-                })
-            else:
-                result.append({'value': choice, 'text': str(choice)})
-        return result
+        return [self.choice_item(choice) for choice in self.choices]
 
     @property
     def long_tap(self):

@@ -3,7 +3,7 @@
 
 from collections import OrderedDict
 
-from ..text import interpolate_text
+from ..text import interpolate_text, translate_text
 from .inputtype import parse_input_value
 from .validators import run_validators
 
@@ -204,14 +204,7 @@ class Element:
     @property
     def title(self):
         """The display title of the element, with text piping applied."""
-        title = self.raw.get('title')
-        if isinstance(title, dict):
-            title = title.get(self.language) or title.get(next(iter(title), None)) or self.name
-        if not title:
-            title = self.name
-        if self.i18n.get(self.language):
-            title = self.i18n[self.language].get(title, title)
-        return self._interpolate(title)
+        return self._interpolate(self.translate(self.raw.get('title')) or self.translate(self.name))
 
     @property
     def label(self):
@@ -221,7 +214,7 @@ class Element:
     @property
     def description(self):
         """The element description/help text, with text piping applied."""
-        return self._interpolate(self.raw.get('description', ''))
+        return self._interpolate(self.translate(self.raw.get('description', '')))
 
     @property
     def is_required(self):
@@ -257,7 +250,7 @@ class Element:
     def required_error_text(self):
         """Custom message shown when a required element is left empty, or None
         to fall back to the default template."""
-        return self.raw.get('requiredErrorText')
+        return self.translate(self.raw.get('requiredErrorText'))
 
     @property
     def input_type(self):
@@ -267,7 +260,7 @@ class Element:
     @property
     def placeholder(self):
         """The placeholder text."""
-        return self.raw.get('placeholder', '')
+        return self.translate(self.raw.get('placeholder', ''))
 
     @property
     def start_with_new_line(self):
@@ -380,6 +373,22 @@ class Element:
             return self._parent._effective_panel_index
         return None
 
+    def translate(self, text):
+        """`text` in this element's language: a localizable dict picks its
+        locale, and the survey's `i18n` map translates the result. See
+        `surveyjs.text.translate_text`."""
+        return translate_text(text, self.language, self.i18n)
+
+    def choice_item(self, choice):
+        """A choice (a bare value, or `{'value': …, 'text': …}`) as
+        `{'value': …, 'text': …}`, its text translated. The text falls back to
+        the value, as in SurveyJS."""
+        if isinstance(choice, dict):
+            value = choice.get('value')
+            text = self.translate(choice.get('text'))
+            return {'value': value, 'text': text if text else str(value if value is not None else '')}
+        return {'value': choice, 'text': self.translate(str(choice))}
+
     def _interpolate(self, text):
         """Apply SurveyJS text piping to `text` for this element's row.
 
@@ -464,7 +473,11 @@ class Element:
     # submission JSON. `value` is a read-only view of it, parsed according to
     # this element's `inputType`. An element without an `inputType` — every
     # type but `text` and a `multipletext` item — has no parser, so its
-    # `value` is its `raw_value`.
+    # `value` is its `raw_value`, unless its class types the value itself:
+    # a `boolean` yields a Python bool, and the containers (`multipletext`,
+    # `matrixdynamic`, `matrixdropdown`, `paneldynamic`) yield a parsed copy
+    # of their dict/list — the same keys and rows as `raw_value`, every value
+    # inside parsed by its own item, column or question.
     #
     # `value` is derived, so it is not settable: assign `raw_value` instead.
     # Otherwise a caller could store a `date` where JSON is promised, and
@@ -491,7 +504,8 @@ class Element:
 
         A date question yields a `date`, a datetime-local a `datetime`, a
         number an int/float. Elements with no `inputType` yield `raw_value`
-        unchanged. An unparseable value yields None — check `raw_value` to
+        unchanged, unless their class overrides this (a boolean, or a
+        container such as `multipletext` or a matrix). An unparseable value yields None — check `raw_value` to
         tell a malformed submission from an empty one."""
         return parse_input_value(self.input_type, self.raw_value)
 
@@ -550,9 +564,7 @@ class Element:
         errors = {}
         empty = self.is_empty()
         if self.is_required and empty:
-            msg_tmpl = self.required_error_text or '{{field}} is required'
-            if self.i18n.get(self.language):
-                msg_tmpl = self.i18n[self.language].get(msg_tmpl, msg_tmpl)
+            msg_tmpl = self.required_error_text or self.translate('{{field}} is required')
             errors['required'] = msg_tmpl.replace('{{field}}', self.label)
         if not empty:
             errors.update(run_validators(self))

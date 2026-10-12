@@ -11,9 +11,10 @@ class QuestionMatrixdynamic(MatrixColumnsMixin, Question):
     `raw_value` is a list of dicts, each mapping column names to values.
     Example: [{"col1": "val1", "col2": "val2"}, {"col1": "val3", "col2": "val4"}]
 
-    The question declares no `inputType`, so its `value` is that same list,
-    unparsed. Individual *columns* may declare one, so `get_cell_value()` and
-    `get_row_value()` parse per column, while `rows_data` stays as submitted.
+    `value` is that list with each cell parsed per its own column (a date
+    column's `inputType`, a boolean column's `valueTrue`/`valueFalse`), as
+    are `get_cell_value()` and `get_row_value()`; `rows_data` stays as
+    submitted.
     """
 
     @property
@@ -31,11 +32,11 @@ class QuestionMatrixdynamic(MatrixColumnsMixin, Question):
 
     @property
     def add_row_text(self):
-        return self.raw.get('addRowText', '')
+        return self.translate(self.raw.get('addRowText', ''))
 
     @property
     def remove_row_text(self):
-        return self.raw.get('removeRowText', '')
+        return self.translate(self.raw.get('removeRowText', ''))
 
     @property
     def cell_type(self):
@@ -52,6 +53,15 @@ class QuestionMatrixdynamic(MatrixColumnsMixin, Question):
         if val and isinstance(val, list):
             return val
         return []
+
+    @property
+    def value(self):
+        """A parsed copy of `raw_value`: a new list with the same rows, each
+        cell parsed per its column. `raw_value` is unchanged."""
+        val = self.raw_value
+        if not isinstance(val, list):
+            return val
+        return [self._parse_row(row) if isinstance(row, dict) else row for row in val]
 
     @property
     def actual_row_count(self):

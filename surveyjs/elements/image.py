@@ -35,7 +35,7 @@ class QuestionImage(Layout):
 
     @property
     def alt_text(self):
-        return self.raw.get('altText', '')
+        return self.translate(self.raw.get('altText', ''))
 
     @property
     def content_mode(self):

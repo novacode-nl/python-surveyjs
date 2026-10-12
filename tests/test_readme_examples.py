@@ -43,6 +43,8 @@ CREATOR_JSON = {
              'rows': [{'value': 'marketing', 'text': 'Marketing'}]},
             {'type': 'multipletext', 'name': 'dates', 'items': [
                 {'name': 'from', 'inputType': 'date'}]},
+            {'type': 'boolean', 'name': 'consent',
+             'valueTrue': 'agreed', 'valueFalse': 'declined'},
         ]},
     ],
 }
@@ -67,7 +69,21 @@ FORM_JSON = {
     'jobs': [{'employer': 'Nova Code', 'started': '2020-01-06', 'role': 'dev'}],
     'budget': {'marketing': {'status': 'done'}},
     'dates': {'from': '2024-07-08'},
+    'consent': 'agreed',
 }
+
+#: The README's Translations section.
+TRANSLATION_JSON = {
+    'elements': [
+        {'type': 'boolean', 'name': 'agree',
+         'title': {'default': 'I agree', 'fr': "J'accepte"}},
+        {'type': 'dropdown', 'name': 'color', 'choices': ['Red', 'Blue']},
+    ],
+}
+
+TRANSLATION_I18N = {'fr': {'Yes': 'Oui', 'No': 'Non', 'Red': 'Rouge', 'Blue': 'Bleu'}}
+
+TRANSLATION_FORM_JSON = {'agree': True, 'color': 'Red'}
 
 
 class TestReadmeExamples(unittest.TestCase):
@@ -101,6 +117,12 @@ class TestReadmeExamples(unittest.TestCase):
         self.assertEqual(q.value, datetime(2024, 3, 15, 13, 45))
         self.assertIsInstance(q.value, datetime)
         self.assertEqual(q.raw_value, '2024-03-15T13:45')
+
+    def test_boolean_value_and_value_text(self):
+        q = self.form.questions['consent']
+        self.assertEqual(q.raw_value, 'agreed')
+        self.assertIs(q.value, True)
+        self.assertEqual(q.value_text, 'Yes')
 
     def test_value_is_read_only(self):
         with self.assertRaises(AttributeError):
@@ -193,6 +215,11 @@ class TestReadmeExamples(unittest.TestCase):
         self.assertEqual(self.form.questions['education'].panels[0]['graduated'].value,
                          date(2015, 5, 30))
 
+    def test_panel_value_is_a_parsed_copy(self):
+        education = self.form.questions['education']
+        self.assertEqual(education.value, [{'school': 'MIT', 'graduated': date(2015, 5, 30)}])
+        self.assertEqual(education.raw_value, [{'school': 'MIT', 'graduated': '2015-05-30'}])
+
     def test_get_panel_value(self):
         self.assertEqual(self.form.questions['education'].get_panel_value(0, 'school'), 'MIT')
 
@@ -221,9 +248,38 @@ class TestReadmeExamples(unittest.TestCase):
             self.form.questions['jobs'].get_row_value(0),
             {'employer': 'Nova Code', 'started': date(2020, 1, 6), 'role': 'dev'})
 
+    def test_matrix_value_is_a_parsed_copy(self):
+        jobs = self.form.questions['jobs']
+        self.assertEqual(jobs.value, [
+            {'employer': 'Nova Code', 'started': date(2020, 1, 6), 'role': 'dev'}])
+        self.assertEqual(jobs.raw_value, [
+            {'employer': 'Nova Code', 'started': '2020-01-06', 'role': 'dev'}])
+
     def test_multipletext_item_values(self):
         self.assertEqual(self.form.questions['dates'].item_values,
                          {'from': date(2024, 7, 8)})
+
+    def test_multipletext_value_is_a_parsed_copy(self):
+        dates = self.form.questions['dates']
+        self.assertEqual(dates.value, {'from': date(2024, 7, 8)})
+        self.assertEqual(dates.raw_value, {'from': '2024-07-08'})
+
+    # --- Translations ---
+
+    def test_translations(self):
+        creator = SurveyCreator(TRANSLATION_JSON, language='fr', i18n=TRANSLATION_I18N)
+        form = SurveyForm(TRANSLATION_FORM_JSON, creator)
+        self.assertEqual(form.questions['agree'].title, "J'accepte")
+        self.assertEqual(form.questions['agree'].value_text, 'Oui')
+        self.assertEqual(form.questions['color'].value_text, 'Rouge')
+
+    def test_explicit_lang_on_a_shared_creator(self):
+        creator = SurveyCreator(TRANSLATION_JSON, language='fr', i18n=TRANSLATION_I18N)
+        form_en = SurveyForm(TRANSLATION_FORM_JSON, creator, lang='default')
+        self.assertEqual(form_en.questions['agree'].title, 'I agree')
+        self.assertEqual(form_en.questions['agree'].value_text, 'Yes')
+        self.assertEqual(SurveyForm(TRANSLATION_FORM_JSON, creator)
+                         .questions['agree'].value_text, 'Oui')
 
     # --- Matrix cells as questions ---
 

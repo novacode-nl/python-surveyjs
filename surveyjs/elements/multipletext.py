@@ -25,7 +25,7 @@ class MultipleTextItem:
     @property
     def title(self):
         """The item's display title, falling back to its name."""
-        return self.raw.get('title') or self.name
+        return self.question.translate(self.raw.get('title')) or self.question.translate(self.name)
 
     @property
     def input_type(self):
@@ -37,7 +37,7 @@ class MultipleTextItem:
 
     @property
     def placeholder(self):
-        return self.raw.get('placeholder', '')
+        return self.question.translate(self.raw.get('placeholder', ''))
 
     @property
     def raw_value(self):
@@ -68,9 +68,11 @@ class QuestionMultipletext(Question):
     `raw_value` is a dict mapping item names to their submitted values.
     Example: {"firstName": "John", "lastName": "Doe"}
 
-    The question itself declares no `inputType`, so its `value` is that same
-    dict, unparsed. Each *item* may declare one and parses independently: use
-    `item_values`, `get_item_value(name)`, or an item's own `value`.
+    `value` is that dict with each item's value parsed per the item's own
+    `inputType`: {"birth": date(2024, 3, 15)} where `raw_value` holds
+    {"birth": "2024-03-15"}. A key with no matching item passes through.
+    `item_values`, `get_item_value(name)` and an item's own `value` read the
+    same parsed values per item.
     """
 
     def __init__(self, raw, survey, **kwargs):
@@ -101,6 +103,22 @@ class QuestionMultipletext(Question):
             if item.name == item_name:
                 return item
         return None
+
+    @property
+    def value(self):
+        """A parsed copy of `raw_value`: a new dict with the same keys, each
+        item's value parsed per its `inputType`. `raw_value` is unchanged.
+
+        Unlike `item_values`, an item nobody answered is absent rather than
+        None."""
+        val = self.raw_value
+        if not isinstance(val, dict):
+            return val
+        parsed = {}
+        for name, item_raw in val.items():
+            item = self.get_item(name)
+            parsed[name] = item_raw if item is None else item.value
+        return parsed
 
     def get_item_raw_value(self, item_name):
         """Get an item's value exactly as submitted."""

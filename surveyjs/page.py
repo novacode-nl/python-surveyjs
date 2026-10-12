@@ -3,6 +3,8 @@
 
 from collections import OrderedDict
 
+from .text import translate_text
+
 
 class Page:
     """
@@ -61,19 +63,16 @@ class Page:
     @property
     def title(self):
         """The display title of the page (falls back to its name)."""
-        title = self.raw.get('title')
-        if isinstance(title, dict):
-            title = title.get(self.language) or title.get(next(iter(title), None)) or self.name
-        if not title:
-            title = self.name
-        if self.i18n.get(self.language):
-            return self.i18n[self.language].get(title, title)
-        return title
+        return self.translate(self.raw.get('title')) or self.translate(self.name)
 
     @property
     def description(self):
         """The page description/help text."""
-        return self.raw.get('description', '')
+        return self.translate(self.raw.get('description', ''))
+
+    def translate(self, text):
+        """`text` in this page's language; see `surveyjs.text.translate_text`."""
+        return translate_text(text, self.language, self.i18n)
 
     @property
     def is_visible(self):

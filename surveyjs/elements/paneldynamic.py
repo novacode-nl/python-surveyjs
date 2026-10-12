@@ -36,6 +36,34 @@ class PanelInstance:
         """The raw submission dict backing this row."""
         return self.panel.panels_data[self.index]
 
+    @property
+    def value(self):
+        """A parsed copy of this row's submitted dict: the same keys, each
+        answer parsed by its question.
+
+        Questions inside a plain panel answer at the row's own level, so they
+        are found through it. A key no question claims passes through."""
+        row = self.data
+        if not isinstance(row, dict):
+            return row
+        questions = self._questions_by_name(self.elements.values())
+        return {
+            name: questions[name].value if name in questions else raw
+            for name, raw in row.items()
+        }
+
+    @classmethod
+    def _questions_by_name(cls, elements):
+        """The questions answering at this row's level, keyed by name: the
+        row's own, and those inside a plain panel, which nests no data."""
+        questions = {}
+        for element in elements:
+            if element.is_question:
+                questions[element.name] = element
+            elif not element.nests_data:
+                questions.update(cls._questions_by_name(element.elements.values()))
+        return questions
+
     def get(self, name):
         """Get a child element of this row by name."""
         return self.elements.get(name)
@@ -64,7 +92,10 @@ class QuestionPaneldynamic(Question):
     """SurveyJS Dynamic Panel question.
 
     Allows users to add/remove groups of questions (panels).
-    Value is a list of dicts, each dict representing one panel instance.
+    `raw_value` is a list of dicts, each dict representing one panel instance.
+    On a SurveyForm, `value` is that list with each answer parsed by its own
+    question; a SurveyCreator has no panel instances, so its `value` is
+    `raw_value`.
 
     A SurveyCreator holds only the *template* children (under `elements`,
     keyed by name). A SurveyForm additionally materialises one set of child
@@ -142,7 +173,7 @@ class QuestionPaneldynamic(Question):
         for raw in self.template_elements:
             if 'type' not in raw:
                 continue
-            element_obj = self.survey.get_element_object(raw)
+            element_obj = self.survey.get_element_object(raw, language=self.language)
             if not element_obj:
                 continue
             element_obj.panel_index = index
@@ -191,11 +222,11 @@ class QuestionPaneldynamic(Question):
 
     @property
     def panel_add_text(self):
-        return self.raw.get('panelAddText', 'Add New')
+        return self.translate(self.raw.get('panelAddText', 'Add New'))
 
     @property
     def panel_remove_text(self):
-        return self.raw.get('panelRemoveText', 'Remove')
+        return self.translate(self.raw.get('panelRemoveText', 'Remove'))
 
     @property
     def allow_add_panel(self):
@@ -207,7 +238,7 @@ class QuestionPaneldynamic(Question):
 
     @property
     def template_title(self):
-        return self.raw.get('templateTitle', '')
+        return self.translate(self.raw.get('templateTitle', ''))
 
     @property
     def panels_data(self):
@@ -216,6 +247,16 @@ class QuestionPaneldynamic(Question):
         if isinstance(val, list):
             return val
         return []
+
+    @property
+    def value(self):
+        """A parsed copy of `raw_value`: a new list with the same rows, each
+        answer parsed by its question in that panel instance (see
+        `PanelInstance.value`). `raw_value` is unchanged."""
+        val = self.raw_value
+        if not isinstance(val, list) or len(self._panels) != len(val):
+            return val
+        return [panel.value for panel in self._panels]
 
     @property
     def actual_panel_count(self):

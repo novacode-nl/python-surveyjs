@@ -18,4 +18,4 @@ class QuestionHtml(Layout):
     @property
     def html(self):
         """Get the HTML content."""
-        return self.raw.get('html', '')
+        return self.translate(self.raw.get('html', ''))

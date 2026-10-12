@@ -19,16 +19,7 @@ class QuestionMatrix(Question):
     @property
     def column_values(self):
         """Normalized column values."""
-        result = []
-        for col in self.columns:
-            if isinstance(col, dict):
-                result.append({
-                    'value': col.get('value'),
-                    'text': col.get('text', str(col.get('value', '')))
-                })
-            else:
-                result.append({'value': col, 'text': str(col)})
-        return result
+        return [self.choice_item(col) for col in self.columns]
 
     @property
     def rows(self):
@@ -38,16 +29,7 @@ class QuestionMatrix(Question):
     @property
     def row_values(self):
         """Normalized row values."""
-        result = []
-        for row in self.rows:
-            if isinstance(row, dict):
-                result.append({
-                    'value': row.get('value'),
-                    'text': row.get('text', str(row.get('value', '')))
-                })
-            else:
-                result.append({'value': row, 'text': str(row)})
-        return result
+        return [self.choice_item(row) for row in self.rows]
 
     @property
     def is_all_row_required(self):

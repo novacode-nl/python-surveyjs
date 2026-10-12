@@ -71,14 +71,8 @@ def _message(rule, element, key, *params):
     — the same lookup `Element.validation_errors` uses for the required
     message — and its placeholders filled with `params`.
     """
-    custom = rule.get('text')
-    if custom:
-        template = custom
-    else:
-        template = DEFAULT_MESSAGES.get(key, key)
-        lang_map = element.i18n.get(element.language) if element.i18n else None
-        if lang_map:
-            template = lang_map.get(template, template)
+    template = element.translate(rule.get('text')) or element.translate(
+        DEFAULT_MESSAGES.get(key, key))
     return _format(template, *params)
 
 

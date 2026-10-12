@@ -15,16 +15,7 @@ class QuestionRadiogroup(Question):
     @property
     def choices_values(self):
         """Get normalized choice values as a list of dicts with 'value' and 'text'."""
-        result = []
-        for choice in self.choices:
-            if isinstance(choice, dict):
-                result.append({
-                    'value': choice.get('value'),
-                    'text': choice.get('text', str(choice.get('value', '')))
-                })
-            else:
-                result.append({'value': choice, 'text': str(choice)})
-        return result
+        return [self.choice_item(choice) for choice in self.choices]
 
     @property
     def value_text(self):
@@ -42,7 +33,7 @@ class QuestionRadiogroup(Question):
 
     @property
     def other_text(self):
-        return self.raw.get('otherText', 'Other')
+        return self.translate(self.raw.get('otherText', 'Other'))
 
     @property
     def has_none(self):

@@ -19,22 +19,14 @@ class QuestionButtongroup(QuestionRadiogroup):
         'show_caption' properties."""
         result = []
         for choice in self.choices:
-            if isinstance(choice, dict):
-                result.append({
-                    'value': choice.get('value'),
-                    'text': choice.get('text', str(choice.get('value', ''))),
-                    'icon_name': choice.get('iconName'),
-                    'icon_size': choice.get('iconSize', 24),
-                    'show_caption': choice.get('showCaption', True),
-                })
-            else:
-                result.append({
-                    'value': choice,
-                    'text': str(choice),
-                    'icon_name': None,
-                    'icon_size': 24,
-                    'show_caption': True,
-                })
+            item = self.choice_item(choice)
+            extra = choice if isinstance(choice, dict) else {}
+            item.update({
+                'icon_name': extra.get('iconName'),
+                'icon_size': extra.get('iconSize', 24),
+                'show_caption': extra.get('showCaption', True),
+            })
+            result.append(item)
         return result
 
     @property

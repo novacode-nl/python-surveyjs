@@ -302,9 +302,14 @@ class TestMultipleTextItemInputType(unittest.TestCase):
     def test_item_raw_value(self):
         self.assertEqual(self.q.get_item('date').raw_value, '2024-07-08')
 
-    def test_question_value_is_the_unparsed_dict(self):
-        """The question declares no inputType; only its items do."""
-        self.assertEqual(self.q.value, self.q.raw_value)
+    def test_question_value_parses_each_item(self):
+        """The question's value is its raw dict, each item parsed."""
+        self.assertEqual(self.q.value, {
+            'date': date(2024, 7, 8),
+            'when': datetime(2024, 7, 8, 9, 30),
+            'note': 'hi',
+        })
+        self.assertEqual(self.q.raw_value['date'], '2024-07-08')
 
     def test_item_title_falls_back_to_name(self):
         self.assertEqual(self.q.get_item_title('when'), 'When')

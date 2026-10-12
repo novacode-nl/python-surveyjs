@@ -25,6 +25,20 @@ DYNAMIC_SCHEMA = {'elements': [
     ]},
 ]}
 
+BOOLEAN_SCHEMA = {'elements': [
+    {'type': 'matrixdynamic', 'name': 'mb', 'columns': [
+        {'name': 'active', 'cellType': 'boolean'},
+        {'name': 'agreed', 'cellType': 'boolean',
+         'valueTrue': 'yes-please', 'valueFalse': 'no-thanks'},
+    ]},
+]}
+
+BOOLEAN_DATA = {'mb': [
+    {'active': True, 'agreed': 'yes-please'},
+    {'active': 'false', 'agreed': 'no-thanks'},
+    {'active': 'maybe'},
+]}
+
 DYNAMIC_DATA = {'md': [
     {'when': '2024-03-15', 'at': '2024-03-15T13:45', 'amount': '42', 'role': 'dev', 'note': 'hi'},
     {'when': 'bad-date', 'at': '2025-01-02T08:00', 'amount': '4.2', 'role': 'ops', 'note': 'yo'},
@@ -159,10 +173,11 @@ class TestMatrixdynamicCells(unittest.TestCase):
         """rows_data normalises the container, it does not parse cells."""
         self.assertEqual(self.q.rows_data, DYNAMIC_DATA['md'])
 
-    def test_question_value_is_the_unparsed_list(self):
-        """The question declares no inputType; only its columns do."""
-        self.assertEqual(self.q.value, self.q.raw_value)
-        self.assertEqual(self.q.value, DYNAMIC_DATA['md'])
+    def test_question_value_parses_every_row(self):
+        """The question's value is its raw list, each cell parsed."""
+        self.assertEqual(self.q.value, [self.q.get_row_value(0), self.q.get_row_value(1)])
+        self.assertEqual(self.q.value[0]['when'], date(2024, 3, 15))
+        self.assertEqual(self.q.raw_value, DYNAMIC_DATA['md'])
 
     def test_out_of_range_row(self):
         self.assertIsNone(self.q.get_cell_value(99, 'when'))
@@ -213,8 +228,10 @@ class TestMatrixdropdownCells(unittest.TestCase):
         self.assertIsNone(self.q.get_cell_value('nope', 'start'))
         self.assertIsNone(self.q.get_cell_value('r1', 'nope'))
 
-    def test_question_value_is_the_unparsed_dict(self):
-        self.assertEqual(self.q.value, self.q.raw_value)
+    def test_question_value_parses_every_row(self):
+        """Only the submitted rows: an unanswered row stays absent."""
+        self.assertEqual(self.q.value, {'r1': {'start': date(2024, 7, 8), 'status': 'ok'}})
+        self.assertEqual(self.q.raw_value, DROPDOWN_DATA['mdd'])
 
 
 class TestFixtureMatricesUnaffected(unittest.TestCase):
@@ -239,6 +256,34 @@ class TestFixtureMatricesUnaffected(unittest.TestCase):
             for name in q.column_names:
                 self.assertEqual(q.get_cell_value(index, name),
                                  q.get_cell_raw_value(index, name))
+
+
+
+class TestBooleanCells(unittest.TestCase):
+    """A boolean cell parses to a Python bool, per its column's values."""
+
+    def setUp(self):
+        self.q = make_form(BOOLEAN_SCHEMA, BOOLEAN_DATA).questions['mb']
+
+    def test_boolean_column_has_no_input_type(self):
+        self.assertEqual(self.q.get_column('active').input_type, '')
+
+    def test_get_cell_value(self):
+        self.assertIs(self.q.get_cell_value(0, 'active'), True)
+        self.assertIs(self.q.get_cell_value(1, 'active'), False)
+
+    def test_custom_values(self):
+        self.assertIs(self.q.get_cell_value(0, 'agreed'), True)
+        self.assertIs(self.q.get_cell_value(1, 'agreed'), False)
+
+    def test_unrecognised_is_none(self):
+        self.assertIsNone(self.q.get_cell_value(2, 'active'))
+
+    def test_get_row_value(self):
+        self.assertEqual(self.q.get_row_value(1), {'active': False, 'agreed': False})
+
+    def test_cell_question_agrees(self):
+        self.assertIs(self.q.get_cell(0, 'agreed').value, True)
 
 
 if __name__ == '__main__':

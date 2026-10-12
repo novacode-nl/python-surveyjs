@@ -11,9 +11,9 @@ class QuestionMatrixdropdown(MatrixColumnsMixin, Question):
     `raw_value` is a dict mapping row names to dicts of column-name -> value.
     Example: {"row1": {"col1": "val1", "col2": "val2"}}
 
-    The question declares no `inputType`, so its `value` is that same dict,
-    unparsed. Individual *columns* may declare one, so `get_cell_value()` and
-    `get_row_value()` parse per column.
+    `value` is that dict with each cell parsed per its own column (a date
+    column's `inputType`, a boolean column's `valueTrue`/`valueFalse`), as
+    are `get_cell_value()` and `get_row_value()`.
     """
 
     @property
@@ -49,6 +49,18 @@ class QuestionMatrixdropdown(MatrixColumnsMixin, Question):
             if name is not None:
                 names.append(name)
         return names
+
+    @property
+    def value(self):
+        """A parsed copy of `raw_value`: a new dict with the same rows, each
+        cell parsed per its column. `raw_value` is unchanged."""
+        val = self.raw_value
+        if not isinstance(val, dict):
+            return val
+        return {
+            name: self._parse_row(row) if isinstance(row, dict) else row
+            for name, row in val.items()
+        }
 
     def _iter_rows(self):
         """A matrixdropdown's rows are the ones its schema declares, keyed by

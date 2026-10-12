@@ -24,7 +24,7 @@ class SurveyForm:
         form_json,
         creator=None,
         creator_schema_json=None,
-        lang="default",
+        lang=None,
         **kwargs
     ):
         """
@@ -32,7 +32,8 @@ class SurveyForm:
         @param creator: A SurveyCreator instance
         @param creator_schema_json: SurveyCreator schema JSON (str or dict)
             Alternative to providing a SurveyCreator instance.
-        @param lang: Language code for translations (default: 'en')
+        @param lang: Language code for translations (default: the
+            creator's `language`)
         """
 
         if creator and creator_schema_json:
@@ -49,7 +50,9 @@ class SurveyForm:
         self.creator_schema_json = creator_schema_json
 
         if self.creator is None and self.creator_schema_json:
-            self.creator = SurveyCreator(self.creator_schema_json)
+            self.creator = SurveyCreator(
+                self.creator_schema_json,
+                **({'language': lang} if lang is not None else {}))
 
         if self.creator:
             if not isinstance(self.creator, SurveyCreator):
@@ -62,7 +65,7 @@ class SurveyForm:
                 "Provide either the argument: creator or creator_schema_json."
             )
 
-        self.lang = lang
+        self.lang = lang if lang is not None else self.creator.language
         # defaults to English (en) date/time format
         self.date_format = kwargs.get('date_format', '%m/%d/%Y')
         self.time_format = kwargs.get('time_format', '%H:%M:%S')
@@ -150,7 +153,7 @@ class SurveyForm:
 
             for creator_element in creator_page.elements.values():
                 # Create a new element object (don't affect the Survey's element)
-                element_obj = self.creator.get_element_object(creator_element.raw)
+                element_obj = self.creator.get_element_object(creator_element.raw, language=self.lang)
                 element_obj.load(
                     element_owner=self,
                     parent=None,
@@ -194,7 +197,7 @@ class SurveyForm:
         return self.questions.get(name)
 
     def get_value(self, name):
-        """Get a question's value by name, parsed per its `inputType`."""
+        """Get a question's value by name, parsed per its type and `inputType`."""
         question = self.questions.get(name)
         if question:
             return question.value

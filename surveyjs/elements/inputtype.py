@@ -102,8 +102,33 @@ def parse_number(value):
     return float(text) if '.' in text else int(text)
 
 
+#: Strings accepted as a boolean, compared case-insensitively.
+TRUE_STRINGS = ('true', 'yes', 'on', '1')
+FALSE_STRINGS = ('false', 'no', 'off', '0')
+
+
+def parse_boolean(value, value_true=True, value_false=False):
+    """`boolean` — True/False, 'true'/'false' -> True/False.
+
+    A boolean question may submit custom `valueTrue` / `valueFalse` values
+    (e.g. 'agreed' / 'declined'); pass them to map those onto True/False."""
+    if isinstance(value, bool):
+        return value
+    if value == value_true:
+        return True
+    if value == value_false:
+        return False
+    text = str(value).strip().lower()
+    if text in TRUE_STRINGS:
+        return True
+    if text in FALSE_STRINGS:
+        return False
+    raise ValueError('%r is not a boolean' % (value,))
+
+
 #: inputType -> parser. Types absent here pass their value through unchanged.
 INPUT_TYPE_PARSERS = {
+    'boolean': parse_boolean,
     'date': parse_date,
     'datetime-local': parse_datetime,
     'time': parse_time,

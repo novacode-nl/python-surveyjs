@@ -205,12 +205,19 @@ class SurveyCreator:
                 )
                 return Element
 
-    def get_element_object(self, element):
-        """Create a element object from an element dict."""
+    def get_element_object(self, element, language=None):
+        """Create a element object from an element dict.
+
+        @param language: The language its texts translate to; defaults to
+            this creator's. A SurveyForm passes its own `lang`, and a
+            container its own `language`, so a form's elements follow it.
+        """
         cls = self.get_element_class(element)
         if cls is None:
             return None
-        return cls(element, self, language=self.language, i18n=self.i18n)
+        if language is None:
+            language = self.language
+        return cls(element, self, language=language, i18n=self.i18n)
 
     @property
     def form(self):
