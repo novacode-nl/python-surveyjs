@@ -337,6 +337,37 @@ degree.value
 # 'MSc'
 ```
 
+### Names
+
+SurveyJS Creator requires a name to be unique per data level, so a lookup by
+name (`questions['city']`) works for most surveys. Two dynamic panels can still
+each hold a question with the same name, as each row nests its data. Looking
+such a name up raises `AmbiguousNameError` (a `LookupError`, not a `KeyError`).
+Use a path, or `get_elements_by_name()` for all of them, which always returns a
+list. A `SurveyForm` keeps the rows out of its name maps altogether.
+
+```python
+# {"type": "paneldynamic", "name": "jobs", "templateElements": [
+#     {"type": "text", "name": "year"}]},
+# {"type": "paneldynamic", "name": "school", "templateElements": [
+#     {"type": "text", "name": "year"}]}
+creator.questions['year']
+# AmbiguousNameError: 'year' is ambiguous: jobs.year, school.year; use
+# get_element_by_path() or get_elements_by_name()
+
+creator.ambiguous_names
+# {'year': ['jobs.year', 'school.year']}
+
+[e.path_str for e in creator.get_elements_by_name('year')]
+# ['jobs.year', 'school.year']
+
+[e.path_str for e in form.get_elements_by_name('year')]
+# ['jobs[0].year', 'jobs[1].year', 'school[0].year']   (one per row)
+
+form.get_element_by_path('jobs[1].year').value
+# 2017
+```
+
 ### Dynamic panels
 
 A `SurveyCreator` holds a dynamic panel's *template*. A `SurveyForm`

@@ -10,7 +10,7 @@ matching test fails and the README must be updated with it.
 import unittest
 from datetime import date, datetime, timedelta
 
-from surveyjs import SurveyCreator, SurveyForm, register_input_type
+from surveyjs import AmbiguousNameError, SurveyCreator, SurveyForm, register_input_type
 from surveyjs.elements.inputtype import INPUT_TYPE_PARSERS
 from surveyjs.elements.text import QuestionText
 from surveyjs.elements.validators import VALIDATORS, register_validator
@@ -89,6 +89,18 @@ TRANSLATION_JSON = {
 TRANSLATION_I18N = {'fr': {'Yes': 'Oui', 'No': 'Non', 'Red': 'Rouge', 'Blue': 'Bleu'}}
 
 TRANSLATION_FORM_JSON = {'agree': True, 'color': 'Red'}
+
+#: The README's Names section.
+NAMES_JSON = {
+    'elements': [
+        {'type': 'paneldynamic', 'name': 'jobs', 'templateElements': [
+            {'type': 'text', 'name': 'year'}]},
+        {'type': 'paneldynamic', 'name': 'school', 'templateElements': [
+            {'type': 'text', 'name': 'year'}]},
+    ],
+}
+
+NAMES_FORM_JSON = {'jobs': [{'year': 2015}, {'year': 2017}], 'school': [{'year': 2010}]}
 
 
 class TestReadmeExamples(unittest.TestCase):
@@ -254,6 +266,23 @@ class TestReadmeExamples(unittest.TestCase):
         for name in ('school', 'graduated'):
             self.assertNotIn(name, self.form.questions)
             self.assertNotIn(name, self.form.all_elements)
+
+    # --- Names ---
+
+    def test_get_elements_by_name(self):
+        creator = SurveyCreator(NAMES_JSON)
+        form = SurveyForm(NAMES_FORM_JSON, creator)
+        with self.assertRaisesRegex(AmbiguousNameError, "'year' is ambiguous: jobs.year, school.year"):
+            creator.questions['year']
+        self.assertEqual(creator.ambiguous_names, {'year': ['jobs.year', 'school.year']})
+        self.assertNotIn('year', form.questions)
+        self.assertEqual(
+            [e.path_str for e in creator.get_elements_by_name('year')],
+            ['jobs.year', 'school.year'])
+        self.assertEqual(
+            [e.path_str for e in form.get_elements_by_name('year')],
+            ['jobs[0].year', 'jobs[1].year', 'school[0].year'])
+        self.assertEqual(form.get_element_by_path('jobs[1].year').value, 2017)
 
     # --- Matrix columns and multipletext items ---
 

@@ -5,7 +5,7 @@
 
 import unittest
 
-from surveyjs import SurveyCreator
+from surveyjs import AmbiguousNameError, SurveyCreator, SurveyForm
 from tests.utils import load_creator, load_form, readjson
 
 COLLIDING_SCHEMA = {
@@ -94,8 +94,8 @@ class TestPathDisambiguatesCollidingNames(unittest.TestCase):
     def setUp(self):
         self.survey = SurveyCreator(COLLIDING_SCHEMA)
 
-    def test_name_registry_is_lossy(self):
-        # Documents existing behaviour: the second 'year' wins.
+    def test_name_registry_keeps_one_entry(self):
+        # Iterating is unchanged: one 'year', which a lookup refuses.
         self.assertEqual(list(self.survey.all_elements), ['jobs', 'year', 'school'])
 
     def test_path_registry_is_lossless(self):
@@ -110,6 +110,54 @@ class TestPathDisambiguatesCollidingNames(unittest.TestCase):
         self.assertIsNot(jobs_year, school_year)
         self.assertEqual(jobs_year.parent.name, 'jobs')
         self.assertEqual(school_year.parent.name, 'school')
+
+    def test_lookup_of_an_ambiguous_name_raises(self):
+        for registry in (self.survey.questions, self.survey.all_elements):
+            with self.assertRaises(AmbiguousNameError) as raised:
+                registry['year']
+            self.assertEqual(raised.exception.paths, ['jobs.year', 'school.year'])
+            with self.assertRaises(AmbiguousNameError):
+                registry.get('year')
+
+    def test_ambiguous_is_not_a_missing_name(self):
+        """Not a KeyError, which `except KeyError` would take for missing."""
+        self.assertFalse(issubclass(AmbiguousNameError, KeyError))
+        self.assertTrue(issubclass(AmbiguousNameError, LookupError))
+        self.assertIn('year', self.survey.questions)
+
+    def test_unique_names_still_resolve(self):
+        self.assertEqual(self.survey.questions['jobs'].path_str, 'jobs')
+        self.assertIsNone(self.survey.questions.get('nope'))
+
+    def test_ambiguous_names(self):
+        self.assertEqual(self.survey.ambiguous_names, {'year': ['jobs.year', 'school.year']})
+        self.assertEqual(SurveyCreator({'elements': [{'type': 'text', 'name': 'a'}]}).ambiguous_names, {})
+
+    def test_a_form_keeps_rows_out_of_its_name_maps(self):
+        form = SurveyForm({'jobs': [{'year': 2015}]}, creator=SurveyCreator(COLLIDING_SCHEMA))
+        self.assertEqual(form.ambiguous_names, {})
+        self.assertNotIn('year', form.questions)
+
+    def test_a_duplicate_at_one_data_level_raises_on_a_form_too(self):
+        """Two plain panels share the data level: invalid in SurveyJS."""
+        schema = {'elements': [
+            {'type': 'panel', 'name': 'home', 'elements': [{'type': 'text', 'name': 'city'}]},
+            {'type': 'panel', 'name': 'work', 'elements': [{'type': 'text', 'name': 'city'}]},
+        ]}
+        form = SurveyForm({'city': 'Amsterdam'}, creator=SurveyCreator(schema))
+        self.assertEqual(form.ambiguous_names, {'city': ['home.city', 'work.city']})
+        with self.assertRaises(AmbiguousNameError):
+            form.get_value('city')
+
+    def test_get_elements_by_name_returns_all(self):
+        self.assertEqual(
+            [e.path_str for e in self.survey.get_elements_by_name('year')],
+            ['jobs.year', 'school.year'],
+        )
+
+    def test_get_elements_by_name_is_a_list_for_one_or_none(self):
+        self.assertEqual([e.path_str for e in self.survey.get_elements_by_name('jobs')], ['jobs'])
+        self.assertEqual(self.survey.get_elements_by_name('nope'), [])
 
 
 class TestInputPath(unittest.TestCase):
@@ -192,6 +240,18 @@ class TestFormPaths(unittest.TestCase):
 
     def test_all_component_paths_alias(self):
         self.assertIs(self.form.all_component_paths, self.form.all_element_paths)
+
+    def test_get_elements_by_name_includes_rows(self):
+        form = SurveyForm(
+            {'jobs': [{'year': 2015}, {'year': 2017}], 'school': [{'year': 2010}]},
+            creator=SurveyCreator(COLLIDING_SCHEMA),
+        )
+        years = form.get_elements_by_name('year')
+        self.assertEqual(
+            [e.path_str for e in years],
+            ['jobs[0].year', 'jobs[1].year', 'school[0].year'],
+        )
+        self.assertEqual([e.value for e in years], [2015, 2017, 2010])
 
 
 if __name__ == '__main__':

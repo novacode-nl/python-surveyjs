@@ -6,6 +6,7 @@ import logging
 from collections import OrderedDict, defaultdict
 
 from surveyjs.creator import SurveyCreator
+from surveyjs.names import ElementsByName
 from surveyjs.page import Page
 
 logger = logging.getLogger(__name__)
@@ -77,14 +78,14 @@ class SurveyForm:
 
         # Every element (question + layout) keyed by name — flat: also
         # includes elements nested inside panels.
-        self.all_elements = OrderedDict()
+        self.all_elements = ElementsByName()
 
         # Root (top-level) elements keyed by name; nested children are
         # reached via each container's `elements`.
-        self.elements = OrderedDict()
+        self.elements = ElementsByName()
 
         # Questions (fields) keyed by name
-        self.questions = OrderedDict()
+        self.questions = ElementsByName()
 
         # Every element keyed by dotted path — flat. Paths are unique across
         # the whole tree (unlike names, which collide between the template
@@ -191,6 +192,23 @@ class SurveyForm:
         if not isinstance(path, str):
             path = '.'.join(path)
         return self.all_element_paths.get(path)
+
+    @property
+    def ambiguous_names(self):
+        """{name: [path, ...]}, for each name more than one element has.
+
+        Looking such a name up in `all_elements`, `elements` or `questions`
+        raises `AmbiguousNameError`."""
+        return self.all_elements.ambiguous
+
+    def get_elements_by_name(self, name):
+        """Get every element with this name, in schema order — always a list.
+
+        A name is unique per data level only: two dynamic panels can each
+        hold a `year`, with one per row. `all_elements` holds no row
+        elements (nor matrix cells); this returns those too, found by path:
+        `jobs[0].year`, `jobs[1].year`, `school[0].year`."""
+        return [element for element in self.all_element_paths.values() if element.name == name]
 
     def get_question_by_name(self, name):
         """Get a question by its name."""

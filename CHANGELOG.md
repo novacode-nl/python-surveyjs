@@ -2,6 +2,31 @@
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.8.0
+
+A name is unique per data level only: two dynamic panels can each hold a `year`. Looking up such a name now raises instead of returning one of them.
+
+### Breaking Changes
+
+**Looking up an ambiguous name raises `AmbiguousNameError`.**
+
+- `questions`, `all_elements` and `elements` (on `SurveyCreator` and `SurveyForm`) used to return the last element with that name.\
+- `[name]` and `.get(name)` now raise, and so do `get_value()`, `get_raw_value()`, `get_question_by_name()` and `form.data.<name>`.
+- `in` and iterating are unchanged.
+- Use `get_element_by_path('jobs.year')`, or `get_elements_by_name('year')`.
+- `AmbiguousNameError` is a `LookupError`, not a `KeyError`, so `except KeyError` does not catch it.
+
+### Added
+
+- `AmbiguousNameError`, with `name` and `paths`.
+- `ambiguous_names` on `SurveyCreator` and `SurveyForm`: `{name: [path, ...]}`, e.g. `{'year': ['jobs.year', 'school.year']}`.
+- `get_elements_by_name(name)` on `SurveyCreator` and `SurveyForm`: every element with that name, in schema order, as a list. On a form this includes each row and matrix cell.
+
+  ```python
+  [e.path_str for e in form.get_elements_by_name('year')]
+  # ['jobs[0].year', 'jobs[1].year', 'school[0].year']
+  ```
+
 ## 0.7.0
 
 Overview:

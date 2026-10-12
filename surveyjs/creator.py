@@ -6,6 +6,7 @@ import logging
 from collections import OrderedDict
 
 from surveyjs.elements.element import Element
+from surveyjs.names import ElementsByName
 from surveyjs.page import Page
 
 logger = logging.getLogger(__name__)
@@ -48,14 +49,14 @@ class SurveyCreator:
 
         # Every element (question + layout) keyed by name — flat: also
         # includes elements nested inside panels.
-        self.all_elements = OrderedDict()
+        self.all_elements = ElementsByName()
 
         # Root (top-level) elements keyed by name; nested children are
         # reached via each container's `elements`.
-        self.elements = OrderedDict()
+        self.elements = ElementsByName()
 
         # Questions (fields) keyed by name (no panels, html, image)
-        self.questions = OrderedDict()
+        self.questions = ElementsByName()
 
         # Every element keyed by dotted path — flat. Paths are unique across
         # the whole tree (unlike names, which collide between the template
@@ -125,6 +126,23 @@ class SurveyCreator:
         if not isinstance(path, str):
             path = '.'.join(path)
         return self.all_element_paths.get(path)
+
+    @property
+    def ambiguous_names(self):
+        """{name: [path, ...]}, for each name more than one element has.
+
+        Looking such a name up in `all_elements`, `elements` or `questions`
+        raises `AmbiguousNameError`."""
+        return self.all_elements.ambiguous
+
+    def get_elements_by_name(self, name):
+        """Get every element with this name, in schema order — always a list.
+
+        A name is unique per data level only: two dynamic panels can each
+        hold a `year`, and a Creator holds both templates. Looking that name
+        up in `all_elements` raises `AmbiguousNameError`; this returns all of
+        them, found by path."""
+        return [element for element in self.all_element_paths.values() if element.name == name]
 
     def _load_elements(self, elements, parent=None, page=None):
         """Recursively load elements from the schema."""
