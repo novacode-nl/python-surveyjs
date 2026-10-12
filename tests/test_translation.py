@@ -168,6 +168,131 @@ class TestExplicitFormLang(unittest.TestCase):
         self.assertEqual(self.creator.questions['root'].label_true, 'Yes')
 
 
+# Several nesting levels: panel > paneldynamic > (panel > question, matrix,
+# multipletext). Every level builds its children through the creator, so each
+# must hand its own language down.
+DEEP_I18N = {'fr': {
+    'Yes': 'Oui', 'No': 'Non', 'Name': 'Nom', 'Add New': 'Ajouter',
+    'Row {panelIndex}': 'Ligne {panelIndex}', 'Bad mail': 'Mauvais courriel',
+    '{{field}} is required': '{{field}} est obligatoire',
+}}
+
+DEEP_SCHEMA = {'pages': [{'name': 'p', 'title': {'default': 'Start', 'fr': 'Début'}, 'elements': [
+    {'type': 'panel', 'name': 'outer', 'elements': [
+        {'type': 'paneldynamic', 'name': 'pd', 'templateTitle': 'Row {panelIndex}',
+         'templateElements': [
+             {'type': 'panel', 'name': 'inner', 'elements': [
+                 {'type': 'boolean', 'name': 'deep', 'isRequired': True}]},
+             {'type': 'matrixdynamic', 'name': 'mx', 'columns': [
+                 {'name': 'c', 'cellType': 'boolean'}]},
+             {'type': 'multipletext', 'name': 'mt', 'items': [{'name': 'n', 'title': 'Name'}]},
+             {'type': 'text', 'name': 'mail', 'validators': [
+                 {'type': 'email', 'text': 'Bad mail'}]},
+         ]},
+    ]},
+]}]}
+
+DEEP_DATA = {'pd': [{'mx': [{'c': True}], 'mail': 'nope'}]}
+
+
+class DeepCase(unittest.TestCase):
+    """Reads the translatable texts of the deep schema at every level."""
+
+    def texts(self, form):
+        pd = form.questions['pd']
+        row = pd.get_panel(0)
+        return {
+            'page': form.pages[0].title,
+            'deep': form.get_element_by_path('outer.pd[0].inner.deep').label_true,
+            'cell': row['mx'].get_cell(0, 'c').value_text,
+            'item': row['mt'].get_item_title('n'),
+            'row_title': row.title,
+            'add': pd.panel_add_text,
+        }
+
+    FR = {'page': 'Début', 'deep': 'Oui', 'cell': 'Oui', 'item': 'Nom',
+          'row_title': 'Ligne 1', 'add': 'Ajouter'}
+    EN = {'page': 'Start', 'deep': 'Yes', 'cell': 'Yes', 'item': 'Name',
+          'row_title': 'Row 1', 'add': 'Add New'}
+
+    def creator(self, language):
+        return SurveyCreator(DEEP_SCHEMA, language=language, i18n=DEEP_I18N)
+
+
+class TestDeepCascade(DeepCase):
+    """The form's language reaches every nesting level."""
+
+    def test_explicit_lang(self):
+        form = SurveyForm(DEEP_DATA, creator=self.creator('default'), lang='fr')
+        self.assertEqual(self.texts(form), self.FR)
+
+    def test_inherited_from_creator(self):
+        form = SurveyForm(DEEP_DATA, creator=self.creator('fr'))
+        self.assertEqual(self.texts(form), self.FR)
+
+    def test_explicit_default_overrides_creator(self):
+        """'default' given explicitly is a choice, not an absence."""
+        form = SurveyForm(DEEP_DATA, creator=self.creator('fr'), lang='default')
+        self.assertEqual(self.texts(form), self.EN)
+
+    def test_schema_json_with_lang(self):
+        form = SurveyForm(DEEP_DATA, creator_schema_json=json.dumps(DEEP_SCHEMA), lang='fr')
+        self.assertEqual(form.questions['pd'].get_panel(0)['mx'].get_cell(0, 'c').language, 'fr')
+        self.assertEqual(form.pages[0].title, 'Début')
+
+    def test_schema_json_without_lang(self):
+        form = SurveyForm(DEEP_DATA, creator_schema_json=json.dumps(DEEP_SCHEMA))
+        self.assertEqual(form.lang, 'default')
+        self.assertEqual(form.pages[0].title, 'Start')
+
+    def test_template_panel(self):
+        """The blank row for rendering an empty form follows the form too."""
+        form = SurveyForm({}, creator=self.creator('default'), lang='fr')
+        blank = form.questions['pd'].template_panel
+        self.assertEqual(blank.title, 'Ligne 1')
+        self.assertEqual(blank['inner'].elements['deep'].label_true, 'Oui')
+        self.assertEqual(blank['mt'].get_item_title('n'), 'Nom')
+        self.assertEqual(blank['mx'].language, 'fr')
+
+    def test_language_without_translations_falls_back(self):
+        """No i18n entries for 'de': localizable dicts fall back to
+        `default`, plain texts stay as authored — at every level."""
+        form = SurveyForm(DEEP_DATA, creator=self.creator('fr'), lang='de')
+        self.assertEqual(self.texts(form), self.EN)
+
+
+class TestDeepValidationMessages(DeepCase):
+
+    def setUp(self):
+        self.form = SurveyForm(DEEP_DATA, creator=self.creator('default'), lang='fr')
+
+    def test_required_message_nested(self):
+        deep = self.form.get_element_by_path('outer.pd[0].inner.deep')
+        self.assertEqual(deep.validation_errors(), {'required': 'deep est obligatoire'})
+
+    def test_validator_text_nested(self):
+        mail = self.form.questions['pd'].get_panel(0)['mail']
+        self.assertEqual(mail.validation_errors(), {'email': 'Mauvais courriel'})
+
+
+class TestSharedCreator(DeepCase):
+    """Forms only read their creator: languages never leak between them."""
+
+    def setUp(self):
+        self.creator_obj = self.creator('default')
+        self.fr = SurveyForm(DEEP_DATA, creator=self.creator_obj, lang='fr')
+        self.en = SurveyForm(DEEP_DATA, creator=self.creator_obj)
+
+    def test_forms_independent(self):
+        self.assertEqual(self.texts(self.fr), self.FR)
+        self.assertEqual(self.texts(self.en), self.EN)
+
+    def test_creator_keeps_its_language_when_nested(self):
+        deep = self.creator_obj.get_element_by_path('outer.pd.inner.deep')
+        self.assertEqual(deep.label_true, 'Yes')
+        self.assertEqual(self.creator_obj.pages[0].title, 'Start')
+
+
 class TestDefaultLanguage(unittest.TestCase):
 
     def test_default_locale(self):

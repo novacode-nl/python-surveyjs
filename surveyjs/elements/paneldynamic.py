@@ -11,13 +11,15 @@ class PanelInstance:
     """One materialised row of a dynamic panel.
 
     Holds the child elements built for a single entry of the paneldynamic's
-    submission data, with their values already populated.
+    submission data, with their values already populated — or, for the
+    paneldynamic's `template_panel`, for no entry at all.
     """
 
-    def __init__(self, panel, index, elements):
+    def __init__(self, panel, index, elements, data=None):
         self.panel = panel
         self.index = index
         self.elements = elements
+        self._data = {} if data is None else data
 
     @property
     def name(self):
@@ -33,8 +35,9 @@ class PanelInstance:
 
     @property
     def data(self):
-        """The raw submission dict backing this row."""
-        return self.panel.panels_data[self.index]
+        """The raw submission dict backing this row, as submitted; `{}` for a
+        `template_panel`, which stands for no row."""
+        return self._data
 
     @property
     def value(self):
@@ -127,10 +130,15 @@ class QuestionPaneldynamic(Question):
         `elements` untouched — mutating those would change their `path` from
         `passengers.first` to `passengers[0].first`.
 
+        Built like a form row, so nested containers build their children too
+        (a plain panel's questions; a matrixdropdown's cells per declared
+        row) — only with nothing answered. Its `data` is `{}`, never a
+        submitted row's.
+
         Built once, on first access.
         """
         if self._template_panel is None:
-            self._template_panel = self._materialise_panel(0, {}, is_form=False)
+            self._template_panel = self._materialise_panel(0, {})
         return self._template_panel
 
     def get_panel(self, index):
@@ -162,13 +170,20 @@ class QuestionPaneldynamic(Question):
             return
 
         self._panels = [
-            self._materialise_panel(index, row if isinstance(row, dict) else {})
+            self._materialise_panel(index, row)
             for index, row in enumerate(self.panels_data)
         ]
 
-    def _materialise_panel(self, index, row, is_form=True):
+    def _materialise_panel(self, index, row):
         """Build one `PanelInstance`: a fresh set of the template's children,
-        stamped with `index` and populated from `row`."""
+        stamped with `index` and populated from `row` (a submitted entry,
+        kept as is for `PanelInstance.data`; anything but a dict loads as no
+        answers).
+
+        Always the form path (`is_form=True`), so nested containers build
+        their own children: nobody else walks a row's elements, unlike the
+        Creator's template children."""
+        values = row if isinstance(row, dict) else {}
         elements = OrderedDict()
         for raw in self.template_elements:
             if 'type' not in raw:
@@ -180,14 +195,14 @@ class QuestionPaneldynamic(Question):
             element_obj.load(
                 element_owner=self.element_owner,
                 parent=self,
-                data=row,
-                is_form=is_form,
+                data=values,
+                is_form=True,
                 # Names repeat across rows: file these by path only.
                 register_with_owner=False,
                 register_with_parent=False,
             )
             elements[element_obj.name] = element_obj
-        instance = PanelInstance(self, index, elements)
+        instance = PanelInstance(self, index, elements, data=row)
         # Back-link each child to its row: `parent` is this paneldynamic,
         # whose `elements` holds the template children, so the instance is
         # what holds a child's actual siblings (e.g. for

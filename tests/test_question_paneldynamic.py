@@ -142,5 +142,78 @@ class TestPanelDynamicValue(unittest.TestCase):
         self.assertEqual(q.value, [{'start': '2024-03-15'}])
 
 
+
+NESTED_TEMPLATE_SCHEMA = {'elements': [
+    {'type': 'paneldynamic', 'name': 'jobs', 'templateElements': [
+        {'type': 'text', 'name': 'employer'},
+        {'type': 'panel', 'name': 'details', 'elements': [
+            {'type': 'text', 'name': 'start', 'inputType': 'date'},
+            {'type': 'boolean', 'name': 'current'},
+        ]},
+        {'type': 'matrixdropdown', 'name': 'skills', 'rows': ['python', 'sql'],
+         'columns': [{'name': 'level', 'cellType': 'rating'}]},
+    ]},
+]}
+
+NESTED_TEMPLATE_DATA = {'jobs': [{'employer': 'Nova Code', 'start': '2020-01-06'}]}
+
+
+class TestTemplatePanelNesting(unittest.TestCase):
+    """`template_panel` is a blank row for rendering an empty form, so it must
+    hold the whole template — including what nested containers build."""
+
+    def assert_blank_row_complete(self, blank):
+        details = blank['details']
+        self.assertEqual(list(details.elements), ['start', 'current'])
+        self.assertIsNone(details.elements['start'].value)
+        self.assertEqual(details.elements['start'].path_str, 'jobs[0].details.start')
+        self.assertEqual(list(blank['skills'].rows_cells), ['python', 'sql'])
+        self.assertIsNone(blank['skills'].get_cell('python', 'level').value)
+
+    def test_on_a_creator(self):
+        creator = SurveyCreator(NESTED_TEMPLATE_SCHEMA)
+        self.assert_blank_row_complete(creator.questions['jobs'].template_panel)
+
+    def test_on_an_empty_form(self):
+        form = SurveyForm({}, creator=SurveyCreator(NESTED_TEMPLATE_SCHEMA))
+        self.assert_blank_row_complete(form.questions['jobs'].template_panel)
+
+    def test_on_a_form_with_rows(self):
+        form = SurveyForm(NESTED_TEMPLATE_DATA, creator=SurveyCreator(NESTED_TEMPLATE_SCHEMA))
+        self.assert_blank_row_complete(form.questions['jobs'].template_panel)
+
+    def test_nested_children_not_registered_by_name(self):
+        """Building the blank row must not file its children on the owner."""
+        creator = SurveyCreator(NESTED_TEMPLATE_SCHEMA)
+        template_start = creator.questions['start']
+        blank = creator.questions['jobs'].template_panel
+        self.assertIs(creator.questions['start'], template_start)
+        self.assertIsNot(blank['details'].elements['start'], template_start)
+
+
+class TestTemplatePanelData(unittest.TestCase):
+    """The blank row stands for no row: it never reads a submitted one."""
+
+    def test_empty_form(self):
+        form = SurveyForm({}, creator=SurveyCreator(NESTED_TEMPLATE_SCHEMA))
+        blank = form.questions['jobs'].template_panel
+        self.assertEqual(blank.data, {})
+        self.assertEqual(blank.value, {})
+
+    def test_form_with_rows(self):
+        """Index 0, yet not row 0's data."""
+        form = SurveyForm(NESTED_TEMPLATE_DATA, creator=SurveyCreator(NESTED_TEMPLATE_SCHEMA))
+        jobs = form.questions['jobs']
+        self.assertEqual(jobs.template_panel.data, {})
+        self.assertIsNone(jobs.template_panel['employer'].value)
+        self.assertEqual(jobs.get_panel(0).data, NESTED_TEMPLATE_DATA['jobs'][0])
+
+    def test_non_dict_row_kept_as_submitted(self):
+        form = SurveyForm({'jobs': ['junk']}, creator=SurveyCreator(NESTED_TEMPLATE_SCHEMA))
+        jobs = form.questions['jobs']
+        self.assertEqual(jobs.get_panel(0).data, 'junk')
+        self.assertEqual(jobs.value, ['junk'])
+
+
 if __name__ == '__main__':
     unittest.main()
