@@ -40,8 +40,10 @@ alternatives you have considered.
 3. Make your changes, following the project's coding style and conventions.
 4. Add or update tests that cover your change.
 5. Ensure the full test suite passes.
-6. Commit your work with clear, descriptive commit messages.
-7. Open a pull request against the `main` branch, describing what your change
+6. Add an entry to [CHANGELOG.md](CHANGELOG.md) for any user-visible change
+   (see [Changelog](#changelog)).
+7. Commit your work with clear, descriptive commit messages.
+8. Open a pull request against the `main` branch, describing what your change
    does and why.
 
 Note that we cannot merge your pull request until you have signed a Contributor
@@ -117,6 +119,25 @@ add.
   ```
 
 - Update documentation when you change behavior.
+- Translate every text a respondent reads (titles, labels, choice texts,
+  messages, …) through `translate()` on the element or page, so both SurveyJS
+  localizable strings and the `i18n` map apply.
+
+## Changelog
+
+[CHANGELOG.md](CHANGELOG.md) follows
+[Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
+
+- Newest version first. Version headings are `## X.Y.Z`, without a date.
+- Group changes under these headings, in this order, and leave out empty ones:
+  - `### Breaking Changes` — each entry says what users must change in
+    their code.
+  - `### Added`, `### Changed`, `### Deprecated`, `### Removed`, `### Fixed`,
+    `### Security`.
+- A short overview of the release may go above the groups.
+- Write plainly and briefly: what changed, and what it was before when that
+  helps. Show a short code example when a change is easier to show than to
+  describe.
 
 ## License
 

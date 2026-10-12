@@ -1,270 +1,306 @@
 # Changelog
 
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
+
+## 0.7.0
+
+Overview:
+
+- `value` now returns a Python object for booleans (`True`/`False`) and for multipletext, matrix and dynamic panel questions (with their contents parsed).
+- All display texts are translated, not only titles.
+- A form's `lang` applies to all its elements, including nested ones.
+- Fix: `template_panel` was missing the children of nested panels.
+
+### Breaking Changes
+
+- **Boolean `value` is a bool.** With `valueTrue`/`valueFalse` set (e.g. `'agreed'`/`'declined'`), `value` used to return those strings. It now returns `True`, `False` or `None`.
+  Change `q.value == 'agreed'` to `q.value is True`, or use `q.raw_value`.
+- **`QuestionBoolean.to_bool()` returns `None` for an unrecognised value.** It used to fall back to `bool(raw_value)`, so `'maybe'` gave `True`.
+- **Container `value` is parsed.** For `multipletext`, `matrixdynamic`, `matrixdropdown` and `paneldynamic`, `value` used to return `raw_value`. It now returns a parsed copy (see below), so a date item or cell is a `date` instead of a string.
+  Use `q.raw_value` to get the submitted data.
+
+### Added
+
+- `parse_boolean(value, value_true=True, value_false=False)` in `surveyjs.elements.inputtype`. Accepts a bool, the given true/false values, and `'true'`/`'yes'`/`'on'`/`'1'` or `'false'`/`'no'`/`'off'`/`'0'` (any case). Raises `ValueError` for anything else. Also used for `inputType: "boolean"`.
+- `QuestionBoolean.value_text`: `label_true` or `label_false` for the answer, `None` if unanswered. Works for boolean matrix cells too: `q.get_cell(row, column).value_text`.
+- Boolean matrix columns: `get_cell_value()` and `get_row_value()` return bools, using the column's `valueTrue`/`valueFalse`.
+- Container `value` is a parsed copy of `raw_value`, with the same keys and rows. `raw_value` is unchanged:
+
+  ```python
+  q.raw_value   # [{'due': '2024-04-01', 'done': 'yes'}]
+  q.value       # [{'due': date(2024, 4, 1), 'done': True}]
+  ```
+
+  - `multipletext`: each item is parsed by its `inputType`, like `item_values`. Unanswered items are left out instead of `None`.
+  - `matrixdynamic`, `matrixdropdown`: each cell is parsed by its column, like `get_row_value()`.
+  - `paneldynamic`: each answer is parsed by its question in that panel, including questions in nested panels and containers. `PanelInstance.value` gives one row. On a SurveyCreator, `value` equals `raw_value`.
+- `translate_text(text, language, i18n)` in `surveyjs.text`, and `translate(text)` on elements and pages. It handles SurveyJS localizable strings (`{"default": "Yes", "fr": "Oui"}`) and then the `i18n` map.
+- `SurveyCreator.get_element_object(element, language=None)` takes the language to build the element in.
+
+### Changed
+
+- All display texts are translated. Before, only titles and the default error messages were. Now also:
+  - descriptions (elements and pages), placeholders, `requiredErrorText` and a validator's own `text`
+  - choice texts in `choices_values` (dropdown, radiogroup, checkbox, tagbox, ranking, buttongroup), and so `value_text`/`value_texts`
+  - matrix `row_values`/`column_values`, multipletext item titles and matrix column titles
+  - boolean `label_true`/`label_false`
+  - `other_text`, rating min/max descriptions, add/remove button texts, `template_title`, image `alt_text` and html content
+- A localizable string falls back to its `default` locale first, then to the first locale. Before, it went straight to the first locale.
+- `SurveyForm` uses the creator's `language` when no `lang` is given. Before, it used `"default"` for the page titles.
+- An explicit `SurveyForm(lang=...)` applies to all the form's elements, including panel children, dynamic panel rows and matrix cells. Before, only the page titles used it. The creator keeps its own language.
+- `lang` is passed on to the creator built from `creator_schema_json`.
+
+### Fixed
+
+- `template_panel` (the blank row for rendering an empty form) was missing the children of a nested panel, and a nested matrixdropdown had no cells.
+- `template_panel.data` returned the data of row 0 on a form with rows, and raised `IndexError` on an empty form (as did its `value`). It is now `{}`.
+
 ## 0.6.0
 
-A matrix's cells are questions.
+Matrix cells are questions.
 
-A column declares a `cellType`, which is a question type — so a cell is a question of that type holding one value. Until now a cell was only ever a *value*: `get_cell_value()` types it by the column's `inputType`, which is all a text or a number needs, and nothing at all for a cell whose type has behaviour of its own. A dropdown cell could not resolve what its choices mean, a boolean cell could not tell you its own labels, and an application that extends a question type got its class everywhere except inside a matrix.
+### Added
 
-A `matrixdynamic` and a `matrixdropdown` now build one question per cell on a form, through the survey's element class mapping — the same mapping that decides every other question's class.
+- On a form, `matrixdynamic` and `matrixdropdown` build one question per cell. The cell's class comes from the column's `cellType`, through the survey's element class mapping. So a dropdown cell can resolve its choice text, and a custom question class is also used inside a matrix.
+- `question.get_cell(row_key, column_name)`: one cell, as a question.
+- `question.cells(row_key)`: a row's cells, keyed by column name.
+- `question.rows_cells`: every row's cells, keyed by row key.
+- `MatrixColumn.cell_raw`: the column as the element definition its cells are built from (`cellType` as `type`, its own choices or the question's).
+- `Element.row_key`: the row an element belongs to in a repeating container. An int for a dynamic panel or dynamic matrix, the row name for a matrixdropdown. `panel_index` is the same value and keeps working.
+- `QuestionMatrixdropdown.row_names`: the declared rows, in schema order.
+- Cells are registered by path only, never by name, because a column name repeats in every row:
 
-**New API:**
+  ```python
+  form.get_element_by_path('employeeList[1].role').value_text   # 'designer'
+  form.get_element_by_path('budgetMatrix[marketing].status')
+  ```
 
-- `question.get_cell(row_key, column_name)` — one cell, as a question.
-- `question.cells(row_key)` — a row's cells, keyed by column name.
-- `question.rows_cells` — every row's cells, keyed by row key.
-- `MatrixColumn.cell_raw` — the column as the element definition its cells are built from (its `cellType` as `type`, its own choices or the question's).
-- `Element.row_key` — which row of a repeating container an element belongs to. An int where the value is a list of rows (a dynamic panel, a dynamic matrix), the row's name for a matrixdropdown. `panel_index` is the dynamic-panel spelling of the same value and keeps working.
-- `QuestionMatrixdropdown.row_names` — the declared rows, in schema order.
+  A cell's `input_path` points to its value in the submission, e.g. `['employeeList', 2, 'salary']` or `['budgetMatrix', 'development', 'q1']`.
 
-Cells are registered by path, like a dynamic panel's row children, and never by name — a column name repeats in every row:
+### Changed
 
-```python
-form.get_element_by_path('employeeList[1].role').value_text   # 'designer'
-form.get_element_by_path('budgetMatrix[marketing].status')
-```
-
-A cell's `input_path` locates its value in the submission: `['employeeList', 2, 'salary']`, and `['budgetMatrix', 'development', 'q1']` where rows are named.
-
-Everything that read a matrix as values still does: `rows_data`, `get_row_value()`, `get_cell_value()`, `columns` and `parse()` are unchanged. A Creator materialises no cells — it has no submission, so it has no rows.
-
-Costs one element per cell of a submitted matrix, on the form path. A dynamic panel has always worked this way; a large matrix now pays the same.
+- A form now creates one element per cell of a submitted matrix, like a dynamic panel already did per row. A Creator creates no cells, as it has no submission.
+- `rows_data`, `get_row_value()`, `get_cell_value()`, `columns` and `parse()` are unchanged.
 
 ## 0.5.0
 
-Add form and question validations (validators).
+Form and question validation.
 
-**New API:**
+### Added
 
-- `SurveyForm.validation_errors()` collects errors across every input question and returns them keyed by question name — `{'age': {'numeric': "The 'Age' should be at least 18"}}`. A valid submission yields an empty dict; questions with no errors are omitted. The result is a plain dict, so reading an absent key raises instead of silently inserting an empty entry.
-- `Element.validation_errors()` returns a single question's errors, keyed by error type. It checks two kinds of rule, which never collide because they apply to opposite states: the `isRequired` flag (keyed `required`, only when the answer is empty), and each entry in the `validators` array (only when the answer is non-empty, matching SurveyJS, which passes validators on empty input).
-- `Element.is_empty()` — whether a question holds no answer. `None`, `''`, `[]` and `{}` are empty; `False` and `0` are answers, not emptiness.
-- `Element.required_error_text` — the question's `requiredErrorText`, used as the required message when set.
-
-**Validators** (the `validators` array), faithful to SurveyJS's semantics and default English messages:
-
-- `numeric` — number check plus `minValue`/`maxValue` range.
-- `text` — `minLength`/`maxLength` bounds and the `allowDigits` no-digits rule.
-- `answercount` — `minCount`/`maxCount` on multi-select answers.
-- `regex` — `regex` pattern (with `caseInsensitive`), tested against each element of an array answer; an un-compilable pattern is treated as no constraint rather than an error.
-- `email` — SurveyJS's own e-mail pattern.
-
-Each validator honours a per-rule `text` override, and otherwise translates its default message through the same i18n map the required message uses, filling `{0}`/`{1}`/`{2}` placeholders. The `expression` validator is **not** implemented — evaluating a SurveyJS expression needs a runtime this library does not carry — and any unrecognised `type` is skipped rather than mis-evaluated.
-
-**Extensibility:**
-
-- `surveyjs.elements.validators.register_validator(type_name)` — a decorator to register or override the function for a validator `type`, mirroring `register_input_type`.
+- `SurveyForm.validation_errors()`: errors of every input question, keyed by question name, e.g. `{'age': {'numeric': "The 'Age' should be at least 18"}}`. Questions without errors are left out, so a valid submission gives `{}`.
+- `Element.validation_errors()`: one question's errors, keyed by error type. It checks the `isRequired` flag (key `required`, only when the answer is empty) and each entry of the `validators` array (only when the answer is not empty, like SurveyJS).
+- `Element.is_empty()`: `None`, `''`, `[]` and `{}` are empty; `False` and `0` are answers.
+- `Element.required_error_text`: the question's `requiredErrorText`, used as the required message when set.
+- Validators, with SurveyJS's behaviour and default English messages:
+  - `numeric`: number check, with `minValue`/`maxValue`.
+  - `text`: `minLength`/`maxLength`, and `allowDigits`.
+  - `answercount`: `minCount`/`maxCount` on multi-select answers.
+  - `regex`: `regex` (with `caseInsensitive`), checked against each item of an array answer. A pattern that doesn't compile is ignored.
+  - `email`: SurveyJS's e-mail pattern.
+- A validator's own `text` overrides its message. Otherwise the default message is translated through the i18n map, and `{0}`/`{1}`/`{2}` are filled in.
+- `surveyjs.elements.validators.register_validator(type_name)`: decorator to add or override a validator type, like `register_input_type`.
+- The `expression` validator is not supported, as it needs a SurveyJS expression engine. Unknown validator types are skipped.
 
 ## 0.4.3
 
-Show `input_type` in reprs, fix `element_class_mapping` string values, and
-remove the unreachable `nonvalue` module.
+### Changed
 
-**Reprs:**
+- `QuestionText`, `MultipleTextItem` and `MatrixColumn` show `input_type` in their `repr()`.
+- `MatrixColumn`'s `repr()` always shows `cell_type`, and `input_type` only when set: `<MatrixColumn name=when cell_type=text input_type=date>`, `<MatrixColumn name=role cell_type=dropdown>`. Before, the two fields were swapped.
+- An `element_class_mapping` string may be a dotted path to your own class, e.g. `{'text': 'myapp.widgets.MyText'}`, not only a class name in `surveyjs.elements.<type>`.
+- README: the Questions and values example shows `date` and `datetime-local` questions parsed to `datetime.date` / `datetime.datetime`, and the reprs include `input_type`.
 
-- `QuestionText`, `MultipleTextItem` and `MatrixColumn` now include `input_type` in their `repr()`. It decides how `value` is parsed, so it is the one property that distinguishes two otherwise identical text elements.
-- `MatrixColumn` always shows `cell_type`, and appends `input_type` only when the column has one: `<MatrixColumn name=when cell_type=text input_type=date>` versus `<MatrixColumn name=role cell_type=dropdown>`. Previously the two fields *swapped*, so a text column's repr hid its `cell_type` and two columns' reprs could not be compared.
-- `Element.__repr__` is unchanged (`<QuestionPanel name=contact>`): types that carry no `inputType` have nothing to add.
+### Fixed
 
-**Fixes:**
+- `element_class_mapping` string values never worked: the name was capitalized (`QuestionText` became `Questiontext`) and the import path was wrong. Every string mapping fell back to `Element` with a warning. Class objects as values were not affected.
+- A broken import inside your own mapped module now gives the same warning, as `ImportError` is caught instead of only `ModuleNotFoundError`.
 
-- **`element_class_mapping` string values never worked.** Two defects: the mapping name was `.capitalize()`d, mangling `QuestionText` into `Questiontext`; and the import path appended the class name as if it were a module, so `__import__('surveyjs.elements.text.QuestionText')` raised `ModuleNotFoundError`. Every string mapping silently fell back to the base `Element` with a warning. The name is now used verbatim and the module resolved correctly. Class-object mapping values were unaffected and still work.
-- A string mapping may now also be a dotted path to a class of your own — `{'text': 'myapp.widgets.MyText'}` — not only a bare class name looked up in this library's `surveyjs.elements.<type>` module. Without this the repaired string form could only name classes that already live inside the package, which a caller could reference as a class object anyway.
-- An unresolvable mapping is caught as `ImportError` rather than `ModuleNotFoundError`, so a broken import *inside* a user's module degrades to the same warning instead of escaping.
+### Removed
 
-**Removed:**
-
-- `surveyjs.elements.nonvalue` (`QuestionNonValue`). It was unreachable: the loader derives `Question` + `'nonvalue'.capitalize()` = `QuestionNonvalue`, which never matched the class's CamelCase `QuestionNonValue`, so a `"type": "nonvalue"` element always fell back to `Element`. Nothing referenced it, no test covered it, and SurveyJS has no `nonvalue` question type — `QuestionNonValue` is a survey-core *base class* for html/image/expression, which already map to `QuestionHtml`, `QuestionImage` and `QuestionExpression` here. The module was a frozen copy of the pre-0.4.0 `text.py`, still carrying the `to_date()` bug 0.4.0 fixed and still reading `value` where `raw_value` is now correct.
-
-**README:**
-
-- The Questions and values example now shows a `date` and a `datetime-local` question parsed into `datetime.date` / `datetime.datetime` objects, and the reprs it prints carry the new `input_type` field.
+- `surveyjs.elements.nonvalue` (`QuestionNonValue`). It could never be loaded (the loader looked for `QuestionNonvalue`), nothing used it, and SurveyJS has no `nonvalue` question type.
 
 ## 0.4.2
 
-README: document `pages` on both `SurveyCreator` and `SurveyForm` classes.
+### Changed
 
-Both `SurveyCreator` and `SurveyForm` expose a `pages` property. They mirror
-each other — same names, titles, and order — but hold different element
-objects: a creator's page holds the schema elements, a form's page holds that
-form's elements with values populated.
-
-The Usage Examples read everything off `creator.pages`. Following them to fetch
-a value yields `None`, because a schema carries no submission data. Values now
-come from `form.pages`, with the creator case kept as an annotated contrast.
-
-Tests pin both: that `get_page_by_name()` works on either class, and that the
-two classes' pages hold distinct element objects — without which a future
-change could make `SurveyForm` reuse the creator's elements while the README
-and tests both still passed.
+- README: document `pages` on both `SurveyCreator` and `SurveyForm`. The examples now read values from `form.pages`; a creator's pages hold the schema and have no values.
+- Tests check that `get_page_by_name()` works on both classes, and that their pages hold different element objects.
 
 ## 0.4.1
 
-README: Clarify that a page's `elements` are objects, keyed by name
+### Changed
 
-`Page.elements` is an OrderedDict mapping name -> Element, the same shape as `SurveyCreator.elements` / `SurveyForm.elements`.\
-The Usage Examples showed only `list(creator.pages[0].elements)`, which yields the dict's *keys*, so the snippet printed strings while the container holds Element objects.
-Correct output, misleading impression.
-
-Show the dict access and `.values()` first, label the `list(...)` line as the element names, and note that `page.questions` is the same map filtered to input questions.
-
-The matching README test asserted only `list(elements) == [names]`, which would have passed even if `elements` really were a list of strings.\
-It now also asserts that `elements['firstName']` is a `QuestionText` and that `.values()` are Element objects, so the ambiguity cannot creep back.
+- README: show that `Page.elements` is an OrderedDict of Element objects keyed by name, like `SurveyCreator.elements` / `SurveyForm.elements`. The example only showed `list(...)`, which gives the names. Also note that `page.questions` is the same, filtered to input questions.
+- The README test also checks that the values are Element objects.
 
 ## 0.4.0
 
-Adds first-class **pages**, **paths**, **panel instances**, and **`inputType` parsing**.
+Pages, paths, panel instances and `inputType` parsing.
 
-**Breaking:**
+### Breaking Changes
 
-- `SurveyCreator.pages` returns `Page` objects instead of raw schema dicts. Use `page.name` in place of `page['name']`; the raw dict remains available as `page.raw`.
-- `QuestionMultipletext.items` returns `MultipleTextItem` objects instead of raw item dicts. Use `item.name` in place of `item['name']`; the raw dict remains available as `item.raw`.
-- `QuestionMatrixdropdown.columns` and `QuestionMatrixdynamic.columns` return `MatrixColumn` objects instead of raw column dicts. Use `column.name` in place of `column['name']`; the raw dict remains available as `column.raw`.
-- **`Element.value` is now `raw_value` parsed per the element's `inputType`, and is read-only.** `raw_value` holds the value exactly as submitted and is the settable one. For every element without an `inputType` — all types but `text` and `multipletext` items — the two are equal, so only date/time/number questions change. `to_dict()` emits `raw_value` under its `value` key, since a parsed `date` is not JSON-serialisable. A value that cannot be parsed yields `value is None` while `raw_value` keeps the original, which is what distinguishes a malformed submission from an empty one.
-- `QuestionMultipletext.get_item_value(name)` and the matrix questions' `get_cell_value(...)` / `get_row_value(...)` now parse per the item's or column's own `inputType`. Their unparsed counterparts are `get_item_raw_value(name)`, `get_cell_raw_value(...)` and `get_row_raw_value(...)`.
-- **Element ids are removed entirely**: `Element.id`, `all_element_ids` and its `all_component_ids` alias are gone. SurveyJS identifies elements by `name` and does not serialise an `id` onto them, so `Element.id` was always a freshly generated uuid — unstable across parses, and different between a `SurveyCreator` element and its `SurveyForm` counterpart, which made the registry useless for correlating the two. This retracts the 0.3.0 note below claiming ids are "unique across the whole tree": they were unique only because they were random. Use `path` / `all_element_paths` for a stable, unique handle on an element. An `id` in the schema JSON is now ignored (it remains readable via `element.raw['id']`).
-- `QuestionPaneldynamic.get_panel_value(index, field)` now reads through the element rather than the raw submission dict. It therefore honours the field's `defaultValue` where a row omits it (previously `None`), and a negative `index` returns `None` (previously it wrapped to the last row).
+- `SurveyCreator.pages` returns `Page` objects instead of dicts. Use `page.name` instead of `page['name']`; the dict is in `page.raw`.
+- `QuestionMultipletext.items` returns `MultipleTextItem` objects instead of dicts. Use `item.name` instead of `item['name']`; the dict is in `item.raw`.
+- `columns` of `matrixdropdown` and `matrixdynamic` returns `MatrixColumn` objects instead of dicts. Use `column.name` instead of `column['name']`; the dict is in `column.raw`.
+- `Element.value` is `raw_value` parsed by the element's `inputType`, and is read-only. Set `raw_value` instead. Only date/time/number questions return something different. An unparseable value gives `None`, with the original in `raw_value`. `to_dict()` writes `raw_value` under its `value` key.
+- `get_item_value()` (multipletext) and `get_cell_value()` / `get_row_value()` (matrices) are parsed by the item's or column's `inputType`. Use `get_item_raw_value()`, `get_cell_raw_value()` and `get_row_raw_value()` for the submitted values.
+- Element ids are removed: `Element.id`, `all_element_ids` and `all_component_ids`. The ids were random uuids, different on each parse and between a creator and its form. Use `path` / `all_element_paths` instead. An `id` in the schema is still in `element.raw['id']`.
+- `QuestionPaneldynamic.get_panel_value(index, field)` reads through the element: it returns the field's `defaultValue` when a row leaves it out (was `None`), and a negative `index` returns `None` (was the last row).
 
-**Pages:**
+### Added
 
-- `SurveyCreator.pages` / `SurveyForm.pages` — `Page` objects in schema order, exposing `name`, `title` (i18n-aware), `description`, `visible_if`, `is_visible`, `read_only`, `index`, `elements`, `questions`, `raw`.
-- `get_page_by_name()` on both classes; `Element.page` back-reference, inherited by nested children from their container.
-- A pages-less schema (top-level `elements`) is represented by a single implicit page named `page1`, so consumers have one code path.
-- Pages are not elements: they never appear in `elements`, `all_elements`, `questions` or `all_element_paths`.
+- Pages:
+  - `SurveyCreator.pages` / `SurveyForm.pages`: `Page` objects in schema order, with `name`, `title` (translated), `description`, `visible_if`, `is_visible`, `read_only`, `index`, `elements`, `questions` and `raw`.
+  - `get_page_by_name()` on both classes, and `Element.page`. Nested elements get the page of their container.
+  - A schema without pages (top-level `elements`) gets one page named `page1`.
+  - Pages are not elements; they are not in `elements`, `all_elements`, `questions` or `all_element_paths`.
+- Paths:
+  - `Element.path` / `path_str`: the position in the survey, e.g. `contactPanel.phone`. Unique, the same on each parse and between a creator element and its form element.
+  - `Element.input_path` / `input_path_str`: where the value is in the submission, e.g. `['education', 0, 'year']`. A `panel` adds no level, a `paneldynamic` does. `Element.get_value_from(data)` reads it.
+  - `all_element_paths` (alias `all_component_paths`) and `get_element_by_path()` on both classes.
+  - `Element.nests_data`, `panel_index`, `in_repeating_context` and `registrable_children`.
+  - The unused `survey_path` / `survey_input_path` attributes are renamed to `path` / `input_path` and now computed.
+- Panel instances:
+  - A form builds one set of child elements per row of a dynamic panel, with values: `paneldynamic.panels` (a list of `PanelInstance`) and `get_panel(index)`. A creator only has the template children, in `elements`.
+  - Row children are registered by path only (`education[0].year`), not in `all_elements` or `questions`, because each row reuses the same names.
+  - `Element.load()` has `register_with_owner` / `register_with_parent` flags for this.
+  - `Element.panel_instance`: the `PanelInstance` an element belongs to, or `None`.
+  - `QuestionPaneldynamic.template_panel`: a blank row built from the template, for rendering an empty form. Built once, from new element objects, so the creator's template children are not changed.
+- Text piping:
+  - `surveyjs.text.interpolate_text(text, panel_index=None)`, also as `surveyjs.interpolate_text`.
+  - `Element.title`, `label` and `description` replace `{panelIndex}` with the 1-based row number, like SurveyJS. Elements deeper in a row use their container's row. Outside a dynamic panel the placeholder is left as is. Other placeholders are not supported.
+  - `PanelInstance.title`: the paneldynamic's `templateTitle` for that row.
+- `inputType` parsing:
+  - `surveyjs.elements.inputtype`: one set of parsers per `inputType`, used by text questions, multipletext items and matrix columns. `date` gives a `date`, `datetime-local` a `datetime`, `time` a `time`, `month` a `date` (first of the month), `week` a `date` (Monday of the ISO week), `number` / `range` an `int` / `float`. Other types are returned unchanged; `None` or an unparseable value gives `None`.
+  - `surveyjs.register_input_type(input_type, parser)` adds or replaces a parser; `surveyjs.parse_input_value(input_type, value)` applies one.
+  - `QuestionText.to_time()`, `to_month()` and `to_week()`, next to `to_number()`, `to_date()` and `to_datetime()`. They parse `raw_value` as that type, whatever the `inputType`.
+  - Multipletext items each have their own `inputType`: `question.item_values`, `question.raw_item_values`, `question.get_item(name)`, and `raw_value` / `value` on an item. `MultipleTextItem` has `name`, `title`, `input_type`, `is_required` and `placeholder`.
+  - Matrix columns with `cellType: "text"` can have an `inputType` too. `MatrixColumn` has `name`, `title`, `cell_type` and `choices` (both default to the question's), `input_type`, `is_required` and `parse(value)`. The matrix questions have `column_names`, `column_count`, `get_column(name)`, `get_row_value(row)`, `get_row_raw_value(row)` and `get_cell_raw_value(row, column)`.
+  - `SurveyForm.get_raw_value(name)`, next to `get_value(name)`.
+  - `matrix` (single-select) is not affected. `rows_data`, `panels_data` and `column_values` still return the submitted data.
 
-**Paths:**
+### Fixed
 
-- `Element.path` / `path_str` — structural position, unique across the survey (`contactPanel.phone`). Stable across parses and identical between a creator element and its form counterpart.
-- `Element.input_path` / `input_path_str` — where the value actually lives in the submission data, as a list of `str` keys and `int` row indices (`['education', 0, 'year']`), directly usable to index the data. A `panel` is transparent to the data; a `paneldynamic` nests. `Element.get_value_from(data)` walks it.
-- `all_element_paths` (alias `all_component_paths`) and `get_element_by_path()` on both classes.
-- Supporting properties: `Element.nests_data`, `panel_index`, `in_repeating_context`, `registrable_children`.
-- The vestigial, never-populated `survey_path` / `survey_input_path` attributes are renamed to `path` / `input_path` and are now computed.
-
-**Panel instances:**
-
-- A `SurveyCreator` holds a dynamic panel's *template* children (under `elements`, keyed by name). A `SurveyForm` now materialises one set of child elements per row of submission data, with values populated, exposed as `paneldynamic.panels` (a list of `PanelInstance`) and `get_panel(index)`.
-- Instance children are registered by path only — `education[0].year`. Every row reuses the template's names, so a name-keyed map cannot represent them: they are deliberately absent from `all_elements` and `questions`, which continue to hold the paneldynamic itself.
-- `Element.load()` gained `register_with_owner` / `register_with_parent` flags, used to keep repeating children out of the name-keyed maps.
-- `Element.panel_instance` — the `PanelInstance` an element is a direct child of, or `None`. A row child's `parent` is the paneldynamic, so the instance is what holds its actual siblings.
-
-**Text piping:**
-
-- New `surveyjs.text` module with `interpolate_text(text, panel_index=None)`, exported as `surveyjs.interpolate_text`.
-- `Element.title`, `Element.label` and `Element.description` substitute `{panelIndex}` with the **1-based** row number of the element's dynamic panel, matching SurveyJS. An element nested deeper than a direct row child (e.g. inside a panel inside a row) inherits its container's index.
-- `PanelInstance.title` — the paneldynamic's `templateTitle` piped for that row. The paneldynamic itself sits outside any row and so cannot resolve `{panelIndex}`.
-- Outside a repeating context there is no row number, so the placeholder is left exactly as authored (as on a `SurveyCreator`'s template children). Other pipes (`{question}`, `{row.field}`, `{panel.field}`) are untouched.
-- `QuestionPaneldynamic.template_panel` — a blank `PanelInstance` materialised from the template as row 1, for rendering an empty form as one representative repeat. Built once on first access, from fresh child objects: stamping the template children the Creator keeps under `elements` would change their `path` from `passengers.first` to `passengers[0].first`.
-
-**`inputType` parsing:**
-
-- New `surveyjs.elements.inputtype` module: a single registry of parsers keyed by SurveyJS `inputType`, consulted by everything that carries one — a `text` question, a `multipletext` item, a matrix column.
-- `value` parses `raw_value` according to the declared `inputType`: `date` → `date`, `datetime-local` → `datetime`, `time` → `time`, `month` → `date` (first of the month), `week` → `date` (Monday of the ISO week), `number` / `range` → `int` / `float`. Types with no parser (text, email, url, tel, password, color) pass their value through unchanged; a `None` or unparseable value yields `None`.
-- `QuestionText` gains `to_time()`, `to_month()`, `to_week()` alongside the existing `to_number()`, `to_date()`, `to_datetime()`. These parse `raw_value` as a named type regardless of the declared `inputType`.
-- `multipletext` items each carry their own `inputType` and parse independently: `question.item_values`, `question.raw_item_values`, `question.get_item(name)`, and an item's own `raw_value` / `value`. Items are `MultipleTextItem` objects exposing `name`, `title`, `input_type`, `is_required`, `placeholder`.
-- `matrixdropdown` and `matrixdynamic` columns likewise: a column with `cellType: "text"` may declare an `inputType`, and every cell in it parses accordingly. Columns are `MatrixColumn` objects exposing `name`, `title`, `cell_type` (defaulting to the question's), `input_type`, `choices` (defaulting to the question's), `is_required`, and `parse(value)`. Both questions gain `column_names`, `column_count`, `get_column(name)`, `get_row_value(row)`, `get_row_raw_value(row)`, `get_cell_raw_value(row, column)`.
-- `SurveyForm.get_raw_value(name)` alongside `get_value(name)`.
-- Extension point for input types SurveyJS gains later: `surveyjs.register_input_type(input_type, parser)` registers or replaces a parser; `surveyjs.parse_input_value(input_type, value)` applies one directly. Registering a parser is all it takes to type a new `inputType` everywhere at once.
-- `matrix` (single-select) is untouched: its rows and columns are choices, not cells, and carry no `inputType`. Container accessors that normalise shape rather than parse values — `rows_data`, `panels_data`, `column_values` — also keep returning submitted data unchanged.
-
-**Fixes:**
-
-- `Element.elements_on_same_line` raised `ValueError` for a materialised paneldynamic row child. It resolved siblings through `parent` — the paneldynamic, whose `elements` holds the *template* children rather than that row's — so the child was never found among them. Siblings now come from the child's `panel_instance`, leaving the parent path for ordinary nested elements and the owner path for top-level ones.
-- `QuestionText.to_date()` handed a `datetime` returned it unchanged rather than narrowing it to a `date`, because `datetime` subclasses `date`. It now returns a `date`.
-- `SurveyCreator` no longer constructs every panel child twice (once via `QuestionPanel.load_data`, then again via its own recursion, discarding the first copy).
-- Two `paneldynamic`s may declare template children with the same name (e.g. `year`). Such names collide in the name-keyed `all_elements`, where the last one wins; `all_element_paths` keeps `jobs.year` and `school.year` distinct and reachable.
-- Removed unused `deepcopy` / `OrderedDict` imports.
+- `Element.elements_on_same_line` raised `ValueError` for a child of a dynamic panel row. It now uses the row's elements.
+- `QuestionText.to_date()` returned a `datetime` unchanged instead of a `date`.
+- `SurveyCreator` built every panel child twice.
+- Two dynamic panels can have template children with the same name (e.g. `year`). In `all_elements` the last one wins; `all_element_paths` has both (`jobs.year`, `school.year`).
+- Removed unused imports.
 
 ## 0.3.0
 
-**Breaking:** on `SurveyCreator` / `SurveyForm`, element accessors are split into root vs. flat, with consistent `all_`-prefixed flat variants and `component` aliases:
+### Breaking Changes
 
-- `elements` — **root** (top-level) elements, keyed by name. Nested children are reached via each container's own `elements`.
-- `all_elements` — **flat** map of every element (including nested), keyed by name.
-- `components` / `all_components` — aliases of `elements` / `all_elements`.
-- `element_ids` renamed to `all_element_ids` — flat map of every element keyed by internal id (with alias `all_component_ids`). There is no root-level id map: ids are unique across the whole tree, so an id registry is inherently global.
-- The previously added `root_elements` property is removed (use `elements`).
+- Element accessors on `SurveyCreator` / `SurveyForm` are split into root and flat:
+  - `elements`: only the root (top-level) elements, keyed by name. Nested elements are in their container's `elements`.
+  - `all_elements`: every element, including nested ones, keyed by name.
+  - `components` / `all_components`: aliases of `elements` / `all_elements`.
+  - `element_ids` is renamed to `all_element_ids` (alias `all_component_ids`), keyed by internal id. (Removed in 0.4.0.)
+  - `root_elements` is removed; use `elements`.
 
-Fixes enabled by the split:
+### Fixed
 
-- `SurveyForm` now builds a proper element tree: nested elements carry their container as `parent`, instead of the previous flat `parent=None` copies of every element.
-- `Element.elements_on_same_line` resolves siblings from the element's parent when nested (a panel's children), so `startWithNewLine` grouping works inside panels, not only at the top level.
+- `SurveyForm` builds a real element tree: nested elements have their container as `parent`. Before, every element was a flat copy with `parent=None`.
+- `Element.elements_on_same_line` also works inside panels, using the element's parent.
 
 ## 0.2.12
 
-Add question types:
+### Added
 
-- `buttongroup`: single-select, rendered as buttons; reuses the radiogroup choice handling and exposes item-level icon/caption properties.
-- `slider`: single-value or range; `to_number`/`to_range` accessors question types, with tests.
+- `buttongroup` question type: single-select shown as buttons, with the radiogroup choice handling and item icon/caption properties.
+- `slider` question type: a single value or a range, with `to_number()` / `to_range()`.
 
 ## 0.2.11
 
-Fix `SurveyCreator._load_elements` to recurse into `paneldynamic` children via `templateElements` (the per-row template) instead of `elements`, so nested questions inside dynamic panels are correctly registered.
+### Fixed
+
+- `SurveyCreator._load_elements` now reads the children of a `paneldynamic` from `templateElements` instead of `elements`, so questions in dynamic panels are registered.
 
 ## 0.2.10
 
-Update pyproject.toml.
+### Changed
+
+- Update pyproject.toml.
 
 ## 0.2.9
 
-Update README and pyproject.toml with new description, author/maintainer info, and project URLs.
+### Changed
+
+- Update the README and pyproject.toml: description, author/maintainer and project URLs.
 
 ## 0.2.8
 
-Add `max_files` property to `QuestionFile`.
+### Added
+
+- `QuestionFile.max_files`.
 
 ## 0.2.7
 
-Set `SurveyCreator` and `SurveyForm` default language to `"default"`.\
-This aligns language behavior with SurveyJS Creator defaults and improves consistency when reading localized survey content.
+### Changed
+
+- `SurveyCreator` and `SurveyForm` use `"default"` as default language, like SurveyJS Creator.
 
 ## 0.2.6
 
-Fix Element `elements_on_same_line` property to return the correct sibling elements based on `start_with_new_line` property.
+### Fixed
 
-This also adds the first sibling on the line, which could have no JSON `startWithNewLine` property (defaulting to `start_with_new_line` True) but still be on the same line as siblings with `start_with_new_line`.
+- `Element.elements_on_same_line` returns the right siblings, based on `start_with_new_line`. It now also includes the first element on the line, which may have no `startWithNewLine` in the JSON.
 
 ## 0.2.5
 
-Add Element `elements_on_same_line` property, which returns sibling elements with `start_with_new_line` property (SurveyJS: `startWithNewLine`) set to False.
+### Added
+
+- `Element.elements_on_same_line`: sibling elements with `start_with_new_line` (SurveyJS: `startWithNewLine`) set to False.
 
 ## 0.2.4
 
-Fix Element `title` property to handle i18n title dicts.
+### Fixed
 
-The fix handles the case where title is a dict (i18n object like `{"en": "Name", "fr": "Nom"}`) by extracting the string for the current language before it's used as a key in .get().\
-If the current language isn't in the dict, it falls back to the first available language, then to `self.name`.
+- `Element.title` handles a translated title dict like `{"en": "Name", "fr": "Nom"}`. It uses the current language, then the first language, then the element name.
 
 ## 0.2.3
 
-Add Element `start_with_new_line` property, mapped from  `startWithNewLine` in SurveyJS (Element) JSON.
+### Added
+
+- `Element.start_with_new_line`, from `startWithNewLine` in the SurveyJS JSON.
 
 ## 0.2.2
 
-Update README.
+### Changed
+
+- Update README.
 
 ## 0.2.1
 
-Update README.
+### Changed
+
+- Update README.
 
 ## 0.2.0
 
-Align to SurveyJS terminology and structure:
+Align with SurveyJS terminology and structure.
 
-- Rename `questions` package to `elements`; base class `Question` → `Element`.
-- Add `Question` and `Layout` subclasses of `Element` (new `question.py`, `layout.py`).
-- Rename `SurveyCreator` internals: `question_class_mapping` → `element_class_mapping`, `load_questions()` → `load_elements()`, `get_question_class()` → `get_element_class()`, `get_question_object()` → `get_element_object()`.
-- `SurveyCreator.elements` now holds all elements; `questions` is reserved for input-only fields.
-- Update `Panel` to use `Layout` as base class; `Html` and `Image` updated accordingly.
-- Update `SurveyForm` and all tests for the new naming.
+### Breaking Changes
+
+- The `questions` package is renamed to `elements`, and the base class `Question` to `Element`.
+- `SurveyCreator` renames: `question_class_mapping` to `element_class_mapping`, `load_questions()` to `load_elements()`, `get_question_class()` to `get_element_class()` and `get_question_object()` to `get_element_object()`.
+- `SurveyCreator.elements` holds all elements; `questions` only holds input questions.
+
+### Added
+
+- `Question` and `Layout` subclasses of `Element` (`question.py`, `layout.py`).
+
+### Changed
+
+- `Panel`, `Html` and `Image` use `Layout` as base class.
+- `SurveyForm` and the tests use the new names.
 
 ## 0.1.1
 
-Add `custom_properties` getter to the Question class, stored as `customProperties` property in a SurveyJS Question JSON.
+### Added
 
-This is useful for accessing any additional metadata or configuration that may be included in the survey schema but is not part of the standard question properties.
-
-More info:
-<https://surveyjs.io/form-library/documentation/customize-question-types/add-custom-properties-to-a-form>
+- `custom_properties` on questions: the `customProperties` of a SurveyJS question, for extra metadata in the schema. See <https://surveyjs.io/form-library/documentation/customize-question-types/add-custom-properties-to-a-form>.
 
 ## 0.1.0
 
