@@ -31,7 +31,7 @@ The file prefix `question` indicates a question (field) class.
 - Constructor of the **SurveyCreator** and **SurveyForm** class only requires the JSON (string or dict) and an optional language code (e.g. 'en', 'fr', etc.).
 - **Translations**: every displayed text (titles, descriptions, choices, boolean labels, error messages, …) is translated, from SurveyJS localizable strings and/or an `i18n` map (see [Translations](#translations)).
 - Get a **SurveyForm object's Questions** as usable **Python objects** e.g. date, datetime, boolean, list (for checkbox), dict (for matrix) etc. Every question exposes both `raw_value` (exactly as submitted) and `value` (parsed according to its SurveyJS type and `inputType`).
-- **Pages** and **paths**: iterate a survey's pages as objects, and address any element — however deeply nested — by a stable path such as `education[0].year`.
+- **Pages** and **paths**: iterate a survey's pages as objects, and address any element — however deeply nested — by a stable path such as `education[0].details.degree`.
 - **Dynamic panels** are materialized per row of submission data, with values populated.
 - **Matrix cells are questions**: a column's `cellType` decides a cell's class, so a dropdown cell resolves its own choices and a date cell parses its own value.
 - **Validation**: `validation_errors()` on a whole form or a single question, covering the `isRequired` flag and SurveyJS's `validators` array (numeric, text, answercount, regex, email).
@@ -291,6 +291,52 @@ form.get_element_by_path('contact.phone').value
 # '+31 6 1234 5678'
 ```
 
+Nested panels each add a name to `path`, but nothing to `input_path`:
+
+```python
+# {"type": "panel", "name": "contact", "elements": [
+#     {"type": "text", "name": "phone"},
+#     {"type": "panel", "name": "address", "elements": [
+#         {"type": "text", "name": "city"}]}]}
+city = form.all_elements['city']
+
+city.path
+# ['contact', 'address', 'city']
+
+city.path_str
+# 'contact.address.city'
+
+city.input_path
+# ['city']                 -> data['city']
+
+form.get_element_by_path('contact.address.city').value
+# 'Amsterdam'
+```
+
+A dynamic panel does nest its data: each row adds the dynamic panel's name and
+the row index (see [Dynamic panels](#dynamic-panels)). A panel inside that row
+still adds nothing to the data:
+
+```python
+# {"type": "paneldynamic", "name": "education", "templateElements": [
+#     {"type": "text", "name": "school"},
+#     {"type": "panel", "name": "details", "elements": [
+#         {"type": "text", "name": "degree"}]}]}
+degree = form.get_element_by_path('education[0].details.degree')
+
+degree.path
+# ['education[0]', 'details', 'degree']
+
+degree.input_path
+# ['education', 0, 'degree']    -> data['education'][0]['degree']
+
+degree.input_path_str
+# 'education[0].degree'
+
+degree.value
+# 'MSc'
+```
+
 ### Dynamic panels
 
 A `SurveyCreator` holds a dynamic panel's *template*. A `SurveyForm`
@@ -311,10 +357,10 @@ education.get_panel_value(0, 'school')
 
 # the whole value: a parsed copy of raw_value
 education.value
-# [{'school': 'MIT', 'graduated': datetime.date(2015, 5, 30)}]
+# [{'school': 'MIT', 'graduated': datetime.date(2015, 5, 30), 'degree': 'MSc'}]
 
 education.raw_value
-# [{'school': 'MIT', 'graduated': '2015-05-30'}]
+# [{'school': 'MIT', 'graduated': '2015-05-30', 'degree': 'MSc'}]
 
 # rows are addressable by path
 form.get_element_by_path('education[0].graduated').input_path
@@ -442,6 +488,53 @@ Reading a matrix as values still works without cells: `value`,
 accessors return the submission as is. Cells cost one
 element per cell of a submitted matrix, on the form path only.
 
+### Translations
+
+Every text a respondent reads is translated: titles, descriptions,
+placeholders, choice texts (and so `value_text`), boolean labels, button
+texts, and validation messages. SurveyJS offers two ways to translate, and both
+apply, in this order:
+
+1. **Localizable strings** in the schema — a dict keyed by locale. The
+   survey's language is picked, else `default`, else the first locale given.
+2. An **`i18n` map**, `{language: {source text: translation}}`, passed to the
+   `SurveyCreator`. It translates the text from step 1; a text it does not
+   list is kept as is.
+
+```python
+# {"type": "boolean", "name": "agree",
+#  "title": {"default": "I agree", "fr": "J'accepte"}},
+# {"type": "dropdown", "name": "color", "choices": ["Red", "Blue"]}
+i18n = {'fr': {'Yes': 'Oui', 'No': 'Non', 'Red': 'Rouge', 'Blue': 'Bleu'}}
+
+creator = SurveyCreator(creator_json, language='fr', i18n=i18n)
+form = SurveyForm(form_json, creator)
+
+form.questions['agree'].title
+# "J'accepte"
+
+form.questions['agree'].value_text
+# 'Oui'
+
+form.questions['color'].value_text
+# 'Rouge'
+```
+
+A form uses its creator's `language` unless you pass `lang`, which then
+applies to the whole form — pages, questions, and everything nested in panels,
+dynamic panels and matrix cells. The creator keeps its own language, so one
+creator can serve forms in several languages:
+
+```python
+form_en = SurveyForm(form_json, creator, lang='default')
+
+form_en.questions['agree'].title
+# 'I agree'
+
+form_en.questions['agree'].value_text
+# 'Yes'
+```
+
 ### Validation
 
 `validation_errors()` reports what a submission gets wrong. On a **SurveyForm** it
@@ -491,53 +584,6 @@ the message. An unknown type is skipped rather than guessed at. That includes
 `expression`, which needs a SurveyJS expression runtime this library does not
 carry, so its rules are ignored rather than mis-evaluated. To add a type, see
 [Extending](#extending).
-
-### Translations
-
-Every text a respondent reads is translated: titles, descriptions,
-placeholders, choice texts (and so `value_text`), boolean labels, button
-texts, and validation messages. SurveyJS offers two ways to translate, and both
-apply, in this order:
-
-1. **Localizable strings** in the schema — a dict keyed by locale. The
-   survey's language is picked, else `default`, else the first locale given.
-2. An **`i18n` map**, `{language: {source text: translation}}`, passed to the
-   `SurveyCreator`. It translates the text from step 1; a text it does not
-   list is kept as is.
-
-```python
-# {"type": "boolean", "name": "agree",
-#  "title": {"default": "I agree", "fr": "J'accepte"}},
-# {"type": "dropdown", "name": "color", "choices": ["Red", "Blue"]}
-i18n = {'fr': {'Yes': 'Oui', 'No': 'Non', 'Red': 'Rouge', 'Blue': 'Bleu'}}
-
-creator = SurveyCreator(creator_json, language='fr', i18n=i18n)
-form = SurveyForm(form_json, creator)
-
-form.questions['agree'].title
-# "J'accepte"
-
-form.questions['agree'].value_text
-# 'Oui'
-
-form.questions['color'].value_text
-# 'Rouge'
-```
-
-A form uses its creator's `language` unless you pass `lang`, which then
-applies to the whole form — pages, questions, and everything nested in panels,
-dynamic panels and matrix cells. The creator keeps its own language, so one
-creator can serve forms in several languages:
-
-```python
-form_en = SurveyForm(form_json, creator, lang='default')
-
-form_en.questions['agree'].title
-# 'I agree'
-
-form_en.questions['agree'].value_text
-# 'Yes'
-```
 
 ## Extending
 

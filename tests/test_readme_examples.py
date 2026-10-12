@@ -24,12 +24,16 @@ CREATOR_JSON = {
             {'type': 'text', 'name': 'appointment', 'title': 'Appointment',
              'inputType': 'datetime-local'},
             {'type': 'panel', 'name': 'contact', 'elements': [
-                {'type': 'text', 'name': 'phone', 'title': 'Phone'}]},
+                {'type': 'text', 'name': 'phone', 'title': 'Phone'},
+                {'type': 'panel', 'name': 'address', 'elements': [
+                    {'type': 'text', 'name': 'city', 'title': 'City'}]}]},
         ]},
         {'name': 'history', 'title': 'History', 'elements': [
             {'type': 'paneldynamic', 'name': 'education', 'templateElements': [
                 {'type': 'text', 'name': 'school'},
-                {'type': 'text', 'name': 'graduated', 'inputType': 'date'}]},
+                {'type': 'text', 'name': 'graduated', 'inputType': 'date'},
+                {'type': 'panel', 'name': 'details', 'elements': [
+                    {'type': 'text', 'name': 'degree'}]}]},
             {'type': 'matrixdynamic', 'name': 'jobs', 'cellType': 'text', 'columns': [
                 {'name': 'employer'},
                 {'name': 'started', 'cellType': 'text', 'inputType': 'date'},
@@ -65,7 +69,8 @@ FORM_JSON = {
     'birthDate': '1985-06-14',
     'appointment': '2024-03-15T13:45',
     'phone': '+31 6 1234 5678',
-    'education': [{'school': 'MIT', 'graduated': '2015-05-30'}],
+    'city': 'Amsterdam',
+    'education': [{'school': 'MIT', 'graduated': '2015-05-30', 'degree': 'MSc'}],
     'jobs': [{'employer': 'Nova Code', 'started': '2020-01-06', 'role': 'dev'}],
     'budget': {'marketing': {'status': 'done'}},
     'dates': {'from': '2024-07-08'},
@@ -205,6 +210,21 @@ class TestReadmeExamples(unittest.TestCase):
         self.assertEqual(self.form.get_element_by_path('contact.phone').value,
                          '+31 6 1234 5678')
 
+    def test_nested_panels_path(self):
+        city = self.form.all_elements['city']
+        self.assertEqual(city.path, ['contact', 'address', 'city'])
+        self.assertEqual(city.path_str, 'contact.address.city')
+        self.assertEqual(city.input_path, ['city'])
+        self.assertEqual(self.form.get_element_by_path('contact.address.city').value,
+                         'Amsterdam')
+
+    def test_panel_in_dynamic_panel_row_path(self):
+        degree = self.form.get_element_by_path('education[0].details.degree')
+        self.assertEqual(degree.path, ['education[0]', 'details', 'degree'])
+        self.assertEqual(degree.input_path, ['education', 0, 'degree'])
+        self.assertEqual(degree.input_path_str, 'education[0].degree')
+        self.assertEqual(degree.value, 'MSc')
+
     # --- Dynamic panels ---
 
     def test_panels_repr(self):
@@ -217,8 +237,10 @@ class TestReadmeExamples(unittest.TestCase):
 
     def test_panel_value_is_a_parsed_copy(self):
         education = self.form.questions['education']
-        self.assertEqual(education.value, [{'school': 'MIT', 'graduated': date(2015, 5, 30)}])
-        self.assertEqual(education.raw_value, [{'school': 'MIT', 'graduated': '2015-05-30'}])
+        self.assertEqual(education.value,
+                         [{'school': 'MIT', 'graduated': date(2015, 5, 30), 'degree': 'MSc'}])
+        self.assertEqual(education.raw_value,
+                         [{'school': 'MIT', 'graduated': '2015-05-30', 'degree': 'MSc'}])
 
     def test_get_panel_value(self):
         self.assertEqual(self.form.questions['education'].get_panel_value(0, 'school'), 'MIT')
@@ -264,23 +286,6 @@ class TestReadmeExamples(unittest.TestCase):
         self.assertEqual(dates.value, {'from': date(2024, 7, 8)})
         self.assertEqual(dates.raw_value, {'from': '2024-07-08'})
 
-    # --- Translations ---
-
-    def test_translations(self):
-        creator = SurveyCreator(TRANSLATION_JSON, language='fr', i18n=TRANSLATION_I18N)
-        form = SurveyForm(TRANSLATION_FORM_JSON, creator)
-        self.assertEqual(form.questions['agree'].title, "J'accepte")
-        self.assertEqual(form.questions['agree'].value_text, 'Oui')
-        self.assertEqual(form.questions['color'].value_text, 'Rouge')
-
-    def test_explicit_lang_on_a_shared_creator(self):
-        creator = SurveyCreator(TRANSLATION_JSON, language='fr', i18n=TRANSLATION_I18N)
-        form_en = SurveyForm(TRANSLATION_FORM_JSON, creator, lang='default')
-        self.assertEqual(form_en.questions['agree'].title, 'I agree')
-        self.assertEqual(form_en.questions['agree'].value_text, 'Yes')
-        self.assertEqual(SurveyForm(TRANSLATION_FORM_JSON, creator)
-                         .questions['agree'].value_text, 'Oui')
-
     # --- Matrix cells as questions ---
 
     def test_cell_is_a_question_of_its_column_cell_type(self):
@@ -325,6 +330,23 @@ class TestReadmeExamples(unittest.TestCase):
         cell = self.form.get_element_by_path('budget[marketing].status')
         self.assertEqual(cell.value_text, 'Done')
         self.assertEqual(cell.input_path, ['budget', 'marketing', 'status'])
+
+    # --- Translations ---
+
+    def test_translations(self):
+        creator = SurveyCreator(TRANSLATION_JSON, language='fr', i18n=TRANSLATION_I18N)
+        form = SurveyForm(TRANSLATION_FORM_JSON, creator)
+        self.assertEqual(form.questions['agree'].title, "J'accepte")
+        self.assertEqual(form.questions['agree'].value_text, 'Oui')
+        self.assertEqual(form.questions['color'].value_text, 'Rouge')
+
+    def test_explicit_lang_on_a_shared_creator(self):
+        creator = SurveyCreator(TRANSLATION_JSON, language='fr', i18n=TRANSLATION_I18N)
+        form_en = SurveyForm(TRANSLATION_FORM_JSON, creator, lang='default')
+        self.assertEqual(form_en.questions['agree'].title, 'I agree')
+        self.assertEqual(form_en.questions['agree'].value_text, 'Yes')
+        self.assertEqual(SurveyForm(TRANSLATION_FORM_JSON, creator)
+                         .questions['agree'].value_text, 'Oui')
 
     # --- Validation ---
 
