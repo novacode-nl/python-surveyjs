@@ -215,5 +215,69 @@ class TestTemplatePanelData(unittest.TestCase):
         self.assertEqual(jobs.value, ['junk'])
 
 
+
+HOUSEHOLD_SCHEMA = {'elements': [
+    {'type': 'paneldynamic', 'name': 'household', 'templateElements': [
+        {'type': 'text', 'name': 'name'},
+        {'type': 'matrixdynamic', 'name': 'tasks', 'rowCount': 3,
+         'columns': [{'name': 'task', 'cellType': 'text'}]},
+        {'type': 'paneldynamic', 'name': 'children', 'panelCount': 2,
+         'templateElements': [{'type': 'text', 'name': 'child'}]},
+    ]},
+]}
+
+HOUSEHOLD_DATA = {'household': [
+    {'name': 'Ann', 'tasks': [{'task': 'cooking'}], 'children': [{'child': 'Tom'}]},
+]}
+
+
+class TestTemplatePanelNestedDynamic(unittest.TestCase):
+    """Dynamic containers inside the blank row have no rows: rows only come
+    from a submission. `row_count` / `panel_count` tell a renderer how many
+    blank rows SurveyJS would show."""
+
+    def blank_rows(self):
+        """The blank row on a creator and on an empty form."""
+        creator = SurveyCreator(HOUSEHOLD_SCHEMA)
+        form = SurveyForm({}, creator=SurveyCreator(HOUSEHOLD_SCHEMA))
+        return {
+            'creator': creator.questions['household'].template_panel,
+            'empty form': form.questions['household'].template_panel,
+        }
+
+    def test_nested_matrixdynamic_has_no_rows(self):
+        for label, blank in self.blank_rows().items():
+            with self.subTest(label):
+                tasks = blank['tasks']
+                self.assertEqual(tasks.rows_cells, {})
+                self.assertIsNone(tasks.value)
+                self.assertEqual(tasks.actual_row_count, 0)
+                self.assertEqual(tasks.row_count, 3)
+
+    def test_nested_paneldynamic_has_no_panels(self):
+        for label, blank in self.blank_rows().items():
+            with self.subTest(label):
+                children = blank['children']
+                self.assertEqual(children.panels, [])
+                self.assertIsNone(children.value)
+                self.assertEqual(children.actual_panel_count, 0)
+                self.assertEqual(children.panel_count, 2)
+
+    def test_form_with_rows(self):
+        """Row 0 has a filled-in matrix and nested panel; the blank row's
+        nested containers still have no rows."""
+        form = SurveyForm(HOUSEHOLD_DATA, creator=SurveyCreator(HOUSEHOLD_SCHEMA))
+        household = form.questions['household']
+        row = household.get_panel(0)
+        self.assertEqual(list(row['tasks'].rows_cells), [0])
+        self.assertEqual(len(row['children'].panels), 1)
+
+        blank = household.template_panel
+        self.assertEqual(blank['tasks'].rows_cells, {})
+        self.assertIsNone(blank['tasks'].value)
+        self.assertEqual(blank['children'].panels, [])
+        self.assertIsNone(blank['children'].value)
+
+
 if __name__ == '__main__':
     unittest.main()
