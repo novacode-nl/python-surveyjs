@@ -97,3 +97,7 @@ class QuestionMatrixdynamic(MatrixColumnsMixin, Question):
         if raw is None:
             return None
         return self._parse_cell(column_name, raw)
+
+    def value_spec(self):
+        """A list of rows, each an object of cells."""
+        return {'type': 'array', 'items': self._row_spec()}

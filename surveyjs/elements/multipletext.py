@@ -1,6 +1,7 @@
 # Copyright 2026 Nova Code (https://www.novaforms.io)
 # See LICENSE file for full licensing details.
 
+from ..valuespec import input_type_spec
 from .inputtype import parse_input_value
 from .question import Question
 
@@ -150,3 +151,12 @@ class QuestionMultipletext(Question):
         if item is None:
             return item_name
         return item.title
+
+    def value_spec(self):
+        """An object keyed by item name, each item shaped by its own
+        `inputType`."""
+        return {
+            'type': 'object',
+            'properties': {item.name: input_type_spec(item.input_type) for item in self.items},
+            'additionalProperties': False,
+        }

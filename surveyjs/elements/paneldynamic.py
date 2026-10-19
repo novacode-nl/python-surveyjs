@@ -4,6 +4,7 @@
 from collections import OrderedDict
 
 from ..text import interpolate_text
+from ..valuespec import data_properties
 from .question import Question
 
 
@@ -302,3 +303,15 @@ class QuestionPaneldynamic(Question):
         if element is None:
             return None
         return element.value
+
+    def value_spec(self):
+        """A list of panels, each an object keyed by the names of the
+        template's questions."""
+        return {
+            'type': 'array',
+            'items': {
+                'type': 'object',
+                'properties': data_properties(self.elements.values()),
+                'additionalProperties': False,
+            },
+        }

@@ -108,3 +108,11 @@ class QuestionSlider(Question):
             return [self._coerce_number(v) for v in val]
         num = self._coerce_number(val)
         return [num, num]
+
+    def value_spec(self):
+        """A number from `min` to `max`, or a `[low, high]` list of them for
+        a range slider."""
+        number = {'type': 'number', 'minimum': self.min, 'maximum': self.max}
+        if self.is_range:
+            return {'type': 'array', 'items': number, 'minItems': 2, 'maxItems': 2}
+        return number

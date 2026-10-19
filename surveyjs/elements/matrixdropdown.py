@@ -98,3 +98,12 @@ class QuestionMatrixdropdown(MatrixColumnsMixin, Question):
         if raw is None:
             return None
         return self._parse_cell(column_name, raw)
+
+    def value_spec(self):
+        """An object keyed by row name, each row an object of cells."""
+        row = self._row_spec()
+        return {
+            'type': 'object',
+            'properties': {name: row for name in self.row_names},
+            'additionalProperties': False,
+        }

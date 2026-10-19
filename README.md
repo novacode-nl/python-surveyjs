@@ -35,6 +35,7 @@ The file prefix `question` indicates a question (field) class.
 - **Dynamic panels** are materialized per row of submission data, with values populated.
 - **Matrix cells are questions**: a column's `cellType` decides a cell's class, so a dropdown cell resolves its own choices and a date cell parses its own value.
 - **Validation**: `validation_errors()` on a whole form or a single question, covering the `isRequired` flag and SurveyJS's `validators` array (numeric, text, answercount, regex, email).
+- **Value specs**: what each question accepts as its value, as JSON Schema, and a check of values written into a form, e.g. a prefill (see [Value specs](#value-specs)).
 - **Extensible**: register an `inputType` parser, a validator, or a question class of your own (see [Extending](#extending)).
 - Supports [23 SurveyJS question types](#supported-question-types); additional types will be added over time and contributions via PRs are welcome.
 - Open source (MIT License).
@@ -615,6 +616,49 @@ the message. An unknown type is skipped rather than guessed at. That includes
 `expression`, which needs a SurveyJS expression runtime this library does not
 carry, so its rules are ignored rather than mis-evaluated. To add a type, see
 [Extending](#extending).
+
+### Value specs
+
+`value` reads submitted data. A **value spec** goes the other way: it says what
+value a question *accepts*, for code that writes data into a form, such as a
+prefill. `value_spec()` returns a small subset of JSON Schema, so it is plain JSON
+that people and language models read alike.
+
+```python
+# {"type": "text", "name": "birthDate", "inputType": "date"}
+# {"type": "checkbox", "name": "colors", "choices": ["red", "blue"], "maxSelectedChoices": 2}
+
+creator.questions['birthDate'].value_spec()
+# {'type': 'string', 'format': 'date', 'examples': ['2024-03-15']}
+
+creator.questions['colors'].value_spec()
+# {'type': 'array', 'items': {'enum': ['red', 'blue']}, 'maxItems': 2}
+```
+
+`None` means the element holds no value of its own: a panel, an html or image
+element, or an expression, whose computed value would overwrite one written into
+it. A dropdown with `choicesByUrl` has no `enum`, since its choices load from a
+URL; its spec carries the `choicesByUrl` config under `x-choicesByUrl`.
+
+`SurveyCreator.value_spec()` is the spec of the survey's data: an object keyed by
+the questions at its top level. Questions in a plain panel are at the top level;
+those in a dynamic panel are part of the panel's value.
+
+`check_value()` and `check_values()` report what in a value does not fit, as a
+list of messages, each starting with the data path of the offending value:
+
+```python
+creator.questions['birthDate'].check_value(date(1985, 6, 14))
+# ["birthDate: expected a string in the format YYYY-MM-DD (e.g. '2024-03-15'), got date"]
+
+creator.check_values({'colors': ['red', 'pink'], 'nmae': 'Bob'})
+# ["colors[1]: expected one of ['red', 'blue'], got a str that is not one of them",
+#  'nmae: no question has this name']
+```
+
+None always fits: it leaves a question unanswered. A message describes a wrong
+value by its type and never contains the value itself, so it can be passed on
+(e.g. to an AI that wrote the value) without disclosing any data.
 
 ## Extending
 

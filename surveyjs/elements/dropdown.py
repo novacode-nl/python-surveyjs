@@ -48,3 +48,7 @@ class QuestionDropdown(Question):
     @property
     def allow_clear(self):
         return self.raw.get('allowClear', True)
+
+    def value_spec(self):
+        """One choice value."""
+        return self._choices_spec()

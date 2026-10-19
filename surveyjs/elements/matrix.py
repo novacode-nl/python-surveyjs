@@ -41,3 +41,12 @@ class QuestionMatrix(Question):
         if val and isinstance(val, dict):
             return val.get(row_name)
         return None
+
+    def value_spec(self):
+        """An object keyed by row value, each row holding one column value."""
+        columns = {'enum': [column['value'] for column in self.column_values]}
+        return {
+            'type': 'object',
+            'properties': {row['value']: columns for row in self.row_values},
+            'additionalProperties': False,
+        }

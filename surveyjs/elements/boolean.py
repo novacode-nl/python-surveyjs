@@ -59,3 +59,9 @@ class QuestionBoolean(Question):
     def to_bool(self):
         """Convert the value to a Python bool (same as `value`)."""
         return self.value
+
+    def value_spec(self):
+        """True/False, or the schema's own `valueTrue`/`valueFalse`."""
+        if 'valueTrue' in self.raw or 'valueFalse' in self.raw:
+            return {'enum': [self.value_true, self.value_false]}
+        return {'type': 'boolean'}

@@ -47,3 +47,8 @@ class QuestionExpression(Question):
             return float(val)
         except (ValueError, TypeError):
             return None
+
+    def value_spec(self):
+        """None: an expression computes its value, so one written into the
+        form would be overwritten."""
+        return None

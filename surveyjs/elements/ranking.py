@@ -25,3 +25,7 @@ class QuestionRanking(Question):
     @property
     def select_to_rank_enabled(self):
         return self.raw.get('selectToRankEnabled', False)
+
+    def value_spec(self):
+        """The choice values, in ranked order."""
+        return self._choices_spec(multiple=True)

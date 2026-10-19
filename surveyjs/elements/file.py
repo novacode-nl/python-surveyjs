@@ -62,3 +62,21 @@ class QuestionFile(Question):
     def file_count(self):
         """Number of uploaded files."""
         return len(self.files)
+
+    def value_spec(self):
+        """A list of file objects (`name`, `type`, and `content`: base64 data
+        or a URL), also for a single file."""
+        spec = {
+            'type': 'array',
+            'items': {
+                'type': 'object',
+                'properties': {
+                    'name': {'type': 'string'},
+                    'type': {'type': 'string'},
+                    'content': {'type': 'string'},
+                },
+            },
+        }
+        if not self.allow_multiple:
+            spec['maxItems'] = 1
+        return spec

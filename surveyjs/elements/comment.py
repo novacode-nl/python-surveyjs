@@ -23,3 +23,6 @@ class QuestionComment(Question):
     @property
     def allow_resize(self):
         return self.raw.get('allowResize', True)
+
+    def value_spec(self):
+        return {'type': 'string'}

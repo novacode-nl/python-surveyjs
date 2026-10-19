@@ -1,6 +1,7 @@
 # Copyright 2026 Nova Code (https://www.novaforms.io)
 # See LICENSE file for full licensing details.
 
+from ..valuespec import input_type_spec
 from .inputtype import (
     parse_date,
     parse_datetime,
@@ -93,3 +94,8 @@ class QuestionText(Question):
         """Convert value to a date object at the Monday of the ISO week.
         Applicable when inputType is 'week'."""
         return self._parse_as(parse_week)
+
+    def value_spec(self):
+        """Shaped by `input_type`: a number for 'number'/'range', a string in
+        the input's format for a date or time, else a string."""
+        return input_type_spec(self.input_type, self.min, self.max)

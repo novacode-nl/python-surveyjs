@@ -247,3 +247,17 @@ class MatrixColumnsMixin:
         if not isinstance(raw_row, dict):
             return {}
         return {name: self._parse_cell(name, value) for name, value in raw_row.items()}
+
+    def _row_spec(self):
+        """The value spec of one row: an object keyed by column name, each
+        cell shaped as a question of its column's `cellType`. A computed
+        (expression) column is left out: it holds no value to write."""
+        properties = {}
+        for column in self._columns:
+            if not column.name:
+                continue
+            cell = self.survey.get_element_object(column.cell_raw, language=self.language)
+            spec = cell.value_spec() if cell else {}
+            if spec is not None:
+                properties[column.name] = spec
+        return {'type': 'object', 'properties': properties, 'additionalProperties': False}

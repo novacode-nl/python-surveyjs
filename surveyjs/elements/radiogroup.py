@@ -47,3 +47,7 @@ class QuestionRadiogroup(Question):
     @property
     def col_count(self):
         return self.raw.get('colCount', 0)
+
+    def value_spec(self):
+        """One choice value."""
+        return self._choices_spec()

@@ -8,6 +8,7 @@ from collections import OrderedDict
 from surveyjs.elements.element import Element
 from surveyjs.names import ElementsByName
 from surveyjs.page import Page
+from surveyjs.valuespec import data_properties
 
 logger = logging.getLogger(__name__)
 
@@ -143,6 +144,54 @@ class SurveyCreator:
         up in `all_elements` raises `AmbiguousNameError`; this returns all of
         them, found by path."""
         return [element for element in self.all_element_paths.values() if element.name == name]
+
+    # --- Value spec ---
+
+    def value_spec(self):
+        """What the survey's data accepts, as a value spec (see
+        `surveyjs.valuespec`): an object keyed by the names of the questions
+        at its top level, each with the question's own value spec.
+
+        Questions in a plain panel are at the top level; those in a dynamic
+        panel are part of its value."""
+        return {
+            'type': 'object',
+            'properties': data_properties(self.elements.values()),
+            'additionalProperties': False,
+        }
+
+    def check_values(self, values):
+        """What in `values` (a dict keyed by question name, e.g. a prefill)
+        does not fit this survey, as a list of messages, each starting with
+        the data path of the offending value; empty when everything fits.
+
+        Besides each question's own `check_value()`, it reports a key that is
+        no question, or a question that is not at the top level of the data
+        (a dynamic panel's question, which is set through the panel's value).
+        Like `check_value()`, a message never contains a value."""
+        if not isinstance(values, dict):
+            return ['expected an object (dict) keyed by question name, got %s'
+                    % type(values).__name__]
+        top_level = {
+            element.name: element
+            for element in self.all_element_paths.values()
+            if len(element.input_path) == 1
+        }
+        problems = []
+        for key, value in values.items():
+            element = top_level.get(key)
+            if element is not None:
+                problems.extend(element.check_value(value))
+                continue
+            nested = self.get_elements_by_name(key)
+            if nested:
+                problems.append(
+                    "%s: not at the top level of the data; it is part of '%s' "
+                    "(path %s), so set it through that question's value" % (
+                        key, nested[0].input_path[0], [e.path_str for e in nested]))
+            else:
+                problems.append('%s: no question has this name' % key)
+        return problems
 
     def _load_elements(self, elements, parent=None, page=None):
         """Recursively load elements from the schema."""

@@ -2,6 +2,25 @@
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.9.0
+
+What a question accepts as its value, for code that writes data into a form.
+
+### Added
+
+- `value_spec()` on every element: the value it accepts, as a small subset of JSON Schema (`type`, `enum`, `format`, `items`, `properties`, ...), or None for an element that holds no value (panel, html, image, expression).
+- `SurveyCreator.value_spec()`: the spec of the survey's data: an object keyed by the questions at its top level (those in a plain panel included), each with its own spec, nested for dynamic panels, matrices and multiple text.
+- `check_value(value)` on every element, and `SurveyCreator.check_values(values)` for a dict of values keyed by question name: both return a list of problems, empty when everything fits. Each problem starts with the data path of the value, e.g. `jobs[1].year: expected a number, got str`.
+
+  ```python
+  creator.check_values({'birthDate': date(1985, 6, 14)})
+  # ["birthDate: expected a string in the format YYYY-MM-DD (e.g. '2024-03-15'), got date"]
+  ```
+
+- The problems name what was expected and the type that was given, never the value itself, so they can be logged or passed on without disclosing any data.
+
+- `surveyjs.valuespec`: `check_spec()`, `input_type_spec()` and `data_properties()`.
+
 ## 0.8.0
 
 A name is unique per data level only: two dynamic panels can each hold a `year`. Looking up such a name now raises instead of returning one of them.

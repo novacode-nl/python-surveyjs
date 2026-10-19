@@ -38,3 +38,7 @@ class QuestionImagepicker(Question):
     def content_mode(self):
         """'image' or 'video'."""
         return self.raw.get('contentMode', 'image')
+
+    def value_spec(self):
+        """One choice value, or a list of them when `multi_select`."""
+        return self._choices_spec(multiple=self.multi_select)

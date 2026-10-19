@@ -103,6 +103,12 @@ NAMES_JSON = {
 NAMES_FORM_JSON = {'jobs': [{'year': 2015}, {'year': 2017}], 'school': [{'year': 2010}]}
 
 
+VALUE_SPEC_JSON = {'elements': [
+    {'type': 'text', 'name': 'birthDate', 'inputType': 'date'},
+    {'type': 'checkbox', 'name': 'colors', 'choices': ['red', 'blue'], 'maxSelectedChoices': 2},
+]}
+
+
 class TestReadmeExamples(unittest.TestCase):
 
     def setUp(self):
@@ -403,6 +409,25 @@ class TestReadmeExamples(unittest.TestCase):
         form = SurveyForm({'email': 'bob@novaforms.io', 'age': '42'},
                           SurveyCreator(VALIDATION_JSON))
         self.assertEqual(form.validation_errors(), {})
+
+    # --- Value specs ---
+
+    def test_value_spec(self):
+        creator = SurveyCreator(VALUE_SPEC_JSON)
+        self.assertEqual(creator.questions['birthDate'].value_spec(),
+                         {'type': 'string', 'format': 'date', 'examples': ['2024-03-15']})
+        self.assertEqual(creator.questions['colors'].value_spec(),
+                         {'type': 'array', 'items': {'enum': ['red', 'blue']}, 'maxItems': 2})
+
+    def test_check_value_and_check_values(self):
+        creator = SurveyCreator(VALUE_SPEC_JSON)
+        self.assertEqual(
+            creator.questions['birthDate'].check_value(date(1985, 6, 14)),
+            ["birthDate: expected a string in the format YYYY-MM-DD (e.g. '2024-03-15'), got date"])
+        self.assertEqual(
+            creator.check_values({'colors': ['red', 'pink'], 'nmae': 'Bob'}),
+            ["colors[1]: expected one of ['red', 'blue'], got a str that is not one of them",
+             'nmae: no question has this name'])
 
     # --- Extending ---
 

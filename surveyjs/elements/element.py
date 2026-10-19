@@ -4,6 +4,7 @@
 from collections import OrderedDict
 
 from ..text import interpolate_text, translate_text
+from ..valuespec import check_spec
 from .inputtype import parse_input_value
 from .validators import run_validators
 
@@ -569,6 +570,28 @@ class Element:
         if not empty:
             errors.update(run_validators(self))
         return errors
+
+    # --- Value spec ---
+
+    def value_spec(self):
+        """What this element accepts as its value, as a value spec (see
+        `surveyjs.valuespec`).
+
+        `{}` (any value) unless the element's class knows better; None when
+        the element holds no value of its own (a panel, an expression)."""
+        return {}
+
+    def check_value(self, value):
+        """What in `value` does not fit `value_spec()`, as a list of
+        messages, each starting with the data path of the offending value;
+        empty when it fits.
+
+        Meant for code that writes a value into a form (e.g. a prefill), to
+        check it before SurveyJS silently drops or misreads it."""
+        spec = self.value_spec()
+        if spec is None:
+            return ['%s: holds no value (type %s)' % (self.input_path_str, self.type)]
+        return check_spec(spec, value, self.input_path_str)
 
     # --- Representation ---
 

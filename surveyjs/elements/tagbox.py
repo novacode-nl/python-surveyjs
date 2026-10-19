@@ -41,3 +41,10 @@ class QuestionTagbox(Question):
     @property
     def max_selected_choices(self):
         return self.raw.get('maxSelectedChoices', 0)
+
+    def value_spec(self):
+        """A list of choice values."""
+        spec = self._choices_spec(multiple=True)
+        if self.max_selected_choices:
+            spec['maxItems'] = self.max_selected_choices
+        return spec

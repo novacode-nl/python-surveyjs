@@ -63,3 +63,10 @@ class QuestionRating(Question):
                 return float(val)
             except (ValueError, TypeError):
                 return None
+
+    def value_spec(self):
+        """One of `rate_values` when the schema lists them, else a number
+        from `rate_min` to `rate_max`."""
+        if self.rate_values:
+            return {'enum': [self.choice_item(v)['value'] for v in self.rate_values]}
+        return {'type': 'number', 'minimum': self.rate_min, 'maximum': self.rate_max}

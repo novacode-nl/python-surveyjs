@@ -1,6 +1,7 @@
 # Copyright 2026 Nova Code (https://www.novaforms.io)
 # See LICENSE file for full licensing details.
 
+from ..valuespec import FORMAT_HINTS
 from .question import Question
 
 
@@ -42,3 +43,8 @@ class QuestionSignaturepad(Question):
         if val and isinstance(val, str):
             return val.startswith('data:image/')
         return False
+
+    def value_spec(self):
+        """The signature as an image data URL."""
+        return {'type': 'string', 'format': 'data-url',
+                'examples': [FORMAT_HINTS['data-url'][1]]}
