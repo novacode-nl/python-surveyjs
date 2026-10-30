@@ -21,7 +21,7 @@ jobs:
 
     steps:
     - name: Check out the repo
-      uses: actions/checkout@v5
+      uses: actions/checkout@v7
 
     - name: Set up Python
       uses: actions/setup-python@v6
@@ -56,7 +56,7 @@ jobs:
 
     steps:
     - name: Check out the repo
-      uses: actions/checkout@v5
+      uses: actions/checkout@v7
 
     - name: Set up Python
       uses: actions/setup-python@v6
@@ -108,7 +108,7 @@ jobs:
 
     steps:
     - name: Check out the repo
-      uses: actions/checkout@v5
+      uses: actions/checkout@v7
 
     # A tag pushed with GITHUB_TOKEN does not trigger other workflows.
     - name: Create and push the tag
