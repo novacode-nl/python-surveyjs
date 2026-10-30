@@ -176,6 +176,9 @@ To release (maintainers only):
    add a new, empty `## Unreleased` above it.
 3. Push to `main`, or merge the pull request with the version bump.
 4. Approve the `Upload to PyPI` job in the workflow run.
+5. Check the release: on its PyPI page, under *Download files*, each file
+   shows its provenance (this repository, `publish.yml` and the commit), and
+   the commit has the tag `vX.Y.Z`.
 
 The workflow only releases when the version is not on PyPI yet, and tags the
 commit `vX.Y.Z` after the upload. If a job fails, use *Re-run failed jobs*;

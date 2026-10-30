@@ -70,6 +70,8 @@ Binary installers for the latest released version are available at the [Python P
 pip install surveyjs
 ```
 
+Releases are built and published by GitHub Actions with [Trusted Publishing](https://docs.pypi.org/trusted-publishers/). Each file on PyPI has a provenance attestation that links it to the commit in this repository it was built from; see *Download files* on the [PyPI page](https://pypi.org/project/surveyjs/).
+
 ### Source Install with pip
 
 ```sh
