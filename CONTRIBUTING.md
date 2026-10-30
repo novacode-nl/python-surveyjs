@@ -97,6 +97,11 @@ Alternatively, with `pip`:
 pip install -e .
 ```
 
+This does not install [Ruff](#linting): install the version pinned under
+`[tool.poetry.group.dev.dependencies]` in [pyproject.toml](pyproject.toml)
+yourself, e.g. `pip install ruff==<version>`. Run the commands below without
+`poetry run`.
+
 ## Running Tests
 
 From the top-level directory:
