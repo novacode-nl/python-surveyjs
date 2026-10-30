@@ -28,7 +28,7 @@ When filing a bug report, include:
   their [releases page](https://surveyjs.io/stay-updated/release-notes).
 - A minimal code sample or SurveyJS JSON that triggers the issue, if possible.
 
-### Suggesting Enhancements
+### Proposing Enhancements
 
 Open an issue describing the enhancement, the use case it addresses, and any
 alternatives you have considered.
@@ -36,10 +36,12 @@ alternatives you have considered.
 ### Submitting Changes
 
 1. Fork the repository and create your branch from `main`.
-2. Set up a development environment (see below).
-3. Make your changes, following the project's coding style and conventions.
+2. Set up a development environment (see [Development Setup](#development-setup)).
+3. Make your changes, following the project's coding style and conventions
+   (see [Coding Guidelines](#coding-guidelines)).
 4. Add or update tests that cover your change.
-5. Ensure the full test suite passes.
+5. Ensure the full test suite passes and Ruff reports no problems (see
+   [Running Tests](#running-tests) and [Linting](#linting)).
 6. Add a draft entry under `## Unreleased` in [CHANGELOG.md](CHANGELOG.md) for
    any user-visible change (see [Changelog](#changelog)); maintainers may
    reword or move it. Leave `version` in `pyproject.toml` as it is:
