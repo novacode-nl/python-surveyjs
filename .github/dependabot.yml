@@ -11,10 +11,11 @@ updates:
       default-days: 30
       semver-major-days: 60
 
+  # Workflows use major tags (@v5), so the updates here are new major
+  # versions; github-actions only supports default-days.
   - package-ecosystem: github-actions
     directory: /
     schedule:
       interval: weekly
     cooldown:
-      default-days: 30
-      semver-major-days: 60
+      default-days: 60
