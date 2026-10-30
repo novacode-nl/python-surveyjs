@@ -1,0 +1,20 @@
+# Opens a pull request when a newer Ruff (pyproject.toml) or GitHub Action
+# version is out, but only once that version is 30 days old (60 for a new
+# major version). Security updates are not delayed.
+version: 2
+updates:
+  - package-ecosystem: pip
+    directory: /
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 30
+      semver-major-days: 60
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 30
+      semver-major-days: 60
