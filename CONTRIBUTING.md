@@ -106,14 +106,24 @@ poetry run python -m unittest
 Please make sure all tests pass, and add new tests for any code you change or
 add.
 
+## Linting
+
+The code is checked with [Ruff](https://docs.astral.sh/ruff/), on every push
+too. Its version and rules are in [pyproject.toml](pyproject.toml), and
+`poetry install` installs it:
+
+```sh
+poetry run ruff check          # report problems
+poetry run ruff check --fix    # fix what Ruff can fix itself
+```
+
 ## Coding Guidelines
 
 - Keep changes focused; one logical change per pull request.
-- Match the existing code style and naming conventions (linting is not currently
-  enforced, but will be added later — we're aiming for consistency across the
-  codebase).
-- Include the project copyright header on new source files (keep the original
-  year or add the current year, e.g. `2026-2027`):
+- Match the existing code style and naming conventions, and make sure
+  `poetry run ruff check` passes (see [Linting](#linting)).
+- Start every Python file with the project copyright header (keep the original
+  year or add the current year, e.g. `2026-2027`); Ruff checks it:
 
   ```python
   # Copyright 2026 Nova Code (https://www.novaforms.io)

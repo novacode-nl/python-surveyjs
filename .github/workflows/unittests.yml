@@ -28,5 +28,10 @@ jobs:
     - name: Install basic dependencies via poetry
       run: nix-shell --run "poetry install"
 
+    # Ruff's version and rules (including the copyright header check) are in
+    # pyproject.toml.
+    - name: Lint with Ruff
+      run: nix-shell --run "poetry run ruff check"
+
     - name: Run the tests
       run: nix-shell --run "poetry run python -m unittest"

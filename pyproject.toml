@@ -36,3 +36,39 @@ include = ["surveyjs*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 120
+
+[tool.ruff.lint]
+select = [
+    "E", "W",  # pycodestyle
+    "F",       # pyflakes
+    "I",       # import order
+    "B",       # likely bugs
+    "UP",      # modern syntax for the supported Python versions
+    "C4",      # comprehensions
+    "SIM",     # simpler code
+    "PIE",     # unnecessary code
+    "RUF",     # ruff's own rules
+    "CPY",     # copyright header
+]
+ignore = [
+    "UP031",   # %-formatting is fine
+]
+
+# The header every Python file starts with, see CONTRIBUTING.md. The year may be
+# a range, e.g. 2026-2027.
+[tool.ruff.lint.flake8-copyright]
+notice-rgx = '\A# Copyright 20\d{2}(-20\d{2})? Nova Code \(https://www\.novaforms\.io\)\n# See LICENSE file for full licensing details\.\n'
+min-file-size = 0
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = [
+    "RUF001",  # typographic apostrophes in translated test texts
+    "RUF012",  # plain class attributes on test cases
+]
+
+[tool.poetry.group.dev.dependencies]
+ruff = "0.17.1"
+
