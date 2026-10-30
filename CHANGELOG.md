@@ -2,6 +2,14 @@
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.9.1
+
+No changes to the package itself.
+
+### Security
+
+- Releases are now built and published from GitHub Actions with PyPI Trusted Publishing, so each file on PyPI comes with a provenance attestation linking it to the commit and workflow that built it.
+
 ## 0.9.0
 
 What a question accepts as its value, for code that writes data into a form.
