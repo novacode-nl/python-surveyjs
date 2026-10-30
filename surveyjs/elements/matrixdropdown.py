@@ -104,6 +104,6 @@ class QuestionMatrixdropdown(MatrixColumnsMixin, Question):
         row = self._row_spec()
         return {
             'type': 'object',
-            'properties': {name: row for name in self.row_names},
+            'properties': dict.fromkeys(self.row_names, row),
             'additionalProperties': False,
         }

@@ -26,7 +26,7 @@ class SurveyCreator:
         schema_json,
         language='default',
         i18n=None,
-        element_class_mapping={},
+        element_class_mapping=None,
         **kwargs
     ):
         """
@@ -42,7 +42,7 @@ class SurveyCreator:
         self.language = language
         self.i18n = i18n or {}
 
-        self.element_class_mapping = element_class_mapping
+        self.element_class_mapping = element_class_mapping or {}
 
         # Pages, in schema order. Pages are not elements: they never appear
         # in the element registries below.

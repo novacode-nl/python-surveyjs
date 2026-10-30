@@ -80,12 +80,9 @@ class Element:
 
     def load_data(self, data, is_form=False):
         """Load value from form submission data."""
-        if self.is_question and data:
-            try:
-                self.raw_value = data[self.name]
-            except KeyError:
-                # Use default value if available
-                pass
+        # Without a value in the data, the default value (if any) applies.
+        if self.is_question and data and self.name in data:
+            self.raw_value = data[self.name]
 
     # --- Properties ---
 
@@ -135,7 +132,7 @@ class Element:
             # `%s`, not `%d`: a row key is a row *index* in a dynamic panel or
             # a dynamic matrix, and a row *name* in a matrixdropdown.
             segments[-1] = '%s[%s]' % (segments[-1], self._panel_index)
-        return segments + [self.name]
+        return [*segments, self.name]
 
     @property
     def path_str(self):
@@ -167,7 +164,7 @@ class Element:
           `data['education'][0]['year']` is its value
 
         Only meaningful for questions; layout elements hold no value."""
-        return self._data_prefix + [self.name]
+        return [*self._data_prefix, self.name]
 
     @property
     def input_path_str(self):

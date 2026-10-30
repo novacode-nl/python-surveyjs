@@ -10,7 +10,7 @@ DATA_DIR = os.path.join(os.path.dirname(__file__), 'data')
 def readfile(filename):
     """Read a file from the test data directory and return its contents."""
     filepath = os.path.join(DATA_DIR, filename)
-    with open(filepath, 'r') as f:
+    with open(filepath) as f:
         return f.read()
 
 

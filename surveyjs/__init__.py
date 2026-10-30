@@ -1,4 +1,6 @@
 # Copyright 2026 Nova Code (https://www.novaforms.io)
+# See LICENSE file for full licensing details.
+
 """
 SurveyJS Python Package
 
@@ -23,11 +25,11 @@ from surveyjs.page import Page
 from surveyjs.text import interpolate_text
 
 __all__ = [
-    'SurveyCreator',
-    'SurveyForm',
     'AmbiguousNameError',
     'Page',
-    'register_input_type',
-    'parse_input_value',
+    'SurveyCreator',
+    'SurveyForm',
     'interpolate_text',
+    'parse_input_value',
+    'register_input_type',
 ]

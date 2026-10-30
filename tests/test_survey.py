@@ -5,7 +5,7 @@
 
 import unittest
 
-from tests.utils import readjson, load_creator
+from tests.utils import load_creator, readjson
 
 
 class TestSurvey(unittest.TestCase):
