@@ -40,8 +40,10 @@ alternatives you have considered.
 3. Make your changes, following the project's coding style and conventions.
 4. Add or update tests that cover your change.
 5. Ensure the full test suite passes.
-6. Add an entry to [CHANGELOG.md](CHANGELOG.md) for any user-visible change
-   (see [Changelog](#changelog)).
+6. Add a draft entry under `## Unreleased` in [CHANGELOG.md](CHANGELOG.md) for
+   any user-visible change (see [Changelog](#changelog)); maintainers may
+   reword or move it. Leave `version` in `pyproject.toml` as it is:
+   maintainers choose the version when releasing (see [Releasing](#releasing)).
 7. Commit your work with clear, descriptive commit messages.
 8. Open a pull request against the `main` branch, describing what your change
    does and why.
@@ -126,9 +128,13 @@ add.
 ## Changelog
 
 [CHANGELOG.md](CHANGELOG.md) follows
-[Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
+[Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Contributors add a
+draft entry with their pull request; maintainers edit the entries into their
+final form, before merging or when releasing.
 
 - Newest version first. Version headings are `## X.Y.Z`, without a date.
+- Changes not released yet go under `## Unreleased`, which always stays at the
+  top (empty when nothing is pending).
 - Group changes under these headings, in this order, and leave out empty ones:
   - `### Breaking Changes` — each entry says what users must change in
     their code.
@@ -138,6 +144,33 @@ add.
 - Write plainly and briefly: what changed, and what it was before when that
   helps. Show a short code example when a change is easier to show than to
   describe.
+
+## Releasing
+
+Releases are published to PyPI by the
+[publish workflow](.github/workflows/publish.yml), using
+[Trusted Publishing](https://docs.pypi.org/trusted-publishers/).
+
+Each file on PyPI comes with a provenance attestation that links it to the
+commit that built it. There is no manual upload and no API token.
+
+To release (maintainers only):
+
+1. Bump `version` in [pyproject.toml](pyproject.toml):
+   - a patch version (`0.9.1`) for fixes, or for changes that leave the code
+     as it is;
+   - a minor version (`0.10.0`) for new features. Before 1.0.0, breaking
+     changes also go in a minor version; from 1.0.0 on, they need a major
+     version (`2.0.0`).
+2. In [CHANGELOG.md](CHANGELOG.md), rename `## Unreleased` to `## X.Y.Z` and
+   add a new, empty `## Unreleased` above it.
+3. Push to `main`, or merge the pull request with the version bump.
+4. Approve the `Upload to PyPI` job in the workflow run.
+
+The workflow only releases when the version is not on PyPI yet, and tags the
+commit `vX.Y.Z` after the upload. If a job fails, use *Re-run failed jobs*;
+PyPI does not accept a version that was uploaded before, so a broken release
+gets a new version instead.
 
 ## License
 
