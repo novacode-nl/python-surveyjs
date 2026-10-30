@@ -38,7 +38,7 @@ class SurveyForm:
         """
 
         if creator and creator_schema_json:
-            raise Exception(
+            raise ValueError(
                 "Constructor accepts either creator or creator_schema_json, not both."
             )
 
@@ -62,7 +62,7 @@ class SurveyForm:
             assert isinstance(self.creator_schema_json, str)
 
         else:
-            raise Exception(
+            raise ValueError(
                 "Provide either the argument: creator or creator_schema_json."
             )
 

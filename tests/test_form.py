@@ -55,13 +55,13 @@ class TestForm(unittest.TestCase):
         schema = readjson('test_survey_schema.json')
         form_data = readjson('test_survey_form.json')
         creator = load_creator()
-        with self.assertRaisesRegex(Exception, 'either creator or creator_schema_json, not both'):
+        with self.assertRaisesRegex(ValueError, 'either creator or creator_schema_json, not both'):
             SurveyForm(form_data, creator=creator, creator_schema_json=schema)
 
     def test_form_constructor_neither_raises(self):
         """Providing neither survey nor survey_schema_json should raise."""
         form_data = readjson('test_survey_form.json')
-        with self.assertRaisesRegex(Exception, 'Provide either the argument: creator or creator_schema_json'):
+        with self.assertRaisesRegex(ValueError, 'Provide either the argument: creator or creator_schema_json'):
             SurveyForm(form_data)
 
     def test_form_from_json_string(self):

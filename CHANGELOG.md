@@ -4,6 +4,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## Unreleased
 
+### Changed
+
+- `SurveyForm()` raises `ValueError` instead of a plain `Exception` when given both `creator` and `creator_schema_json`, or neither. Code that catches `Exception` still works.
+
 ## 0.9.1
 
 No changes to the package itself.
