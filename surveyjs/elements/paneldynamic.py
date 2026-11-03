@@ -50,22 +50,23 @@ class PanelInstance:
         row = self.data
         if not isinstance(row, dict):
             return row
-        questions = self._questions_by_name(self.elements.values())
+        questions = self._questions_by_key(self.elements.values())
         return {
-            name: questions[name].value if name in questions else raw
-            for name, raw in row.items()
+            key: questions[key].value if key in questions else raw
+            for key, raw in row.items()
         }
 
     @classmethod
-    def _questions_by_name(cls, elements):
-        """The questions answering at this row's level, keyed by name: the
-        row's own, and those inside a plain panel, which nests no data."""
+    def _questions_by_key(cls, elements):
+        """The questions answering at this row's level, keyed by their key in
+        the data (`value_name`): the row's own, and those inside a plain
+        panel, which nests no data."""
         questions = {}
         for element in elements:
             if element.is_question:
-                questions[element.name] = element
+                questions[element.value_name] = element
             elif not element.nests_data:
-                questions.update(cls._questions_by_name(element.elements.values()))
+                questions.update(cls._questions_by_key(element.elements.values()))
         return questions
 
     def get(self, name):

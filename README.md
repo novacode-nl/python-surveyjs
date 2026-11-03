@@ -195,6 +195,25 @@ parsed by its own item, column or question (see
 Other questions (dropdown, checkbox, rating, …) submit JSON values that are
 already Python objects, so their `value` equals `raw_value`.
 
+Except when a choice question stores its picked items as objects: a choice
+with its own comment area (`showCommentArea` on the choice), or a checkbox
+with `valuePropertyName`. `value` is then the plain choice values, and
+`choice_comments` holds the comments:
+
+```python
+# {"type": "checkbox", "name": "reasons",
+#  "choices": ["price", {"value": "service", "showCommentArea": true}]}
+
+form.questions['reasons'].raw_value
+# [{'value': 'price'}, {'value': 'service', 'comment': 'Too slow'}]
+
+form.questions['reasons'].value
+# ['price', 'service']
+
+form.questions['reasons'].choice_comments
+# {'service': 'Too slow'}
+```
+
 `value` is read-only — assign `raw_value` instead. If a submitted value cannot
 be parsed, `value` is `None` while `raw_value` keeps the original, which is how
 you tell a malformed submission from an empty one.
@@ -340,6 +359,22 @@ degree.value
 # 'MSc'
 ```
 
+A question with a `valueName` ("Join identifier" in SurveyJS Creator) stores its
+value under that key instead of its name. You still look it up by name:
+
+```python
+# {"type": "text", "name": "q1", "valueName": "email"}
+# submission: {"email": "a@b.c"}
+
+form.questions['q1'].value
+# 'a@b.c'
+
+form.questions['q1'].input_path
+# ['email']
+```
+
+Questions that share a `valueName` share one value.
+
 ### Names
 
 SurveyJS Creator requires a name to be unique per data level, so a lookup by
@@ -450,8 +485,9 @@ form.questions['dates'].raw_value
 
 A column's `cellType` *is* a question type, so on a **SurveyForm** every cell of a
 submitted row is built as a question of that type. That is what gives a cell the
-behaviour of its type: a dropdown cell resolves what its value means, where
-`get_cell_value()` only ever types the value by the column's `inputType`.
+behaviour of its type: a dropdown cell resolves what its value means. The
+matrix's parsed values (`value`, `get_row_value()`, `get_cell_value()`) come
+from these cell questions, so a cell reads the same however you reach it.
 
 ```python
 jobs.get_cell(0, 'role')
@@ -517,9 +553,7 @@ where the data is a list of rows (a dynamic panel, a dynamic matrix), the row's
 name for a `matrixdropdown`. `panel_index` is the dynamic-panel spelling of the
 same value, and keeps working.
 
-Reading a matrix as values still works without cells: `value`,
-`get_row_value()` and `get_cell_value()` parse, `rows_data` and the `*_raw_value`
-accessors return the submission as is. Cells cost one
+`rows_data` and the `*_raw_value` accessors return the submission as is. Cells cost one
 element per cell of a submitted matrix, on the form path only.
 
 ### Translations

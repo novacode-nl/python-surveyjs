@@ -81,8 +81,8 @@ class Element:
     def load_data(self, data, is_form=False):
         """Load value from form submission data."""
         # Without a value in the data, the default value (if any) applies.
-        if self.is_question and data and self.name in data:
-            self.raw_value = data[self.name]
+        if self.is_question and data and self.value_name in data:
+            self.raw_value = data[self.value_name]
 
     # --- Properties ---
 
@@ -148,7 +148,7 @@ class Element:
             return []
         prefix = list(self._parent._data_prefix)
         if self._parent.nests_data:
-            prefix.append(self._parent.name)
+            prefix.append(self._parent.value_name)
             if self._panel_index is not None:
                 prefix.append(self._panel_index)
         return prefix
@@ -164,7 +164,7 @@ class Element:
           `data['education'][0]['year']` is its value
 
         Only meaningful for questions; layout elements hold no value."""
-        return [*self._data_prefix, self.name]
+        return [*self._data_prefix, self.value_name]
 
     @property
     def input_path_str(self):
@@ -193,6 +193,15 @@ class Element:
     def name(self):
         """The unique name/key of the element."""
         return self.raw.get('name', '')
+
+    @property
+    def value_name(self):
+        """The key of this element's value in the submission data: its
+        `valueName` ("Join identifier" in SurveyJS Creator) if set, else its
+        `name`. `name` stays the identifier for lookups and paths.
+
+        Questions that share a `valueName` share one value."""
+        return self.raw.get('valueName') or self.name
 
     @property
     def type(self):
@@ -573,6 +582,11 @@ class Element:
     def value_spec(self):
         """What this element accepts as its value, as a value spec (see
         `surveyjs.valuespec`).
+
+        It describes the value as stored in the submission (`raw_value`),
+        which is what you write when prefilling, not the Python form `value`
+        returns: a date question's spec is a 'YYYY-MM-DD' string, not a
+        `date`.
 
         `{}` (any value) unless the element's class knows better; None when
         the element holds no value of its own (a panel, an expression)."""

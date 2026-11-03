@@ -16,21 +16,19 @@ class QuestionDropdown(Question):
         return [self.choice_item(choice) for choice in self.choices]
 
     @property
+    def value(self):
+        """The picked choice value. With a choice comment, SurveyJS stores
+        `{"value": ..., "comment": ...}`; this is the plain value, the comment
+        is in `choice_comments`."""
+        return self._unwrap_choice(self.raw_value)
+
+    @property
     def value_text(self):
         """Get the display text for the current value."""
         val = self.value
-        for choice in self.choices_values:
-            if choice['value'] == val:
-                return choice['text']
-        return str(val) if val is not None else None
-
-    @property
-    def has_other(self):
-        return self.raw.get('showOtherItem', self.raw.get('hasOther', False))
-
-    @property
-    def other_text(self):
-        return self.translate(self.raw.get('otherText', 'Other'))
+        if val is None:
+            return None
+        return self._choice_text(val, {c['value']: c['text'] for c in self.choices_values})
 
     @property
     def choices_by_url(self):
@@ -50,5 +48,7 @@ class QuestionDropdown(Question):
         return self.raw.get('allowClear', True)
 
     def value_spec(self):
-        """One choice value."""
+        """One choice value. A choice with its own comment area may also be
+        stored as `{"value": ..., "comment": ...}`, as SurveyJS does once a
+        comment is typed; the spec accepts both forms then (`anyOf`)."""
         return self._choices_spec()

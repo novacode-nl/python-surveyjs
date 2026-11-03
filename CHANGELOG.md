@@ -4,6 +4,29 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## Unreleased
 
+### Breaking Changes
+
+- A checkbox or tagbox with `valuePropertyName` returns plain choice values from `value` (`['Ford']`), not the stored objects (`[{'car': 'Ford'}]`). Use `raw_value` for the objects.
+
+### Added
+
+- `comment` on questions: the text SurveyJS stores next to the value under `<name>-Comment` (`comment_name`), for the comment area or the "Other" item. SurveyJS has a comment area on choice questions, boolean, rating, matrix, matrixdropdown, matrixdynamic, paneldynamic and file; on other questions `comment` is None.
+- `other_value` on every question: the text typed for the "Other" item of a choice question, or None when that item was not picked. Read from `<name>-Comment`, or from the value itself when `storeOthersAsComment` is off or `showCommentArea` takes that key.
+- `has_other` and `other_text` on every question (they were on some choice questions only).
+- `valueName` support ("Join identifier" in SurveyJS Creator): a question's value, comment and `input_path` use its `valueName` when set, and `value_name` returns that key (else the `name`). Questions that share a `valueName` share one value. Lookups and paths still use the `name`.
+- Comments per choice (`choices[].showCommentArea`): `choice_comments` returns the comment typed for each picked choice, e.g. `{'service': 'Too slow'}`. SurveyJS stores these comments inside the value (`{"value": "service", "comment": "Too slow"}`); `value` returns the plain choice values. The value spec of a radiogroup or dropdown accepts both forms.
+- `anyOf` in value specs: a value fits when it fits one of the given specs.
+- Checkbox and tagbox `valuePropertyName`: SurveyJS stores the picked items as objects (`[{"car": "Ford"}]`); `value` returns the plain choice values, and `value_property_name` the key.
+
+### Changed
+
+- `value_text` (dropdown, radiogroup) and `value_texts` (checkbox, tagbox) read the "Other" item as the text typed for it, or its label (`otherText`) when nothing was typed, instead of the raw `other`.
+- A matrix's parsed values (`value`, `get_row_value()`, `get_cell_value()`) come from its cell questions, so they match `get_cell(...).value`. Before, they only parsed a cell by its column's `inputType` (and boolean values), so e.g. a checkbox cell with `valuePropertyName` came back as objects.
+
+### Fixed
+
+- `value_text` and `value_texts` raised `TypeError` when SurveyJS stored the picked items as objects (comments per choice or `valuePropertyName`).
+
 ## 0.9.2
 
 ### Changed

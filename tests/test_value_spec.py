@@ -8,6 +8,7 @@ import unittest
 from datetime import date
 
 from surveyjs import SurveyCreator, SurveyForm
+from surveyjs.valuespec import check_spec
 from tests.utils import load_creator
 
 SCHEMA = {
@@ -220,6 +221,28 @@ class TestCheckValues(unittest.TestCase):
         self.assertEqual(len(problems), 6)
         for problem in problems:
             self.assertNotIn(secret, problem)
+
+
+
+class TestAnyOf(unittest.TestCase):
+    """`anyOf`: a value fits when it fits one of the specs."""
+
+    SPEC = {'anyOf': [{'enum': ['a', 'b']}, {'type': 'object', 'properties': {'value': {'enum': ['b']}}}]}
+
+    def test_fits_one(self):
+        self.assertEqual(check_spec(self.SPEC, 'a'), [])
+        self.assertEqual(check_spec(self.SPEC, {'value': 'b'}), [])
+
+    def test_none_fits(self):
+        self.assertEqual(check_spec(self.SPEC, 'c', 'q'),
+                         ["q: expected one of ['a', 'b'], got a str that is not one of them"])
+
+    def test_dict_reports_the_object_spec(self):
+        self.assertEqual(check_spec(self.SPEC, {'value': 'a'}, 'q'),
+                         ["q.value: expected one of ['b'], got a str that is not one of them"])
+
+    def test_none_always_fits(self):
+        self.assertEqual(check_spec(self.SPEC, None), [])
 
 
 if __name__ == '__main__':

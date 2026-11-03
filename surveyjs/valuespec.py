@@ -19,6 +19,7 @@ people and language models alike:
 - `minimum`, `maximum`: for a number
 - `items`, `minItems`, `maxItems`: for an array
 - `properties`, `additionalProperties`: for an object
+- `anyOf`: a list of specs; the value fits when it fits one of them
 - `x-choicesByUrl`: the question loads its choices from a URL, so the allowed
   values are not known from the schema
 
@@ -103,8 +104,8 @@ def input_type_spec(input_type, minimum=None, maximum=None):
 
 
 def data_properties(elements):
-    """`{name: value spec}` of the elements holding a value at this data
-    level.
+    """`{key: value spec}` of the elements holding a value at this data
+    level, keyed as in the submission (`value_name`).
 
     Looks through a plain panel, whose questions store their values at the
     panel's own level; a dynamic panel or a matrix is one value (a list or a
@@ -113,7 +114,7 @@ def data_properties(elements):
     for element in elements:
         spec = element.value_spec()
         if spec is not None:
-            properties[element.name] = spec
+            properties[element.value_name] = spec
         elif not element.nests_data:
             properties.update(data_properties(element.elements.values()))
     return properties
@@ -164,6 +165,8 @@ def check_spec(spec, value, path=''):
         return ['%sholds no value' % prefix]
     if value is None:
         return []
+    if 'anyOf' in spec:
+        return _check_any_of(spec['anyOf'], value, path)
     if 'enum' in spec:
         if any(_same(value, allowed) for allowed in spec['enum']):
             return []
@@ -195,6 +198,20 @@ def check_spec(spec, value, path=''):
     if spec_type == 'object':
         return _check_object(spec, value, path, prefix)
     return []
+
+
+def _check_any_of(specs, value, path):
+    """Fits when `value` fits one of `specs`. Otherwise the problems with
+    the spec of the same kind as the value: the object one for a dict, else
+    the first."""
+    problems = [check_spec(one, value, path) for one in specs]
+    if not specs or any(not found for found in problems):
+        return []
+    if isinstance(value, dict):
+        for one, found in zip(specs, problems):
+            if one.get('type') == 'object':
+                return found
+    return problems[0]
 
 
 def _check_array(spec, value, path, prefix):

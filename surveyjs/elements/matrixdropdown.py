@@ -11,8 +11,8 @@ class QuestionMatrixdropdown(MatrixColumnsMixin, Question):
     `raw_value` is a dict mapping row names to dicts of column-name -> value.
     Example: {"row1": {"col1": "val1", "col2": "val2"}}
 
-    `value` is that dict with each cell parsed per its own column (a date
-    column's `inputType`, a boolean column's `valueTrue`/`valueFalse`), as
+    `value` is that dict with each cell parsed by its cell question (see
+    `get_cell()`), so a cell reads the same however it is reached. So
     are `get_cell_value()` and `get_row_value()`.
     """
 
@@ -53,12 +53,12 @@ class QuestionMatrixdropdown(MatrixColumnsMixin, Question):
     @property
     def value(self):
         """A parsed copy of `raw_value`: a new dict with the same rows, each
-        cell parsed per its column. `raw_value` is unchanged."""
+        cell parsed by its cell question. `raw_value` is unchanged."""
         val = self.raw_value
         if not isinstance(val, dict):
             return val
         return {
-            name: self._parse_row(row) if isinstance(row, dict) else row
+            name: self._parse_row(name, row) if isinstance(row, dict) else row
             for name, row in val.items()
         }
 
@@ -85,19 +85,20 @@ class QuestionMatrixdropdown(MatrixColumnsMixin, Question):
         return {}
 
     def get_row_value(self, row_name):
-        """Get a row's cell dict, each cell parsed per its own column."""
-        return self._parse_row(self.get_row_raw_value(row_name))
+        """Get a row's cell dict, each cell parsed by its cell question."""
+        return self._parse_row(row_name, self.get_row_raw_value(row_name))
 
     def get_cell_raw_value(self, row_name, column_name):
         """Get a specific cell value, exactly as submitted."""
         return self.get_row_raw_value(row_name).get(column_name)
 
     def get_cell_value(self, row_name, column_name):
-        """Get a specific cell value, parsed per its column's `inputType`."""
+        """Get a specific cell value, parsed by its cell question (as
+        `get_cell(row_name, column_name).value`)."""
         raw = self.get_cell_raw_value(row_name, column_name)
         if raw is None:
             return None
-        return self._parse_cell(column_name, raw)
+        return self._parse_cell(row_name, column_name, raw)
 
     def value_spec(self):
         """An object keyed by row name, each row an object of cells."""

@@ -147,6 +147,15 @@ class TestReadmeExamples(unittest.TestCase):
         self.assertIs(q.value, True)
         self.assertEqual(q.value_text, 'Yes')
 
+    def test_choice_comments(self):
+        schema = {'elements': [{'type': 'checkbox', 'name': 'reasons', 'choices': [
+            'price', {'value': 'service', 'showCommentArea': True}]}]}
+        raw = [{'value': 'price'}, {'value': 'service', 'comment': 'Too slow'}]
+        q = SurveyForm({'reasons': raw}, SurveyCreator(schema)).questions['reasons']
+        self.assertEqual(q.raw_value, raw)
+        self.assertEqual(q.value, ['price', 'service'])
+        self.assertEqual(q.choice_comments, {'service': 'Too slow'})
+
     def test_value_is_read_only(self):
         with self.assertRaises(AttributeError):
             self.form.questions['birthDate'].value = '2000-01-01'
@@ -242,6 +251,12 @@ class TestReadmeExamples(unittest.TestCase):
         self.assertEqual(degree.input_path, ['education', 0, 'degree'])
         self.assertEqual(degree.input_path_str, 'education[0].degree')
         self.assertEqual(degree.value, 'MSc')
+
+    def test_value_name(self):
+        form = SurveyForm({'email': 'a@b.c'}, SurveyCreator(
+            {'elements': [{'type': 'text', 'name': 'q1', 'valueName': 'email'}]}))
+        self.assertEqual(form.questions['q1'].value, 'a@b.c')
+        self.assertEqual(form.questions['q1'].input_path, ['email'])
 
     # --- Dynamic panels ---
 

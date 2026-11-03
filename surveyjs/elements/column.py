@@ -110,12 +110,13 @@ class MatrixColumn:
 class MatrixColumnsMixin:
     """Shared column handling for `matrixdropdown` and `matrixdynamic`.
 
-    Both expose `columns` as `MatrixColumn` objects and parse their cells per
-    the owning column's `inputType`.
+    Both expose `columns` as `MatrixColumn` objects.
 
     On a form, both also materialise their cells as *questions*: a column
     declares a `cellType`, which is a question type, so every cell is a
-    question of that type holding that cell's value. See `cells()`.
+    question of that type holding that cell's value. See `cells()`. The
+    matrix's parsed values (`value`, `get_row_value()`, `get_cell_value()`)
+    come from these cell questions.
     """
 
     def __init__(self, raw, survey, **kwargs):
@@ -234,19 +235,27 @@ class MatrixColumnsMixin:
                 return column
         return None
 
-    def _parse_cell(self, column_name, raw_cell_value):
-        """Parse a raw cell value per its column, or pass it through if the
-        column is unknown."""
+    def _parse_cell(self, row_key, column_name, raw_cell_value):
+        """Parse a raw cell value by its cell question, like a dynamic panel
+        row parses by its questions, so `get_cell_value()` and
+        `get_cell(...).value` agree.
+
+        Without a cell question (a row the schema does not declare, or a
+        Creator, which builds no cells) it parses per its column, and passes
+        through when the column is unknown."""
+        cell = self._rows_cells.get(row_key, {}).get(column_name)
+        if cell is not None:
+            return cell.value
         column = self.get_column(column_name)
         if column is None:
             return raw_cell_value
         return column.parse(raw_cell_value)
 
-    def _parse_row(self, raw_row):
-        """Parse every cell of a raw row dict, per its own column."""
+    def _parse_row(self, row_key, raw_row):
+        """Parse every cell of a raw row dict, see `_parse_cell()`."""
         if not isinstance(raw_row, dict):
             return {}
-        return {name: self._parse_cell(name, value) for name, value in raw_row.items()}
+        return {name: self._parse_cell(row_key, name, value) for name, value in raw_row.items()}
 
     def _row_spec(self):
         """The value spec of one row: an object keyed by column name, each
