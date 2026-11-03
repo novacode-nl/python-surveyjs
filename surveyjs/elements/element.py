@@ -40,6 +40,10 @@ class Element:
         # children a SurveyForm materialises per row of submission data.
         self._panel_index = None
 
+        # The value of the choice this element belongs to, when it is one of
+        # the questions inside a choice (`choices[].elements`), else None.
+        self._choice_value = None
+
         # The `PanelInstance` this element is a direct child of, or None.
         # A row child's `parent` is the paneldynamic, whose `elements` holds
         # the *template* children and not this row's, so the instance is what
@@ -342,6 +346,33 @@ class Element:
                 self._parent.elements[self.name] = self
 
     @property
+    def choice_value(self):
+        """The value of the choice this element is inside of, when it is one
+        of a choice's own questions (`choices[].elements`), else None. Its
+        `parent` is then the choice question."""
+        return self._choice_value
+
+    @choice_value.setter
+    def choice_value(self, value):
+        self._choice_value = value
+
+    @property
+    def in_unpicked_choice(self):
+        """Whether this element is inside a choice (or nested in one) that is
+        not picked. SurveyJS hides it then, and does not validate it."""
+        element = self
+        while element is not None:
+            parent = element._parent
+            if (
+                element._choice_value is not None
+                and parent is not None
+                and element._choice_value not in parent._picked_values()
+            ):
+                return True
+            element = parent
+        return False
+
+    @property
     def panel_index(self):
         """Index of the panel instance this element belongs to, or None if it
         is not inside a repeating container.
@@ -569,6 +600,8 @@ class Element:
         @return dict: {error_type: message}
         """
         errors = {}
+        if self.in_unpicked_choice:
+            return errors
         empty = self.is_empty()
         if self.is_required and empty:
             msg_tmpl = self.required_error_text or self.translate('{{field}} is required')

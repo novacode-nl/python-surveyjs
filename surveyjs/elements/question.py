@@ -25,6 +25,10 @@ class Question(Element):
     Base class for all SurveyJS Question types.
     """
 
+    #: Whether a choice can hold questions of its own (`choices[].elements`),
+    #: shown when it is picked. In SurveyJS: checkbox and radiogroup.
+    supports_elements_in_choice = False
+
     @property
     def is_question(self):
         """Whether this is a question (has user-submitted values).
@@ -38,10 +42,43 @@ class Question(Element):
         return self.is_question
 
     def load_data(self, data, is_form=False):
-        """Load the value, and the comment stored next to it."""
+        """Load the value, and the comment stored next to it. On a form,
+        also build the questions inside its choices, see `choice_elements()`."""
         super().load_data(data, is_form=is_form)
         if self.is_question and data and self.comment_name in data:
             self.form['comment'] = data[self.comment_name]
+        if not is_form:
+            # The Creator builds them itself, see `SurveyCreator._load_elements`.
+            return
+        register_with_owner = not self.in_repeating_context
+        for choice_value, raw in self.choice_elements():
+            element_obj = self.survey.get_element_object(raw, language=self.language)
+            if element_obj:
+                element_obj.choice_value = choice_value
+                element_obj.load(
+                    element_owner=self.element_owner,
+                    parent=self,
+                    data=data,
+                    is_form=True,
+                    register_with_owner=register_with_owner,
+                )
+
+    def choice_elements(self):
+        """`(choice value, element definition)` for each question inside a
+        choice (`choices[].elements`), when this question type supports them.
+
+        SurveyJS stores their answers next to this question's own, so they
+        are its children (`contact.phone_number`) that nest no data
+        (`input_path` `['phone_number']`)."""
+        if not self.supports_elements_in_choice:
+            return []
+        return [
+            (choice.get('value'), raw)
+            for choice in self.raw.get('choices', [])
+            if isinstance(choice, dict)
+            for raw in choice.get('elements', [])
+            if isinstance(raw, dict) and 'type' in raw
+        ]
 
     @property
     def comment_name(self):

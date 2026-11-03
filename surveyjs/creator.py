@@ -193,8 +193,9 @@ class SurveyCreator:
                 problems.append('%s: no question has this name' % key)
         return problems
 
-    def _load_elements(self, elements, parent=None, page=None):
-        """Recursively load elements from the schema."""
+    def _load_elements(self, elements, parent=None, page=None, choice_value=None):
+        """Recursively load elements from the schema. `choice_value` marks
+        the questions inside a choice of `parent`."""
         for element in elements:
             if 'type' not in element:
                 continue
@@ -203,6 +204,7 @@ class SurveyCreator:
             if not element_obj:
                 continue
 
+            element_obj.choice_value = choice_value
             element_obj.load(
                 element_owner=self,
                 parent=parent,
@@ -227,6 +229,9 @@ class SurveyCreator:
             elif element['type'] == 'paneldynamic':
                 nested = element.get('templateElements', element.get('elements', []))
                 self._load_elements(nested, parent=element_obj)
+            elif element_obj.is_question:
+                for value, raw in element_obj.choice_elements():
+                    self._load_elements([raw], parent=element_obj, choice_value=value)
 
     def get_element_class(self, element):
         """Dynamically load the element class based on the element type."""

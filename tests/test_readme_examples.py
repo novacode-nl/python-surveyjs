@@ -8,7 +8,7 @@ matching test fails and the README must be updated with it.
 """
 
 import unittest
-from datetime import date, datetime, timedelta
+from datetime import date, datetime, time, timedelta
 
 from surveyjs import AmbiguousNameError, SurveyCreator, SurveyForm, register_input_type
 from surveyjs.elements.inputtype import INPUT_TYPE_PARSERS
@@ -380,6 +380,18 @@ class TestReadmeExamples(unittest.TestCase):
         cell = self.form.get_element_by_path('budget[marketing].status')
         self.assertEqual(cell.value_text, 'Done')
         self.assertEqual(cell.input_path, ['budget', 'marketing', 'status'])
+
+    # --- Questions inside a choice ---
+
+    def test_choice_elements(self):
+        schema = {'elements': [{'type': 'radiogroup', 'name': 'contact', 'choices': ['email', {
+            'value': 'phone', 'elements': [{'type': 'text', 'name': 'call_after', 'inputType': 'time'}]}]}]}
+        form = SurveyForm({'contact': 'phone', 'call_after': '18:00'}, SurveyCreator(schema))
+        call_after = form.questions['call_after']
+        self.assertEqual(call_after.value, time(18, 0))
+        self.assertEqual(call_after.path_str, 'contact.call_after')
+        self.assertEqual(call_after.input_path, ['call_after'])
+        self.assertEqual(call_after.choice_value, 'phone')
 
     # --- Translations ---
 

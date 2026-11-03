@@ -556,6 +556,36 @@ same value, and keeps working.
 `rows_data` and the `*_raw_value` accessors return the submission as is. Cells cost one
 element per cell of a submitted matrix, on the form path only.
 
+### Questions inside a choice
+
+A checkbox or radiogroup choice can hold questions of its own, shown when it is
+picked. SurveyJS stores their answers next to the question's own, so they are
+its children without nesting the data:
+
+```python
+# {"type": "radiogroup", "name": "contact", "choices": ["email",
+#   {"value": "phone", "elements": [
+#       {"type": "text", "name": "call_after", "inputType": "time"}]}]}
+# submission: {"contact": "phone", "call_after": "18:00"}
+
+call_after = form.questions['call_after']
+
+call_after.value
+# datetime.time(18, 0)
+
+call_after.path_str
+# 'contact.call_after'
+
+call_after.input_path
+# ['call_after']
+
+call_after.choice_value
+# 'phone'
+```
+
+When their choice is not picked, SurveyJS hides them: `validation_errors()`
+skips them, and `in_unpicked_choice` is True.
+
 ### Translations
 
 Every text a respondent reads is translated: titles, descriptions,

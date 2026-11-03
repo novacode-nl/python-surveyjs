@@ -10,6 +10,8 @@ class QuestionCheckbox(Question):
     Value is typically a list of selected choice values.
     """
 
+    supports_elements_in_choice = True
+
     @property
     def choices(self):
         return self.raw.get('choices', [])

@@ -7,6 +7,8 @@ from .question import Question
 class QuestionRadiogroup(Question):
     """SurveyJS Radio Button Group question."""
 
+    supports_elements_in_choice = True
+
     @property
     def choices(self):
         """Get the list of choices."""

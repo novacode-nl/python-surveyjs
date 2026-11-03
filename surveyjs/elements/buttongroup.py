@@ -12,6 +12,10 @@ class QuestionButtongroup(QuestionRadiogroup):
     item-level icon and caption properties.
     """
 
+    # Unlike a radiogroup, a SurveyJS button group has no questions inside
+    # its choices.
+    supports_elements_in_choice = False
+
     @property
     def choices_values(self):
         """Get normalized choice values as a list of dicts with 'value',

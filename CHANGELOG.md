@@ -16,6 +16,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - `valueName` support ("Join identifier" in SurveyJS Creator): a question's value, comment and `input_path` use its `valueName` when set, and `value_name` returns that key (else the `name`). Questions that share a `valueName` share one value. Lookups and paths still use the `name`.
 - Comments per choice (`choices[].showCommentArea`): `choice_comments` returns the comment typed for each picked choice, e.g. `{'service': 'Too slow'}`. SurveyJS stores these comments inside the value (`{"value": "service", "comment": "Too slow"}`); `value` returns the plain choice values. The value spec of a radiogroup or dropdown accepts both forms.
 - `anyOf` in value specs: a value fits when it fits one of the given specs.
+- Questions inside a choice (`choices[].elements`, checkbox and radiogroup): they are loaded as questions, children of the choice question (`contact.call_after`), with their answers read next to the question's own (`input_path` `['call_after']`). `choice_value` says which choice holds them; when it is not picked, `in_unpicked_choice` is True and `validation_errors()` skips them, as SurveyJS does.
 - Checkbox and tagbox `valuePropertyName`: SurveyJS stores the picked items as objects (`[{"car": "Ford"}]`); `value` returns the plain choice values, and `value_property_name` the key.
 
 ### Changed

@@ -60,12 +60,12 @@ class PanelInstance:
     def _questions_by_key(cls, elements):
         """The questions answering at this row's level, keyed by their key in
         the data (`value_name`): the row's own, and those inside a plain
-        panel, which nests no data."""
+        panel or a choice, which nest no data."""
         questions = {}
         for element in elements:
             if element.is_question:
                 questions[element.value_name] = element
-            elif not element.nests_data:
+            if not element.nests_data:
                 questions.update(cls._questions_by_key(element.elements.values()))
         return questions
 

@@ -107,15 +107,15 @@ def data_properties(elements):
     """`{key: value spec}` of the elements holding a value at this data
     level, keyed as in the submission (`value_name`).
 
-    Looks through a plain panel, whose questions store their values at the
-    panel's own level; a dynamic panel or a matrix is one value (a list or a
-    dict) of its own."""
+    Looks through a plain panel, and the questions inside a choice, which
+    store their values at the same level; a dynamic panel or a matrix is one
+    value (a list or a dict) of its own."""
     properties = {}
     for element in elements:
         spec = element.value_spec()
         if spec is not None:
             properties[element.value_name] = spec
-        elif not element.nests_data:
+        if not element.nests_data:
             properties.update(data_properties(element.elements.values()))
     return properties
 
