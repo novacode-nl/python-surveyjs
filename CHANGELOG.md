@@ -4,6 +4,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## Unreleased
 
+## 0.10.0
+
 ### Breaking Changes
 
 - A checkbox or tagbox with `valuePropertyName` returns plain choice values from `value` (`['Ford']`), not the stored objects (`[{'car': 'Ford'}]`). Use `raw_value` for the objects.
