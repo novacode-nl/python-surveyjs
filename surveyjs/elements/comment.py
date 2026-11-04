@@ -9,20 +9,20 @@ class QuestionComment(Question):
 
     @property
     def max_length(self):
-        return self.raw.get('maxLength', 0)
+        return self.raw.get("maxLength", 0)
 
     @property
     def rows(self):
         """Number of visible rows in the text area."""
-        return self.raw.get('rows', 4)
+        return self.raw.get("rows", 4)
 
     @property
     def auto_grow(self):
-        return self.raw.get('autoGrow', False)
+        return self.raw.get("autoGrow", False)
 
     @property
     def allow_resize(self):
-        return self.raw.get('allowResize', True)
+        return self.raw.get("allowResize", True)
 
     def value_spec(self):
-        return {'type': 'string'}
+        return {"type": "string"}

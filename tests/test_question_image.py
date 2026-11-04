@@ -10,16 +10,15 @@ from tests.utils import load_creator, load_form
 
 
 class TestQuestionImage(unittest.TestCase):
-
     def setUp(self):
         self.survey = load_creator()
-        self.q = self.survey.elements['thankYouImage']
+        self.q = self.survey.elements["thankYouImage"]
 
     def test_class_type(self):
         self.assertIsInstance(self.q, QuestionImage)
 
     def test_type(self):
-        self.assertEqual(self.q.type, 'image')
+        self.assertEqual(self.q.type, "image")
 
     # TODO
     # def test_is_question(self):
@@ -29,10 +28,10 @@ class TestQuestionImage(unittest.TestCase):
         self.assertFalse(self.q.is_input)
 
     def test_image_link(self):
-        self.assertEqual(self.q.image_link, 'https://example.com/thankyou.png')
+        self.assertEqual(self.q.image_link, "https://example.com/thankyou.png")
 
     def test_image_fit(self):
-        self.assertEqual(self.q.image_fit, 'contain')
+        self.assertEqual(self.q.image_fit, "contain")
 
     def test_image_height(self):
         self.assertEqual(self.q.image_height, 300)
@@ -41,26 +40,25 @@ class TestQuestionImage(unittest.TestCase):
         self.assertEqual(self.q.image_width, 400)
 
     def test_alt_text(self):
-        self.assertEqual(self.q.alt_text, 'Thank you')
+        self.assertEqual(self.q.alt_text, "Thank you")
 
     def test_content_mode(self):
-        self.assertEqual(self.q.content_mode, 'image')
+        self.assertEqual(self.q.content_mode, "image")
 
     def test_not_in_questions(self):
-        self.assertNotIn('thankYouImage', self.survey.questions)
+        self.assertNotIn("thankYouImage", self.survey.questions)
 
     def test_in_elements(self):
-        self.assertIn('thankYouImage', self.survey.elements)
+        self.assertIn("thankYouImage", self.survey.elements)
 
 
 class TestImageForm(unittest.TestCase):
-
     def setUp(self):
         self.form = load_form()
 
     def test_not_in_questions(self):
-        self.assertNotIn('thankYouImage', self.form.questions)
+        self.assertNotIn("thankYouImage", self.form.questions)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

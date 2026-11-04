@@ -26,17 +26,17 @@ class MatrixColumn:
 
     @property
     def name(self):
-        return self.raw.get('name', '')
+        return self.raw.get("name", "")
 
     @property
     def title(self):
         """The column's display title, falling back to its name."""
-        return self.question.translate(self.raw.get('title')) or self.question.translate(self.name)
+        return self.question.translate(self.raw.get("title")) or self.question.translate(self.name)
 
     @property
     def cell_type(self):
         """This column's cell type, defaulting to the question's `cellType`."""
-        return self.raw.get('cellType') or self.question.cell_type
+        return self.raw.get("cellType") or self.question.cell_type
 
     @property
     def input_type(self):
@@ -44,17 +44,17 @@ class MatrixColumn:
 
         Only a `text` cell carries one; other cell types (dropdown, checkbox,
         boolean, …) yield '' and so parse to themselves."""
-        default = 'text' if self.cell_type == 'text' else ''
-        return self.raw.get('inputType', default)
+        default = "text" if self.cell_type == "text" else ""
+        return self.raw.get("inputType", default)
 
     @property
     def choices(self):
         """This column's choices, defaulting to the question's `choices`."""
-        return self.raw.get('choices', self.question.choices)
+        return self.raw.get("choices", self.question.choices)
 
     @property
     def is_required(self):
-        return self.raw.get('isRequired', False)
+        return self.raw.get("isRequired", False)
 
     @property
     def cell_raw(self):
@@ -66,25 +66,22 @@ class MatrixColumn:
         element definition: what the matrix builds each of its cells from.
         """
         raw = dict(self.raw)
-        raw['type'] = self.cell_type
-        raw['name'] = self.name
+        raw["type"] = self.cell_type
+        raw["name"] = self.name
         if self.input_type:
-            raw['inputType'] = self.input_type
-        if 'choices' not in raw and self.choices:
-            raw['choices'] = self.choices
+            raw["inputType"] = self.input_type
+        if "choices" not in raw and self.choices:
+            raw["choices"] = self.choices
         return raw
 
     def parse(self, raw_cell_value):
         """Parse one raw cell value according to this column's `inputType`,
         or to a bool for a `boolean` cell (None if unrecognised)."""
-        if self.cell_type == 'boolean':
+        if self.cell_type == "boolean":
             if raw_cell_value is None:
                 return None
             try:
-                return parse_boolean(
-                    raw_cell_value,
-                    self.raw.get('valueTrue', True),
-                    self.raw.get('valueFalse', False))
+                return parse_boolean(raw_cell_value, self.raw.get("valueTrue", True), self.raw.get("valueFalse", False))
             except ValueError:
                 return None
         return parse_input_value(self.input_type, raw_cell_value)
@@ -94,16 +91,15 @@ class MatrixColumn:
         text cell has an `inputType`; append it when there is one rather than
         print an empty field."""
         if self.input_type:
-            return '<MatrixColumn name=%s cell_type=%s input_type=%s>' % (
-                self.name, self.cell_type, self.input_type)
-        return '<MatrixColumn name=%s cell_type=%s>' % (self.name, self.cell_type)
+            return "<MatrixColumn name=%s cell_type=%s input_type=%s>" % (self.name, self.cell_type, self.input_type)
+        return "<MatrixColumn name=%s cell_type=%s>" % (self.name, self.cell_type)
 
     def to_dict(self):
         return {
-            'name': self.name,
-            'title': self.title,
-            'cellType': self.cell_type,
-            'inputType': self.input_type,
+            "name": self.name,
+            "title": self.title,
+            "cellType": self.cell_type,
+            "inputType": self.input_type,
         }
 
 
@@ -121,7 +117,7 @@ class MatrixColumnsMixin:
 
     def __init__(self, raw, survey, **kwargs):
         super().__init__(raw, survey, **kwargs)
-        self._columns = [MatrixColumn(column, self) for column in self.raw.get('columns', [])]
+        self._columns = [MatrixColumn(column, self) for column in self.raw.get("columns", [])]
         self._rows_cells = OrderedDict()
 
     @property
@@ -158,8 +154,7 @@ class MatrixColumnsMixin:
         if not is_form:
             return
         self._rows_cells = OrderedDict(
-            (row_key, self._materialise_cells(row_key, row))
-            for row_key, row in self._iter_rows()
+            (row_key, self._materialise_cells(row_key, row)) for row_key, row in self._iter_rows()
         )
 
     def _iter_rows(self):
@@ -269,4 +264,4 @@ class MatrixColumnsMixin:
             spec = cell.value_spec() if cell else {}
             if spec is not None:
                 properties[column.name] = spec
-        return {'type': 'object', 'properties': properties, 'additionalProperties': False}
+        return {"type": "object", "properties": properties, "additionalProperties": False}

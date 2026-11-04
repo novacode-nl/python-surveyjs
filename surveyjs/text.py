@@ -8,7 +8,7 @@ substitutes when rendering. Only `{panelIndex}` is supported here; other pipes
 (`{question}`, `{row.field}`, `{panel.field}`) are left untouched.
 """
 
-PANEL_INDEX = '{panelIndex}'
+PANEL_INDEX = "{panelIndex}"
 
 
 def translate_text(text, language, i18n=None):
@@ -25,7 +25,7 @@ def translate_text(text, language, i18n=None):
     Anything that is not text (None, a number) is returned unchanged.
     """
     if isinstance(text, dict):
-        text = text.get(language) or text.get('default') or next(iter(text.values()), None)
+        text = text.get(language) or text.get("default") or next(iter(text.values()), None)
     if isinstance(text, str) and text and i18n:
         lang_map = i18n.get(language)
         if lang_map:
@@ -43,7 +43,7 @@ def interpolate_text(text, panel_index=None):
     @param text: The authored text, or a falsy value.
     @param panel_index: Zero-based row index, or None outside a dynamic panel.
     """
-    if not text or '{' not in text:
+    if not text or "{" not in text:
         return text
     if panel_index is not None:
         text = text.replace(PANEL_INDEX, str(panel_index + 1))

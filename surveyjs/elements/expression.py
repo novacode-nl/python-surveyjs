@@ -13,28 +13,28 @@ class QuestionExpression(Question):
     @property
     def expression(self):
         """The calculation expression."""
-        return self.raw.get('expression', '')
+        return self.raw.get("expression", "")
 
     @property
     def display_style(self):
         """'none', 'decimal', 'currency', or 'percent'."""
-        return self.raw.get('displayStyle', 'none')
+        return self.raw.get("displayStyle", "none")
 
     @property
     def currency(self):
-        return self.raw.get('currency', 'USD')
+        return self.raw.get("currency", "USD")
 
     @property
     def maximum_fraction_digits(self):
-        return self.raw.get('maximumFractionDigits', -1)
+        return self.raw.get("maximumFractionDigits", -1)
 
     @property
     def minimum_fraction_digits(self):
-        return self.raw.get('minimumFractionDigits', -1)
+        return self.raw.get("minimumFractionDigits", -1)
 
     @property
     def use_grouping(self):
-        return self.raw.get('useGrouping', True)
+        return self.raw.get("useGrouping", True)
 
     def to_number(self):
         """Try to convert the expression value to a number."""

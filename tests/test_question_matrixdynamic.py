@@ -10,28 +10,27 @@ from tests.utils import load_creator, load_form
 
 
 class TestQuestionMatrixDynamic(unittest.TestCase):
-
     def setUp(self):
         self.survey = load_creator()
-        self.q = self.survey.questions['employeeList']
+        self.q = self.survey.questions["employeeList"]
 
     def test_class_type(self):
         self.assertIsInstance(self.q, QuestionMatrixdynamic)
 
     def test_type(self):
-        self.assertEqual(self.q.type, 'matrixdynamic')
+        self.assertEqual(self.q.type, "matrixdynamic")
 
     def test_title(self):
-        self.assertEqual(self.q.title, 'Employee List')
+        self.assertEqual(self.q.title, "Employee List")
 
     def test_columns(self):
         self.assertEqual(len(self.q.columns), 3)
 
     def test_column_names(self):
         col_names = [c.name for c in self.q.columns]
-        self.assertIn('name', col_names)
-        self.assertIn('role', col_names)
-        self.assertIn('salary', col_names)
+        self.assertIn("name", col_names)
+        self.assertIn("role", col_names)
+        self.assertIn("salary", col_names)
 
     def test_row_count(self):
         self.assertEqual(self.q.row_count, 2)
@@ -43,14 +42,13 @@ class TestQuestionMatrixDynamic(unittest.TestCase):
         self.assertEqual(self.q.max_row_count, 10)
 
     def test_cell_type(self):
-        self.assertEqual(self.q.cell_type, 'text')
+        self.assertEqual(self.q.cell_type, "text")
 
 
 class TestMatrixDynamicForm(unittest.TestCase):
-
     def setUp(self):
         self.form = load_form()
-        self.q = self.form.questions['employeeList']
+        self.q = self.form.questions["employeeList"]
 
     def test_value_is_list(self):
         self.assertIsInstance(self.q.value, list)
@@ -62,14 +60,14 @@ class TestMatrixDynamicForm(unittest.TestCase):
         self.assertEqual(self.q.actual_row_count, 3)
 
     def test_get_cell_value(self):
-        self.assertEqual(self.q.get_cell_value(0, 'name'), 'Bob Smith')
-        self.assertEqual(self.q.get_cell_value(0, 'role'), 'developer')
-        self.assertEqual(self.q.get_cell_value(1, 'name'), 'Jane Doe')
-        self.assertEqual(self.q.get_cell_value(2, 'salary'), '110000')
+        self.assertEqual(self.q.get_cell_value(0, "name"), "Bob Smith")
+        self.assertEqual(self.q.get_cell_value(0, "role"), "developer")
+        self.assertEqual(self.q.get_cell_value(1, "name"), "Jane Doe")
+        self.assertEqual(self.q.get_cell_value(2, "salary"), "110000")
 
     def test_get_cell_value_out_of_range(self):
-        self.assertIsNone(self.q.get_cell_value(99, 'name'))
+        self.assertIsNone(self.q.get_cell_value(99, "name"))
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

@@ -17,60 +17,60 @@ class QuestionSlider(Question):
     @property
     def slider_type(self):
         """'single' or 'range'."""
-        return self.raw.get('sliderType', 'single')
+        return self.raw.get("sliderType", "single")
 
     @property
     def is_range(self):
         """Whether this is a range slider (two thumbs)."""
-        return self.slider_type == 'range'
+        return self.slider_type == "range"
 
     @property
     def min(self):
-        return self.raw.get('min', 0)
+        return self.raw.get("min", 0)
 
     @property
     def max(self):
-        return self.raw.get('max', 100)
+        return self.raw.get("max", 100)
 
     @property
     def step(self):
-        return self.raw.get('step', 1)
+        return self.raw.get("step", 1)
 
     @property
     def show_labels(self):
-        return self.raw.get('showLabels', True)
+        return self.raw.get("showLabels", True)
 
     @property
     def custom_labels(self):
-        return self.raw.get('customLabels', [])
+        return self.raw.get("customLabels", [])
 
     @property
     def label_count(self):
-        return self.raw.get('labelCount', -1)
+        return self.raw.get("labelCount", -1)
 
     @property
     def tooltip_visibility(self):
         """'auto', 'always' or 'never'."""
-        return self.raw.get('tooltipVisibility', 'auto')
+        return self.raw.get("tooltipVisibility", "auto")
 
     @property
     def allow_clear(self):
-        return self.raw.get('allowClear', False)
+        return self.raw.get("allowClear", False)
 
     @property
     def allow_swap(self):
         """Range-only: whether thumbs may cross each other."""
-        return self.raw.get('allowSwap', True)
+        return self.raw.get("allowSwap", True)
 
     @property
     def min_range_length(self):
         """Range-only: minimum gap between thumbs."""
-        return self.raw.get('minRangeLength')
+        return self.raw.get("minRangeLength")
 
     @property
     def max_range_length(self):
         """Range-only: maximum gap between thumbs."""
-        return self.raw.get('maxRangeLength')
+        return self.raw.get("maxRangeLength")
 
     @staticmethod
     def _coerce_number(val):
@@ -79,7 +79,7 @@ class QuestionSlider(Question):
         if isinstance(val, (int, float)):
             return val
         try:
-            if '.' in str(val):
+            if "." in str(val):
                 return float(val)
             return int(val)
         except (ValueError, TypeError):
@@ -112,7 +112,7 @@ class QuestionSlider(Question):
     def value_spec(self):
         """A number from `min` to `max`, or a `[low, high]` list of them for
         a range slider."""
-        number = {'type': 'number', 'minimum': self.min, 'maximum': self.max}
+        number = {"type": "number", "minimum": self.min, "maximum": self.max}
         if self.is_range:
-            return {'type': 'array', 'items': number, 'minItems': 2, 'maxItems': 2}
+            return {"type": "array", "items": number, "minItems": 2, "maxItems": 2}
         return number

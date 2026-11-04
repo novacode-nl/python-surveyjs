@@ -21,24 +21,24 @@ class MultipleTextItem:
 
     @property
     def name(self):
-        return self.raw.get('name', '')
+        return self.raw.get("name", "")
 
     @property
     def title(self):
         """The item's display title, falling back to its name."""
-        return self.question.translate(self.raw.get('title')) or self.question.translate(self.name)
+        return self.question.translate(self.raw.get("title")) or self.question.translate(self.name)
 
     @property
     def input_type(self):
-        return self.raw.get('inputType', 'text')
+        return self.raw.get("inputType", "text")
 
     @property
     def is_required(self):
-        return self.raw.get('isRequired', False)
+        return self.raw.get("isRequired", False)
 
     @property
     def placeholder(self):
-        return self.question.translate(self.raw.get('placeholder', ''))
+        return self.question.translate(self.raw.get("placeholder", ""))
 
     @property
     def raw_value(self):
@@ -51,15 +51,15 @@ class MultipleTextItem:
         return parse_input_value(self.input_type, self.raw_value)
 
     def __repr__(self):
-        return '<MultipleTextItem name=%s input_type=%s>' % (self.name, self.input_type)
+        return "<MultipleTextItem name=%s input_type=%s>" % (self.name, self.input_type)
 
     def to_dict(self):
         """Emits `raw_value` under `value`, so the dict stays JSON-serialisable."""
         return {
-            'name': self.name,
-            'title': self.title,
-            'inputType': self.input_type,
-            'value': self.raw_value,
+            "name": self.name,
+            "title": self.title,
+            "inputType": self.input_type,
+            "value": self.raw_value,
         }
 
 
@@ -78,7 +78,7 @@ class QuestionMultipletext(Question):
 
     def __init__(self, raw, survey, **kwargs):
         super().__init__(raw, survey, **kwargs)
-        self._items = [MultipleTextItem(item, self) for item in self.raw.get('items', [])]
+        self._items = [MultipleTextItem(item, self) for item in self.raw.get("items", [])]
 
     @property
     def items(self):
@@ -96,7 +96,7 @@ class QuestionMultipletext(Question):
 
     @property
     def col_count(self):
-        return self.raw.get('colCount', 1)
+        return self.raw.get("colCount", 1)
 
     def get_item(self, item_name):
         """Get an item by name, or None."""
@@ -156,7 +156,7 @@ class QuestionMultipletext(Question):
         """An object keyed by item name, each item shaped by its own
         `inputType`."""
         return {
-            'type': 'object',
-            'properties': {item.name: input_type_spec(item.input_type) for item in self.items},
-            'additionalProperties': False,
+            "type": "object",
+            "properties": {item.name: input_type_spec(item.input_type) for item in self.items},
+            "additionalProperties": False,
         }

@@ -10,19 +10,18 @@ from tests.utils import load_creator, load_form
 
 
 class TestQuestionRating(unittest.TestCase):
-
     def setUp(self):
         self.survey = load_creator()
-        self.q = self.survey.questions['satisfaction']
+        self.q = self.survey.questions["satisfaction"]
 
     def test_class_type(self):
         self.assertIsInstance(self.q, QuestionRating)
 
     def test_type(self):
-        self.assertEqual(self.q.type, 'rating')
+        self.assertEqual(self.q.type, "rating")
 
     def test_title(self):
-        self.assertEqual(self.q.title, 'Overall Satisfaction')
+        self.assertEqual(self.q.title, "Overall Satisfaction")
 
     def test_rate_min(self):
         self.assertEqual(self.q.rate_min, 1)
@@ -34,23 +33,22 @@ class TestQuestionRating(unittest.TestCase):
         self.assertEqual(self.q.rate_step, 1)
 
     def test_min_rate_description(self):
-        self.assertEqual(self.q.min_rate_description, 'Very Bad')
+        self.assertEqual(self.q.min_rate_description, "Very Bad")
 
     def test_max_rate_description(self):
-        self.assertEqual(self.q.max_rate_description, 'Excellent')
+        self.assertEqual(self.q.max_rate_description, "Excellent")
 
     def test_display_mode(self):
-        self.assertEqual(self.q.display_mode, 'buttons')
+        self.assertEqual(self.q.display_mode, "buttons")
 
     def test_rate_type(self):
-        self.assertEqual(self.q.rate_type, 'stars')
+        self.assertEqual(self.q.rate_type, "stars")
 
 
 class TestRatingForm(unittest.TestCase):
-
     def setUp(self):
         self.form = load_form()
-        self.q = self.form.questions['satisfaction']
+        self.q = self.form.questions["satisfaction"]
 
     def test_value(self):
         self.assertEqual(self.q.value, 8)
@@ -59,5 +57,5 @@ class TestRatingForm(unittest.TestCase):
         self.assertEqual(self.q.to_number(), 8)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

@@ -55,7 +55,7 @@ What a question accepts as its value, for code that writes data into a form.
 - `check_value(value)` on every element, and `SurveyCreator.check_values(values)` for a dict of values keyed by question name: both return a list of problems, empty when everything fits. Each problem starts with the data path of the value, e.g. `jobs[1].year: expected a number, got str`.
 
   ```python
-  creator.check_values({'birthDate': date(1985, 6, 14)})
+  creator.check_values({"birthDate": date(1985, 6, 14)})
   # ["birthDate: expected a string in the format YYYY-MM-DD (e.g. '2024-03-15'), got date"]
   ```
 
@@ -84,7 +84,7 @@ A name is unique per data level only: two dynamic panels can each hold a `year`.
 - `get_elements_by_name(name)` on `SurveyCreator` and `SurveyForm`: every element with that name, in schema order, as a list. On a form this includes each row and matrix cell.
 
   ```python
-  [e.path_str for e in form.get_elements_by_name('year')]
+  [e.path_str for e in form.get_elements_by_name("year")]
   # ['jobs[0].year', 'jobs[1].year', 'school[0].year']
   ```
 
@@ -113,8 +113,8 @@ Overview:
 - Container `value` is a parsed copy of `raw_value`, with the same keys and rows. `raw_value` is unchanged:
 
   ```python
-  q.raw_value   # [{'due': '2024-04-01', 'done': 'yes'}]
-  q.value       # [{'due': date(2024, 4, 1), 'done': True}]
+  q.raw_value  # [{'due': '2024-04-01', 'done': 'yes'}]
+  q.value  # [{'due': date(2024, 4, 1), 'done': True}]
   ```
 
   - `multipletext`: each item is parsed by its `inputType`, like `item_values`. Unanswered items are left out instead of `None`.
@@ -157,8 +157,8 @@ Matrix cells are questions.
 - Cells are registered by path only, never by name, because a column name repeats in every row:
 
   ```python
-  form.get_element_by_path('employeeList[1].role').value_text   # 'designer'
-  form.get_element_by_path('budgetMatrix[marketing].status')
+  form.get_element_by_path("employeeList[1].role").value_text  # 'designer'
+  form.get_element_by_path("budgetMatrix[marketing].status")
   ```
 
   A cell's `input_path` points to its value in the submission, e.g. `['employeeList', 2, 'salary']` or `['budgetMatrix', 'development', 'q1']`.

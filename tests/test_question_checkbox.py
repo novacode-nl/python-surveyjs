@@ -10,19 +10,18 @@ from tests.utils import load_creator, load_form
 
 
 class TestQuestionCheckbox(unittest.TestCase):
-
     def setUp(self):
         self.survey = load_creator()
-        self.q = self.survey.questions['hobbies']
+        self.q = self.survey.questions["hobbies"]
 
     def test_class_type(self):
         self.assertIsInstance(self.q, QuestionCheckbox)
 
     def test_type(self):
-        self.assertEqual(self.q.type, 'checkbox')
+        self.assertEqual(self.q.type, "checkbox")
 
     def test_title(self):
-        self.assertEqual(self.q.title, 'Hobbies')
+        self.assertEqual(self.q.title, "Hobbies")
 
     def test_choices(self):
         self.assertEqual(len(self.q.choices), 5)
@@ -30,9 +29,9 @@ class TestQuestionCheckbox(unittest.TestCase):
     def test_choices_values(self):
         values = self.q.choices_values
         self.assertEqual(len(values), 5)
-        val_names = [v['value'] for v in values]
-        self.assertIn('reading', val_names)
-        self.assertIn('sports', val_names)
+        val_names = [v["value"] for v in values]
+        self.assertIn("reading", val_names)
+        self.assertIn("sports", val_names)
 
     def test_has_other(self):
         self.assertTrue(self.q.has_other)
@@ -54,26 +53,25 @@ class TestQuestionCheckbox(unittest.TestCase):
 
 
 class TestCheckboxForm(unittest.TestCase):
-
     def setUp(self):
         self.form = load_form()
-        self.q = self.form.questions['hobbies']
+        self.q = self.form.questions["hobbies"]
 
     def test_value_is_list(self):
         self.assertIsInstance(self.q.value, list)
 
     def test_value_contents(self):
-        self.assertEqual(self.q.value, ['reading', 'music', 'travel'])
+        self.assertEqual(self.q.value, ["reading", "music", "travel"])
 
     def test_value_texts(self):
         texts = self.q.value_texts
-        self.assertIn('Reading', texts)
-        self.assertIn('Music', texts)
-        self.assertIn('Travel', texts)
+        self.assertIn("Reading", texts)
+        self.assertIn("Music", texts)
+        self.assertIn("Travel", texts)
 
     def test_value_texts_count(self):
         self.assertEqual(len(self.q.value_texts), 3)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

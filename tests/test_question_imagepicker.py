@@ -10,20 +10,19 @@ from tests.utils import load_creator, load_form
 
 
 class TestQuestionImagepicker(unittest.TestCase):
-
     def setUp(self):
         self.survey = load_creator()
-        self.q = self.survey.questions['favoritePet']
+        self.q = self.survey.questions["favoritePet"]
 
     def test_class_type(self):
 
         self.assertIsInstance(self.q, QuestionImagepicker)
 
     def test_type(self):
-        self.assertEqual(self.q.type, 'imagepicker')
+        self.assertEqual(self.q.type, "imagepicker")
 
     def test_title(self):
-        self.assertEqual(self.q.title, 'Favorite Pet')
+        self.assertEqual(self.q.title, "Favorite Pet")
 
     def test_choices(self):
         self.assertEqual(len(self.q.choices), 3)
@@ -35,7 +34,7 @@ class TestQuestionImagepicker(unittest.TestCase):
         self.assertTrue(self.q.show_label)
 
     def test_image_fit(self):
-        self.assertEqual(self.q.image_fit, 'cover')
+        self.assertEqual(self.q.image_fit, "cover")
 
     def test_image_height(self):
         self.assertEqual(self.q.image_height, 150)
@@ -44,18 +43,17 @@ class TestQuestionImagepicker(unittest.TestCase):
         self.assertEqual(self.q.image_width, 200)
 
     def test_content_mode(self):
-        self.assertEqual(self.q.content_mode, 'image')
+        self.assertEqual(self.q.content_mode, "image")
 
 
 class TestImagepickerForm(unittest.TestCase):
-
     def setUp(self):
         self.form = load_form()
-        self.q = self.form.questions['favoritePet']
+        self.q = self.form.questions["favoritePet"]
 
     def test_value(self):
-        self.assertEqual(self.q.value, 'cat')
+        self.assertEqual(self.q.value, "cat")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

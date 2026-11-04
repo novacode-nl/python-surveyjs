@@ -10,28 +10,27 @@ from tests.utils import load_creator, load_form
 
 
 class TestQuestionDropdown(unittest.TestCase):
-
     def setUp(self):
         self.survey = load_creator()
-        self.q = self.survey.questions['country']
+        self.q = self.survey.questions["country"]
 
     def test_class_type(self):
         self.assertIsInstance(self.q, QuestionDropdown)
 
     def test_type(self):
-        self.assertEqual(self.q.type, 'dropdown')
+        self.assertEqual(self.q.type, "dropdown")
 
     def test_title(self):
-        self.assertEqual(self.q.title, 'Country')
+        self.assertEqual(self.q.title, "Country")
 
     def test_choices(self):
         self.assertEqual(len(self.q.choices), 4)
 
     def test_choices_values(self):
         values = self.q.choices_values
-        val_names = [v['value'] for v in values]
-        self.assertIn('us', val_names)
-        self.assertIn('uk', val_names)
+        val_names = [v["value"] for v in values]
+        self.assertIn("us", val_names)
+        self.assertIn("uk", val_names)
 
     def test_has_other(self):
         self.assertFalse(self.q.has_other)
@@ -44,17 +43,16 @@ class TestQuestionDropdown(unittest.TestCase):
 
 
 class TestDropdownForm(unittest.TestCase):
-
     def setUp(self):
         self.form = load_form()
-        self.q = self.form.questions['country']
+        self.q = self.form.questions["country"]
 
     def test_value(self):
-        self.assertEqual(self.q.value, 'us')
+        self.assertEqual(self.q.value, "us")
 
     def test_value_text(self):
-        self.assertEqual(self.q.value_text, 'United States')
+        self.assertEqual(self.q.value_text, "United States")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

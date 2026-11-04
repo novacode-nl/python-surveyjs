@@ -20,31 +20,31 @@ class QuestionMatrixdynamic(MatrixColumnsMixin, Question):
     @property
     def row_count(self):
         """Initial/current number of rows."""
-        return self.raw.get('rowCount', 2)
+        return self.raw.get("rowCount", 2)
 
     @property
     def min_row_count(self):
-        return self.raw.get('minRowCount', 0)
+        return self.raw.get("minRowCount", 0)
 
     @property
     def max_row_count(self):
-        return self.raw.get('maxRowCount', 1000)
+        return self.raw.get("maxRowCount", 1000)
 
     @property
     def add_row_text(self):
-        return self.translate(self.raw.get('addRowText', ''))
+        return self.translate(self.raw.get("addRowText", ""))
 
     @property
     def remove_row_text(self):
-        return self.translate(self.raw.get('removeRowText', ''))
+        return self.translate(self.raw.get("removeRowText", ""))
 
     @property
     def cell_type(self):
-        return self.raw.get('cellType', 'dropdown')
+        return self.raw.get("cellType", "dropdown")
 
     @property
     def choices(self):
-        return self.raw.get('choices', [])
+        return self.raw.get("choices", [])
 
     @property
     def rows_data(self):
@@ -61,10 +61,7 @@ class QuestionMatrixdynamic(MatrixColumnsMixin, Question):
         val = self.raw_value
         if not isinstance(val, list):
             return val
-        return [
-            self._parse_row(index, row) if isinstance(row, dict) else row
-            for index, row in enumerate(val)
-        ]
+        return [self._parse_row(index, row) if isinstance(row, dict) else row for index, row in enumerate(val)]
 
     @property
     def actual_row_count(self):
@@ -74,10 +71,7 @@ class QuestionMatrixdynamic(MatrixColumnsMixin, Question):
     def _iter_rows(self):
         """A dynamic matrix's rows are its submitted list, keyed by position:
         `legs[0].country`."""
-        return (
-            (index, row if isinstance(row, dict) else {})
-            for index, row in enumerate(self.rows_data)
-        )
+        return ((index, row if isinstance(row, dict) else {}) for index, row in enumerate(self.rows_data))
 
     def get_row_raw_value(self, row_index):
         """Get a row's cell dict, exactly as submitted."""
@@ -104,4 +98,4 @@ class QuestionMatrixdynamic(MatrixColumnsMixin, Question):
 
     def value_spec(self):
         """A list of rows, each an object of cells."""
-        return {'type': 'array', 'items': self._row_spec()}
+        return {"type": "array", "items": self._row_spec()}

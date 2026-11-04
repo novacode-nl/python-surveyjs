@@ -114,38 +114,38 @@ creator = SurveyCreator(creator_json)
 form = SurveyForm(form_json, creator)
 
 # Text question
-form.questions['firstName'].label
+form.questions["firstName"].label
 # 'First Name'
 
-form.questions['firstName'].value
+form.questions["firstName"].value
 # 'Bob'
 
 # Checkbox question
-form.questions['colors'].value
+form.questions["colors"].value
 # ['red', 'blue']
 
 # Rating question
-form.questions['satisfaction'].value
+form.questions["satisfaction"].value
 # 4
 
 # Boolean question
-form.questions['agree'].value
+form.questions["agree"].value
 # True
 
 # Date question (inputType 'date')
-form.questions['birthDate'].value
+form.questions["birthDate"].value
 # datetime.date(1985, 6, 14)
 
 # Datetime question (inputType 'datetime-local')
-form.questions['appointment'].value
+form.questions["appointment"].value
 # datetime.datetime(2024, 3, 15, 13, 45)
 
 # Matrix question
-form.questions['quality'].value
+form.questions["quality"].value
 # {'affordable': 'good', 'does-what-it-claims': 'excellent'}
 
 # Panel element
-form.elements['personal_data']
+form.elements["personal_data"]
 # <QuestionPanel name=personal_data>
 ```
 
@@ -158,10 +158,10 @@ its SurveyJS `inputType`:
 ```python
 # {"type": "text", "name": "birthDate", "inputType": "date"}
 
-form.questions['birthDate'].value
+form.questions["birthDate"].value
 # datetime.date(1985, 6, 14)
 
-form.questions['birthDate'].raw_value
+form.questions["birthDate"].raw_value
 # '1985-06-14'
 ```
 
@@ -176,13 +176,13 @@ its `valueTrue`/`valueFalse`; `value_text` is the matching label:
 ```python
 # {"type": "boolean", "name": "consent", "valueTrue": "agreed", "valueFalse": "declined"}
 
-form.questions['consent'].raw_value
+form.questions["consent"].raw_value
 # 'agreed'
 
-form.questions['consent'].value
+form.questions["consent"].value
 # True
 
-form.questions['consent'].value_text
+form.questions["consent"].value_text
 # 'Yes'
 ```
 
@@ -204,13 +204,13 @@ with `valuePropertyName`. `value` is then the plain choice values, and
 # {"type": "checkbox", "name": "reasons",
 #  "choices": ["price", {"value": "service", "showCommentArea": true}]}
 
-form.questions['reasons'].raw_value
+form.questions["reasons"].raw_value
 # [{'value': 'price'}, {'value': 'service', 'comment': 'Too slow'}]
 
-form.questions['reasons'].value
+form.questions["reasons"].value
 # ['price', 'service']
 
-form.questions['reasons'].choice_comments
+form.questions["reasons"].choice_comments
 # {'service': 'Too slow'}
 ```
 
@@ -224,9 +224,9 @@ To register an `inputType` of your own (or override a built-in):
 from datetime import timedelta
 from surveyjs import register_input_type
 
-register_input_type('duration', lambda v: timedelta(seconds=int(v)))
+register_input_type("duration", lambda v: timedelta(seconds=int(v)))
 
-form.questions['elapsed'].value
+form.questions["elapsed"].value
 # datetime.timedelta(seconds=90)
 ```
 
@@ -253,7 +253,7 @@ form.pages[0].title
 # 'Personal'
 
 # look a page up by name, on either class
-form.get_page_by_name('history')
+form.get_page_by_name("history")
 # <Page name=history>
 ```
 
@@ -261,7 +261,7 @@ A page's root elements are an `OrderedDict` of Element objects keyed by name —
 the same shape as `creator.elements` / `form.elements`.
 
 ```python
-form.pages[0].elements['firstName']
+form.pages[0].elements["firstName"]
 # <QuestionText name=firstName input_type=text>
 
 list(form.pages[0].elements.values())
@@ -270,7 +270,7 @@ list(form.pages[0].elements.values())
 #  <QuestionText name=appointment input_type=datetime-local>,
 #  <QuestionPanel name=contact>]
 
-list(form.pages[0].elements)             # dict keys, i.e. the element names
+list(form.pages[0].elements)  # dict keys, i.e. the element names
 # ['firstName', 'birthDate', 'appointment', 'contact']
 
 # .questions is the same, filtered to input questions (no panel/html/image)
@@ -282,17 +282,17 @@ Read values from a **form** page — a creator page describes the schema, so its
 elements have no submitted value:
 
 ```python
-form.pages[0].elements['firstName'].value
+form.pages[0].elements["firstName"].value
 # 'Bob'
 
-form.pages[0].elements['birthDate'].value
+form.pages[0].elements["birthDate"].value
 # datetime.date(1985, 6, 14)
 
-creator.pages[0].elements['birthDate'].value
+creator.pages[0].elements["birthDate"].value
 # None      (a schema has no submission data)
 
 # every element knows its page
-form.questions['birthDate'].page.name
+form.questions["birthDate"].page.name
 # 'personal'
 ```
 
@@ -303,13 +303,13 @@ value lives in the submission data. They differ because a `panel` groups
 elements visually without nesting their data.
 
 ```python
-form.all_elements['phone'].path_str
+form.all_elements["phone"].path_str
 # 'contact.phone'          (inside the 'contact' panel)
 
-form.all_elements['phone'].input_path
+form.all_elements["phone"].input_path
 # ['phone']                (panels are transparent to the data)
 
-form.get_element_by_path('contact.phone').value
+form.get_element_by_path("contact.phone").value
 # '+31 6 1234 5678'
 ```
 
@@ -320,7 +320,7 @@ Nested panels each add a name to `path`, but nothing to `input_path`:
 #     {"type": "text", "name": "phone"},
 #     {"type": "panel", "name": "address", "elements": [
 #         {"type": "text", "name": "city"}]}]}
-city = form.all_elements['city']
+city = form.all_elements["city"]
 
 city.path
 # ['contact', 'address', 'city']
@@ -331,7 +331,7 @@ city.path_str
 city.input_path
 # ['city']                 -> data['city']
 
-form.get_element_by_path('contact.address.city').value
+form.get_element_by_path("contact.address.city").value
 # 'Amsterdam'
 ```
 
@@ -344,7 +344,7 @@ still adds nothing to the data:
 #     {"type": "text", "name": "school"},
 #     {"type": "panel", "name": "details", "elements": [
 #         {"type": "text", "name": "degree"}]}]}
-degree = form.get_element_by_path('education[0].details.degree')
+degree = form.get_element_by_path("education[0].details.degree")
 
 degree.path
 # ['education[0]', 'details', 'degree']
@@ -366,10 +366,10 @@ value under that key instead of its name. You still look it up by name:
 # {"type": "text", "name": "q1", "valueName": "email"}
 # submission: {"email": "a@b.c"}
 
-form.questions['q1'].value
+form.questions["q1"].value
 # 'a@b.c'
 
-form.questions['q1'].input_path
+form.questions["q1"].input_path
 # ['email']
 ```
 
@@ -389,20 +389,20 @@ list. A `SurveyForm` keeps the rows out of its name maps altogether.
 #     {"type": "text", "name": "year"}]},
 # {"type": "paneldynamic", "name": "school", "templateElements": [
 #     {"type": "text", "name": "year"}]}
-creator.questions['year']
+creator.questions["year"]
 # AmbiguousNameError: 'year' is ambiguous: jobs.year, school.year; use
 # get_element_by_path() or get_elements_by_name()
 
 creator.ambiguous_names
 # {'year': ['jobs.year', 'school.year']}
 
-[e.path_str for e in creator.get_elements_by_name('year')]
+[e.path_str for e in creator.get_elements_by_name("year")]
 # ['jobs.year', 'school.year']
 
-[e.path_str for e in form.get_elements_by_name('year')]
+[e.path_str for e in form.get_elements_by_name("year")]
 # ['jobs[0].year', 'jobs[1].year', 'school[0].year']   (one per row)
 
-form.get_element_by_path('jobs[1].year').value
+form.get_element_by_path("jobs[1].year").value
 # 2017
 ```
 
@@ -413,15 +413,15 @@ materializes one set of child elements per row of submission data, with values
 populated.
 
 ```python
-education = form.questions['education']
+education = form.questions["education"]
 
 education.panels
 # [<PanelInstance name=education[0]>]
 
-education.panels[0]['graduated'].value
+education.panels[0]["graduated"].value
 # datetime.date(2015, 5, 30)
 
-education.get_panel_value(0, 'school')
+education.get_panel_value(0, "school")
 # 'MIT'
 
 # the whole value: a parsed copy of raw_value
@@ -432,7 +432,7 @@ education.raw_value
 # [{'school': 'MIT', 'graduated': '2015-05-30', 'degree': 'MSc'}]
 
 # rows are addressable by path
-form.get_element_by_path('education[0].graduated').input_path
+form.get_element_by_path("education[0].graduated").input_path
 # ['education', 0, 'graduated']    -> data['education'][0]['graduated']
 ```
 
@@ -449,15 +449,15 @@ may a `multipletext` item. Each parses independently.
 # columns: [{"name": "employer"},
 #           {"name": "started", "cellType": "text", "inputType": "date"},
 #           {"name": "role", "cellType": "dropdown", "choices": [...]}]
-jobs = form.questions['jobs']
+jobs = form.questions["jobs"]
 
-jobs.get_column('started').input_type
+jobs.get_column("started").input_type
 # 'date'
 
-jobs.get_cell_value(0, 'started')
+jobs.get_cell_value(0, "started")
 # datetime.date(2020, 1, 6)
 
-jobs.get_cell_raw_value(0, 'started')
+jobs.get_cell_raw_value(0, "started")
 # '2020-01-06'
 
 jobs.get_row_value(0)
@@ -471,13 +471,13 @@ jobs.raw_value
 # [{'employer': 'Nova Code', 'started': '2020-01-06', 'role': 'dev'}]
 
 # items: [{"name": "from", "inputType": "date"}]
-form.questions['dates'].item_values
+form.questions["dates"].item_values
 # {'from': datetime.date(2024, 7, 8)}
 
-form.questions['dates'].value
+form.questions["dates"].value
 # {'from': datetime.date(2024, 7, 8)}
 
-form.questions['dates'].raw_value
+form.questions["dates"].raw_value
 # {'from': '2024-07-08'}
 ```
 
@@ -490,24 +490,24 @@ matrix's parsed values (`value`, `get_row_value()`, `get_cell_value()`) come
 from these cell questions, so a cell reads the same however you reach it.
 
 ```python
-jobs.get_cell(0, 'role')
+jobs.get_cell(0, "role")
 # <QuestionDropdown name=role>
 
-jobs.get_cell(0, 'role').value
+jobs.get_cell(0, "role").value
 # 'dev'
 
-jobs.get_cell(0, 'role').value_text      # what a dropdown cell knows and a value does not
+jobs.get_cell(0, "role").value_text  # what a dropdown cell knows and a value does not
 # 'Developer'
 
-list(jobs.cells(0).values())             # one row of cells, in column order
+list(jobs.cells(0).values())  # one row of cells, in column order
 # [<QuestionText name=employer input_type=text>,
 #  <QuestionText name=started input_type=date>,
 #  <QuestionDropdown name=role>]
 
-list(jobs.cells(0))                      # dict keys, i.e. the column names
+list(jobs.cells(0))  # dict keys, i.e. the column names
 # ['employer', 'started', 'role']
 
-list(jobs.rows_cells)                    # every submitted row, by row key
+list(jobs.rows_cells)  # every submitted row, by row key
 # [0]
 ```
 
@@ -515,7 +515,7 @@ A **SurveyCreator** materializes no cells: it has no submission, so it has no ro
 The column as the element definition its cells are built from is `cell_raw`:
 
 ```python
-jobs.get_column('started').cell_raw
+jobs.get_column("started").cell_raw
 # {'name': 'started', 'cellType': 'text', 'inputType': 'date', 'type': 'text'}
 ```
 
@@ -523,13 +523,13 @@ Like a dynamic panel's row children, cells are registered by **path** and never 
 name — a column name repeats in every row:
 
 ```python
-form.get_element_by_path('jobs[0].role').value_text
+form.get_element_by_path("jobs[0].role").value_text
 # 'Developer'
 
-jobs.get_cell(0, 'started').input_path
+jobs.get_cell(0, "started").input_path
 # ['jobs', 0, 'started']       -> data['jobs'][0]['started']
 
-'role' in form.questions
+"role" in form.questions
 # False
 ```
 
@@ -538,13 +538,13 @@ are addressable the same way:
 
 ```python
 # rows: [{"value": "marketing", "text": "Marketing"}]
-form.questions['budget'].row_names
+form.questions["budget"].row_names
 # ['marketing']
 
-form.get_element_by_path('budget[marketing].status').value_text
+form.get_element_by_path("budget[marketing].status").value_text
 # 'Done'
 
-form.get_element_by_path('budget[marketing].status').input_path
+form.get_element_by_path("budget[marketing].status").input_path
 # ['budget', 'marketing', 'status']
 ```
 
@@ -568,7 +568,7 @@ its children without nesting the data:
 #       {"type": "text", "name": "call_after", "inputType": "time"}]}]}
 # submission: {"contact": "phone", "call_after": "18:00"}
 
-call_after = form.questions['call_after']
+call_after = form.questions["call_after"]
 
 call_after.value
 # datetime.time(18, 0)
@@ -603,18 +603,18 @@ apply, in this order:
 # {"type": "boolean", "name": "agree",
 #  "title": {"default": "I agree", "fr": "J'accepte"}},
 # {"type": "dropdown", "name": "color", "choices": ["Red", "Blue"]}
-i18n = {'fr': {'Yes': 'Oui', 'No': 'Non', 'Red': 'Rouge', 'Blue': 'Bleu'}}
+i18n = {"fr": {"Yes": "Oui", "No": "Non", "Red": "Rouge", "Blue": "Bleu"}}
 
-creator = SurveyCreator(creator_json, language='fr', i18n=i18n)
+creator = SurveyCreator(creator_json, language="fr", i18n=i18n)
 form = SurveyForm(form_json, creator)
 
-form.questions['agree'].title
+form.questions["agree"].title
 # "J'accepte"
 
-form.questions['agree'].value_text
+form.questions["agree"].value_text
 # 'Oui'
 
-form.questions['color'].value_text
+form.questions["color"].value_text
 # 'Rouge'
 ```
 
@@ -624,12 +624,12 @@ dynamic panels and matrix cells. The creator keeps its own language, so one
 creator can serve forms in several languages:
 
 ```python
-form_en = SurveyForm(form_json, creator, lang='default')
+form_en = SurveyForm(form_json, creator, lang="default")
 
-form_en.questions['agree'].title
+form_en.questions["agree"].title
 # 'I agree'
 
-form_en.questions['agree'].value_text
+form_en.questions["agree"].value_text
 # 'Yes'
 ```
 
@@ -645,7 +645,7 @@ means the whole submission is valid.
 # {"type": "text", "name": "age", "title": "Age", "inputType": "number",
 #  "validators": [{"type": "numeric", "minValue": 18}]}
 
-form = SurveyForm({'email': 'not-an-address', 'age': '16'}, creator)
+form = SurveyForm({"email": "not-an-address", "age": "16"}, creator)
 
 form.validation_errors()
 # {'email': {'email': 'Please enter a valid e-mail address.'},
@@ -657,10 +657,10 @@ inserting an empty entry. A single question answers for itself, keyed by error
 type:
 
 ```python
-form.questions['age'].validation_errors()
+form.questions["age"].validation_errors()
 # {'numeric': "The 'Age' should be at least 18"}
 
-form.questions['age'].is_empty()
+form.questions["age"].is_empty()
 # False
 ```
 
@@ -672,7 +672,7 @@ opposite states:
   answer is non-empty, matching SurveyJS, which passes validators on empty input.
 
 ```python
-SurveyForm({'email': ''}, creator).validation_errors()
+SurveyForm({"email": ""}, creator).validation_errors()
 # {'email': {'required': 'Email is required'}}
 ```
 
@@ -694,10 +694,10 @@ that people and language models read alike.
 # {"type": "text", "name": "birthDate", "inputType": "date"}
 # {"type": "checkbox", "name": "colors", "choices": ["red", "blue"], "maxSelectedChoices": 2}
 
-creator.questions['birthDate'].value_spec()
+creator.questions["birthDate"].value_spec()
 # {'type': 'string', 'format': 'date', 'examples': ['2024-03-15']}
 
-creator.questions['colors'].value_spec()
+creator.questions["colors"].value_spec()
 # {'type': 'array', 'items': {'enum': ['red', 'blue']}, 'maxItems': 2}
 ```
 
@@ -714,10 +714,10 @@ those in a dynamic panel are part of the panel's value.
 list of messages, each starting with the data path of the offending value:
 
 ```python
-creator.questions['birthDate'].check_value(date(1985, 6, 14))
+creator.questions["birthDate"].check_value(date(1985, 6, 14))
 # ["birthDate: expected a string in the format YYYY-MM-DD (e.g. '2024-03-15'), got date"]
 
-creator.check_values({'colors': ['red', 'pink'], 'nmae': 'Bob'})
+creator.check_values({"colors": ["red", "pink"], "nmae": "Bob"})
 # ["colors[1]: expected one of ['red', 'blue'], got a str that is not one of them",
 #  'nmae: no question has this name']
 ```
@@ -745,9 +745,10 @@ an error message, or `None` when the value passes. Usable as a decorator:
 ```python
 from surveyjs.elements.validators import register_validator
 
-@register_validator('creditcard')
+
+@register_validator("creditcard")
 def _creditcard(value, rule, element):
-    return None if luhn_ok(value) else 'Invalid card number.'
+    return None if luhn_ok(value) else "Invalid card number."
 ```
 
 ### Question classes
@@ -760,15 +761,17 @@ Pass a class, or a dotted path to one:
 from surveyjs import SurveyCreator
 from surveyjs.elements.text import QuestionText
 
+
 class MyText(QuestionText):
     @property
     def value(self):
-        return (super().value or '').strip()
+        return (super().value or "").strip()
 
-creator = SurveyCreator(creator_json, element_class_mapping={'text': MyText})
+
+creator = SurveyCreator(creator_json, element_class_mapping={"text": MyText})
 
 # or by dotted path, resolved on load
-creator = SurveyCreator(creator_json, element_class_mapping={'text': 'myapp.widgets.MyText'})
+creator = SurveyCreator(creator_json, element_class_mapping={"text": "myapp.widgets.MyText"})
 ```
 
 A type with no mapping resolves by convention to `surveyjs.elements.<type>.Question<Type>`.

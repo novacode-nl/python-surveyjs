@@ -10,22 +10,21 @@ from tests.utils import load_creator, load_form
 
 
 class TestQuestionSlider(unittest.TestCase):
-
     def setUp(self):
         self.survey = load_creator()
-        self.q = self.survey.questions['volume']
+        self.q = self.survey.questions["volume"]
 
     def test_class_type(self):
         self.assertIsInstance(self.q, QuestionSlider)
 
     def test_type(self):
-        self.assertEqual(self.q.type, 'slider')
+        self.assertEqual(self.q.type, "slider")
 
     def test_title(self):
-        self.assertEqual(self.q.title, 'Volume')
+        self.assertEqual(self.q.title, "Volume")
 
     def test_slider_type(self):
-        self.assertEqual(self.q.slider_type, 'single')
+        self.assertEqual(self.q.slider_type, "single")
 
     def test_is_range(self):
         self.assertFalse(self.q.is_range)
@@ -39,20 +38,19 @@ class TestQuestionSlider(unittest.TestCase):
         self.assertTrue(self.q.show_labels)
 
     def test_tooltip_visibility(self):
-        self.assertEqual(self.q.tooltip_visibility, 'always')
+        self.assertEqual(self.q.tooltip_visibility, "always")
 
     def test_allow_clear(self):
         self.assertTrue(self.q.allow_clear)
 
 
 class TestQuestionRangeSlider(unittest.TestCase):
-
     def setUp(self):
         self.survey = load_creator()
-        self.q = self.survey.questions['priceRange']
+        self.q = self.survey.questions["priceRange"]
 
     def test_slider_type(self):
-        self.assertEqual(self.q.slider_type, 'range')
+        self.assertEqual(self.q.slider_type, "range")
 
     def test_is_range(self):
         self.assertTrue(self.q.is_range)
@@ -66,11 +64,10 @@ class TestQuestionRangeSlider(unittest.TestCase):
 
 
 class TestSliderForm(unittest.TestCase):
-
     def setUp(self):
         self.form = load_form()
-        self.single = self.form.questions['volume']
-        self.range_q = self.form.questions['priceRange']
+        self.single = self.form.questions["volume"]
+        self.range_q = self.form.questions["priceRange"]
 
     def test_single_value(self):
         self.assertEqual(self.single.value, 45)
@@ -91,5 +88,5 @@ class TestSliderForm(unittest.TestCase):
         self.assertEqual(self.range_q.to_number(), 100)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

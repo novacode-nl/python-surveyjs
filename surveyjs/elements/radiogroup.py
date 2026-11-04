@@ -12,7 +12,7 @@ class QuestionRadiogroup(Question):
     @property
     def choices(self):
         """Get the list of choices."""
-        return self.raw.get('choices', [])
+        return self.raw.get("choices", [])
 
     @property
     def choices_values(self):
@@ -32,20 +32,20 @@ class QuestionRadiogroup(Question):
         val = self.value
         if val is None:
             return None
-        return self._choice_text(val, {c['value']: c['text'] for c in self.choices_values})
+        return self._choice_text(val, {c["value"]: c["text"] for c in self.choices_values})
 
     @property
     def has_none(self):
         """Whether the 'None' option is enabled."""
-        return self.raw.get('showNoneItem', self.raw.get('hasNone', False))
+        return self.raw.get("showNoneItem", self.raw.get("hasNone", False))
 
     @property
     def choices_order(self):
-        return self.raw.get('choicesOrder', 'none')
+        return self.raw.get("choicesOrder", "none")
 
     @property
     def col_count(self):
-        return self.raw.get('colCount', 0)
+        return self.raw.get("colCount", 0)
 
     def value_spec(self):
         """One choice value. A choice with its own comment area may also be

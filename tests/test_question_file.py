@@ -10,19 +10,18 @@ from tests.utils import load_creator, load_form
 
 
 class TestQuestionFile(unittest.TestCase):
-
     def setUp(self):
         self.survey = load_creator()
-        self.q = self.survey.questions['resume']
+        self.q = self.survey.questions["resume"]
 
     def test_class_type(self):
         self.assertIsInstance(self.q, QuestionFile)
 
     def test_type(self):
-        self.assertEqual(self.q.type, 'file')
+        self.assertEqual(self.q.type, "file")
 
     def test_title(self):
-        self.assertEqual(self.q.title, 'Upload Resume')
+        self.assertEqual(self.q.title, "Upload Resume")
 
     def test_store_data_as_text(self):
         self.assertTrue(self.q.store_data_as_text)
@@ -34,14 +33,13 @@ class TestQuestionFile(unittest.TestCase):
         self.assertEqual(self.q.max_size, 5242880)
 
     def test_accepted_types(self):
-        self.assertEqual(self.q.accepted_types, '.pdf,.doc,.docx')
+        self.assertEqual(self.q.accepted_types, ".pdf,.doc,.docx")
 
 
 class TestFileForm(unittest.TestCase):
-
     def setUp(self):
         self.form = load_form()
-        self.q = self.form.questions['resume']
+        self.q = self.form.questions["resume"]
 
     def test_value_is_list(self):
         self.assertIsInstance(self.q.value, list)
@@ -55,15 +53,15 @@ class TestFileForm(unittest.TestCase):
 
     def test_file_names(self):
         files = self.q.files
-        names = [f['name'] for f in files]
-        self.assertIn('resume.pdf', names)
-        self.assertIn('cover_letter.docx', names)
+        names = [f["name"] for f in files]
+        self.assertIn("resume.pdf", names)
+        self.assertIn("cover_letter.docx", names)
 
     def test_file_types(self):
         files = self.q.files
-        types = [f['type'] for f in files]
-        self.assertIn('application/pdf', types)
+        types = [f["type"] for f in files]
+        self.assertIn("application/pdf", types)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

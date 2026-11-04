@@ -12,7 +12,7 @@ class QuestionRanking(Question):
 
     @property
     def choices(self):
-        return self.raw.get('choices', [])
+        return self.raw.get("choices", [])
 
     @property
     def choices_values(self):
@@ -20,11 +20,11 @@ class QuestionRanking(Question):
 
     @property
     def long_tap(self):
-        return self.raw.get('longTap', True)
+        return self.raw.get("longTap", True)
 
     @property
     def select_to_rank_enabled(self):
-        return self.raw.get('selectToRankEnabled', False)
+        return self.raw.get("selectToRankEnabled", False)
 
     def value_spec(self):
         """The choice values, in ranked order."""

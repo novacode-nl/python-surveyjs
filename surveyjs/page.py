@@ -20,7 +20,7 @@ class Page:
     path.
     """
 
-    def __init__(self, raw, owner, index=0, language='default', i18n=None, implicit=False):
+    def __init__(self, raw, owner, index=0, language="default", i18n=None, implicit=False):
         """
         @param raw: The raw JSON page dict from the survey schema
         @param owner: The SurveyCreator or SurveyForm that owns this page
@@ -47,9 +47,7 @@ class Page:
     @property
     def questions(self):
         """Root questions (inputs) on this page, keyed by name."""
-        return OrderedDict(
-            (name, el) for name, el in self._elements.items() if el.is_question
-        )
+        return OrderedDict((name, el) for name, el in self._elements.items() if el.is_question)
 
     @property
     def name(self):
@@ -58,17 +56,17 @@ class Page:
         SurveyJS omits `name` on generated pages; fall back to its
         positional name (`page1`, `page2`, ...) as SurveyJS itself does.
         """
-        return self.raw.get('name') or 'page%d' % (self.index + 1)
+        return self.raw.get("name") or "page%d" % (self.index + 1)
 
     @property
     def title(self):
         """The display title of the page (falls back to its name)."""
-        return self.translate(self.raw.get('title')) or self.translate(self.name)
+        return self.translate(self.raw.get("title")) or self.translate(self.name)
 
     @property
     def description(self):
         """The page description/help text."""
-        return self.translate(self.raw.get('description', ''))
+        return self.translate(self.raw.get("description", ""))
 
     def translate(self, text):
         """`text` in this page's language; see `surveyjs.text.translate_text`."""
@@ -77,17 +75,17 @@ class Page:
     @property
     def is_visible(self):
         """Whether the page is visible."""
-        return self.raw.get('visible', True)
+        return self.raw.get("visible", True)
 
     @property
     def visible_if(self):
         """The visibleIf expression."""
-        return self.raw.get('visibleIf', '')
+        return self.raw.get("visibleIf", "")
 
     @property
     def read_only(self):
         """Whether the page is read-only."""
-        return self.raw.get('readOnly', False)
+        return self.raw.get("readOnly", False)
 
     # --- Element registration ---
 
@@ -99,12 +97,12 @@ class Page:
     # --- Representation ---
 
     def __repr__(self):
-        return '<%s name=%s>' % (self.__class__.__name__, self.name)
+        return "<%s name=%s>" % (self.__class__.__name__, self.name)
 
     def to_dict(self):
         """Return a dictionary representation of the page."""
         return {
-            'name': self.name,
-            'title': self.title,
-            'elements': [el.to_dict() for el in self._elements.values()],
+            "name": self.name,
+            "title": self.title,
+            "elements": [el.to_dict() for el in self._elements.values()],
         }

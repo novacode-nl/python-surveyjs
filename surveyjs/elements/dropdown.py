@@ -9,7 +9,7 @@ class QuestionDropdown(Question):
 
     @property
     def choices(self):
-        return self.raw.get('choices', [])
+        return self.raw.get("choices", [])
 
     @property
     def choices_values(self):
@@ -28,24 +28,24 @@ class QuestionDropdown(Question):
         val = self.value
         if val is None:
             return None
-        return self._choice_text(val, {c['value']: c['text'] for c in self.choices_values})
+        return self._choice_text(val, {c["value"]: c["text"] for c in self.choices_values})
 
     @property
     def choices_by_url(self):
         """Get choices loaded from a URL configuration."""
-        return self.raw.get('choicesByUrl', None)
+        return self.raw.get("choicesByUrl", None)
 
     @property
     def search_enabled(self):
-        return self.raw.get('searchEnabled', True)
+        return self.raw.get("searchEnabled", True)
 
     @property
     def placeholder_text(self):
-        return self.translate(self.raw.get('placeholder', ''))
+        return self.translate(self.raw.get("placeholder", ""))
 
     @property
     def allow_clear(self):
-        return self.raw.get('allowClear', True)
+        return self.raw.get("allowClear", True)
 
     def value_spec(self):
         """One choice value. A choice with its own comment area may also be

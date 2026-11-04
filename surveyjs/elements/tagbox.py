@@ -12,7 +12,7 @@ class QuestionTagbox(Question):
 
     @property
     def choices(self):
-        return self.raw.get('choices', [])
+        return self.raw.get("choices", [])
 
     @property
     def choices_values(self):
@@ -22,7 +22,7 @@ class QuestionTagbox(Question):
     def value_property_name(self):
         """`valuePropertyName`: store each picked item as an object with the
         choice value under this key, e.g. `[{"car": "Ford"}]`. '' when not set."""
-        return self.raw.get('valuePropertyName', '')
+        return self.raw.get("valuePropertyName", "")
 
     @property
     def value(self):
@@ -41,7 +41,7 @@ class QuestionTagbox(Question):
     def _item_object_field(self):
         if self.value_property_name:
             return self.value_property_name
-        return self._choice_value_field if self._has_choice_comments() else ''
+        return self._choice_value_field if self._has_choice_comments() else ""
 
     @property
     def value_texts(self):
@@ -49,16 +49,16 @@ class QuestionTagbox(Question):
         val = self.value
         if not val or not isinstance(val, list):
             return []
-        choice_map = {c['value']: c['text'] for c in self.choices_values}
+        choice_map = {c["value"]: c["text"] for c in self.choices_values}
         return [self._choice_text(v, choice_map) for v in val]
 
     @property
     def search_enabled(self):
-        return self.raw.get('searchEnabled', True)
+        return self.raw.get("searchEnabled", True)
 
     @property
     def max_selected_choices(self):
-        return self.raw.get('maxSelectedChoices', 0)
+        return self.raw.get("maxSelectedChoices", 0)
 
     def value_spec(self):
         """A list of choice values, or of objects (`[{"car": "Ford"}]`) when
@@ -66,5 +66,5 @@ class QuestionTagbox(Question):
         form SurveyJS stores. `value` returns the plain choice values."""
         spec = self._choices_spec(multiple=True)
         if self.max_selected_choices:
-            spec['maxItems'] = self.max_selected_choices
+            spec["maxItems"] = self.max_selected_choices
         return spec

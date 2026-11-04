@@ -13,11 +13,11 @@ class QuestionPanel(Layout):
     @property
     def state(self):
         """Panel state: 'default', 'collapsed', or 'expanded'."""
-        return self.raw.get('state', 'default')
+        return self.raw.get("state", "default")
 
     @property
     def inner_indent(self):
-        return self.raw.get('innerIndent', 0)
+        return self.raw.get("innerIndent", 0)
 
     def load_data(self, data, is_form=False):
         """Build the nested child elements and load their submission data.
@@ -35,7 +35,7 @@ class QuestionPanel(Layout):
         register_with_owner = not self.in_repeating_context
 
         for element in self._layout_elements:
-            if 'type' in element:
+            if "type" in element:
                 element_obj = self.survey.get_element_object(element, language=self.language)
                 if element_obj:
                     element_obj.load(

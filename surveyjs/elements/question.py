@@ -7,13 +7,13 @@ from .element import Element
 #: Suffix of the key SurveyJS stores a question's comment under, next to its
 #: value (`settings.commentSuffix`): `{"color": "other",
 #: "color-Comment": "Turquoise"}`.
-COMMENT_SUFFIX = '-Comment'
+COMMENT_SUFFIX = "-Comment"
 
 #: A choice with its own comment area (`choices[].showCommentArea`) stores the
 #: comment inside the value, next to the choice value:
 #: `{"reason": {"value": "service", "comment": "Too slow"}}`.
-CHOICE_VALUE_FIELD = 'value'
-CHOICE_COMMENT_FIELD = 'comment'
+CHOICE_VALUE_FIELD = "value"
+CHOICE_COMMENT_FIELD = "comment"
 
 # TODO
 # Move some properties from Element to Question, like is_required, validators, etc.,
@@ -46,7 +46,7 @@ class Question(Element):
         also build the questions inside its choices, see `choice_elements()`."""
         super().load_data(data, is_form=is_form)
         if self.is_question and data and self.comment_name in data:
-            self.form['comment'] = data[self.comment_name]
+            self.form["comment"] = data[self.comment_name]
         if not is_form:
             # The Creator builds them itself, see `SurveyCreator._load_elements`.
             return
@@ -73,11 +73,11 @@ class Question(Element):
         if not self.supports_elements_in_choice:
             return []
         return [
-            (choice.get('value'), raw)
-            for choice in self.raw.get('choices', [])
+            (choice.get("value"), raw)
+            for choice in self.raw.get("choices", [])
             if isinstance(choice, dict)
-            for raw in choice.get('elements', [])
-            if isinstance(raw, dict) and 'type' in raw
+            for raw in choice.get("elements", [])
+            if isinstance(raw, dict) and "type" in raw
         ]
 
     @property
@@ -92,17 +92,17 @@ class Question(Element):
 
         That is the comment area (`showCommentArea`) or, on a choice question,
         the text typed for its "Other" item, see `other_value`."""
-        return self.form.get('comment')
+        return self.form.get("comment")
 
     @property
     def has_other(self):
         """Whether the "Other" item is enabled (choice questions)."""
-        return self.raw.get('showOtherItem', self.raw.get('hasOther', False))
+        return self.raw.get("showOtherItem", self.raw.get("hasOther", False))
 
     @property
     def other_text(self):
         """The label of the "Other" item."""
-        return self.translate(self.raw.get('otherText', 'Other'))
+        return self.translate(self.raw.get("otherText", "Other"))
 
     @property
     def other_value(self):
@@ -118,12 +118,12 @@ class Question(Element):
         values = self._picked_values()
         if self._stores_other_as_comment():
             return (self.comment or None) if OTHER_VALUE in values else None
-        if self.raw.get('choicesByUrl'):
+        if self.raw.get("choicesByUrl"):
             # Its choices are unknown here, so is which value is the text.
             return None
-        known = [choice['value'] for choice in map(self.choice_item, self.raw.get('choices', []))]
+        known = [choice["value"] for choice in map(self.choice_item, self.raw.get("choices", []))]
         known += [OTHER_VALUE, NONE_VALUE]
-        return next((one for one in values if one not in known and one not in (None, '')), None)
+        return next((one for one in values if one not in known and one not in (None, "")), None)
 
     @property
     def choice_comments(self):
@@ -136,7 +136,7 @@ class Question(Element):
         items = value if isinstance(value, list) else [value]
         comments = {}
         for item in items:
-            if isinstance(item, dict) and item.get(CHOICE_COMMENT_FIELD) not in (None, ''):
+            if isinstance(item, dict) and item.get(CHOICE_COMMENT_FIELD) not in (None, ""):
                 comments[item.get(self._choice_value_field)] = item[CHOICE_COMMENT_FIELD]
         return comments
 
@@ -166,12 +166,12 @@ class Question(Element):
     def _stores_other_as_comment(self):
         """Whether the "Other" text is stored under `comment_name`, as SurveyJS
         decides it (`QuestionSelectBase.getStoreOthersAsComment`)."""
-        if self.raw.get('showCommentArea', self.raw.get('hasComment', False)):
+        if self.raw.get("showCommentArea", self.raw.get("hasComment", False)):
             return False
-        store = self.raw.get('storeOthersAsComment', 'default')
-        if store == 'default':
-            schema = getattr(self.survey, 'schema', None) or {}
-            store = schema.get('storeOthersAsComment', True)
+        store = self.raw.get("storeOthersAsComment", "default")
+        if store == "default":
+            schema = getattr(self.survey, "schema", None) or {}
+            store = schema.get("storeOthersAsComment", True)
         return bool(store)
 
     def _choice_text(self, value, choice_texts):
@@ -192,49 +192,58 @@ class Question(Element):
         choice question defines. The "Other" and "None" items add their
         values. A question with `choicesByUrl` loads its choices from a URL,
         so its allowed values are unknown here."""
-        choices_by_url = self.raw.get('choicesByUrl')
+        choices_by_url = self.raw.get("choicesByUrl")
         if choices_by_url:
-            item = {'x-choicesByUrl': choices_by_url}
+            item = {"x-choicesByUrl": choices_by_url}
         else:
             values = [
-                choice['value']
-                for choice in map(self.choice_item, self.raw.get('choices', []))
-                if choice['value'] is not None
+                choice["value"]
+                for choice in map(self.choice_item, self.raw.get("choices", []))
+                if choice["value"] is not None
             ]
             if self.has_other:
                 values.append(OTHER_VALUE)
-            if self.raw.get('showNoneItem', self.raw.get('hasNone', False)):
+            if self.raw.get("showNoneItem", self.raw.get("hasNone", False)):
                 values.append(NONE_VALUE)
-            item = {'enum': values}
+            item = {"enum": values}
         if multiple:
             field = self._item_object_field()
             if field:
                 properties = {field: item}
                 if self._has_choice_comments():
-                    properties[CHOICE_COMMENT_FIELD] = {'type': 'string'}
-                item = {'type': 'object', 'properties': properties}
-            return {'type': 'array', 'items': item}
+                    properties[CHOICE_COMMENT_FIELD] = {"type": "string"}
+                item = {"type": "object", "properties": properties}
+            return {"type": "array", "items": item}
         comment_values = self._comment_choice_values()
-        if comment_values and 'enum' in item:
+        if comment_values and "enum" in item:
             # SurveyJS stores {"value": ..., "comment": ...} once a comment is
             # typed for such a choice, the plain value otherwise.
-            return {'anyOf': [item, {'type': 'object', 'properties': {
-                CHOICE_VALUE_FIELD: {'enum': comment_values},
-                CHOICE_COMMENT_FIELD: {'type': 'string'},
-            }, 'additionalProperties': False}]}
+            return {
+                "anyOf": [
+                    item,
+                    {
+                        "type": "object",
+                        "properties": {
+                            CHOICE_VALUE_FIELD: {"enum": comment_values},
+                            CHOICE_COMMENT_FIELD: {"type": "string"},
+                        },
+                        "additionalProperties": False,
+                    },
+                ]
+            }
         return item
 
     def _comment_choice_values(self):
         """The values of the choices, other than "Other", with their own
         comment area."""
         return [
-            choice.get('value') for choice in self.raw.get('choices', [])
-            if isinstance(choice, dict) and choice.get('showCommentArea')
-            and choice.get('value') != OTHER_VALUE
+            choice.get("value")
+            for choice in self.raw.get("choices", [])
+            if isinstance(choice, dict) and choice.get("showCommentArea") and choice.get("value") != OTHER_VALUE
         ]
 
     def _item_object_field(self):
         """The key of the choice value when each picked item of a list is
         stored as an object, else ''. Only a checkbox (and a tagbox) stores
         objects for every item."""
-        return ''
+        return ""

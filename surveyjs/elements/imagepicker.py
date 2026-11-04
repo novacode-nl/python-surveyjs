@@ -12,32 +12,32 @@ class QuestionImagepicker(Question):
 
     @property
     def choices(self):
-        return self.raw.get('choices', [])
+        return self.raw.get("choices", [])
 
     @property
     def multi_select(self):
-        return self.raw.get('multiSelect', False)
+        return self.raw.get("multiSelect", False)
 
     @property
     def show_label(self):
-        return self.raw.get('showLabel', False)
+        return self.raw.get("showLabel", False)
 
     @property
     def image_fit(self):
-        return self.raw.get('imageFit', 'contain')
+        return self.raw.get("imageFit", "contain")
 
     @property
     def image_height(self):
-        return self.raw.get('imageHeight', 150)
+        return self.raw.get("imageHeight", 150)
 
     @property
     def image_width(self):
-        return self.raw.get('imageWidth', 200)
+        return self.raw.get("imageWidth", 200)
 
     @property
     def content_mode(self):
         """'image' or 'video'."""
-        return self.raw.get('contentMode', 'image')
+        return self.raw.get("contentMode", "image")
 
     def value_spec(self):
         """One choice value, or a list of them when `multi_select`."""

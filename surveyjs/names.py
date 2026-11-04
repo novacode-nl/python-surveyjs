@@ -16,8 +16,8 @@ class AmbiguousNameError(LookupError):
         self.name = name
         self.paths = paths
         super().__init__(
-            '%r is ambiguous: %s; use get_element_by_path() or get_elements_by_name()'
-            % (name, ', '.join(paths)))
+            "%r is ambiguous: %s; use get_element_by_path() or get_elements_by_name()" % (name, ", ".join(paths))
+        )
 
 
 class ElementsByName(OrderedDict):

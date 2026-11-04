@@ -26,30 +26,29 @@ class QuestionText(Question):
 
     @property
     def max_length(self):
-        return self.raw.get('maxLength', 0)
+        return self.raw.get("maxLength", 0)
 
     @property
     def min(self):
-        return self.raw.get('min')
+        return self.raw.get("min")
 
     @property
     def max(self):
-        return self.raw.get('max')
+        return self.raw.get("max")
 
     @property
     def step(self):
-        return self.raw.get('step')
+        return self.raw.get("step")
 
     @property
     def input_type(self):
-        return self.raw.get('inputType', 'text')
+        return self.raw.get("inputType", "text")
 
     def __repr__(self):
         """Includes `input_type`: it decides how `value` is parsed, so it is
         the one property that distinguishes two otherwise identical text
         questions."""
-        return '<%s name=%s input_type=%s>' % (
-            self.__class__.__name__, self.name, self.input_type)
+        return "<%s name=%s input_type=%s>" % (self.__class__.__name__, self.name, self.input_type)
 
     def _parse_as(self, parser):
         """Parse this question's `raw_value` with `parser`, or None.

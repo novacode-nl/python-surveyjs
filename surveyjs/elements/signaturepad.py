@@ -13,38 +13,37 @@ class QuestionSignaturepad(Question):
 
     @property
     def signature_width(self):
-        return self.raw.get('signatureWidth', 300)
+        return self.raw.get("signatureWidth", 300)
 
     @property
     def signature_height(self):
-        return self.raw.get('signatureHeight', 200)
+        return self.raw.get("signatureHeight", 200)
 
     @property
     def pen_color(self):
-        return self.raw.get('penColor', '#1ab394')
+        return self.raw.get("penColor", "#1ab394")
 
     @property
     def background_color(self):
-        return self.raw.get('backgroundColor', '#ffffff')
+        return self.raw.get("backgroundColor", "#ffffff")
 
     @property
     def data_format(self):
         """'png', 'jpeg', or 'svg'."""
-        return self.raw.get('dataFormat', 'png')
+        return self.raw.get("dataFormat", "png")
 
     @property
     def allow_clear(self):
-        return self.raw.get('allowClear', True)
+        return self.raw.get("allowClear", True)
 
     @property
     def is_base64(self):
         """Check if the value is a base64-encoded string."""
         val = self.value
         if val and isinstance(val, str):
-            return val.startswith('data:image/')
+            return val.startswith("data:image/")
         return False
 
     def value_spec(self):
         """The signature as an image data URL."""
-        return {'type': 'string', 'format': 'data-url',
-                'examples': [FORMAT_HINTS['data-url'][1]]}
+        return {"type": "string", "format": "data-url", "examples": [FORMAT_HINTS["data-url"][1]]}

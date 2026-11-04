@@ -9,29 +9,29 @@ from surveyjs import SurveyCreator, SurveyForm
 from tests.utils import load_creator, load_form
 
 PAGE_NAMES = [
-    'page_basic_input',
-    'page_choice',
-    'page_special',
-    'page_matrix',
-    'page_layout',
+    "page_basic_input",
+    "page_choice",
+    "page_special",
+    "page_matrix",
+    "page_layout",
 ]
 
 FLAT_SCHEMA = {
-    'title': 'Flat Survey',
-    'elements': [
-        {'type': 'text', 'name': 'firstName'},
-        {'type': 'text', 'name': 'lastName'},
+    "title": "Flat Survey",
+    "elements": [
+        {"type": "text", "name": "firstName"},
+        {"type": "text", "name": "lastName"},
     ],
 }
 
 
 class TestCreatorPages(unittest.TestCase):
-
     def setUp(self):
         self.survey = load_creator()
 
     def test_pages_are_page_objects(self):
         from surveyjs.page import Page
+
         self.assertEqual(len(self.survey.pages), 5)
         for page in self.survey.pages:
             self.assertIsInstance(page, Page)
@@ -44,23 +44,23 @@ class TestCreatorPages(unittest.TestCase):
             self.assertEqual(page.index, index)
 
     def test_page_title(self):
-        self.assertEqual(self.survey.pages[0].title, 'Basic Input')
+        self.assertEqual(self.survey.pages[0].title, "Basic Input")
 
     def test_page_title_falls_back_to_name(self):
-        creator = SurveyCreator({'pages': [{'name': 'p1', 'elements': []}]})
-        self.assertEqual(creator.pages[0].title, 'p1')
+        creator = SurveyCreator({"pages": [{"name": "p1", "elements": []}]})
+        self.assertEqual(creator.pages[0].title, "p1")
 
     def test_page_is_not_implicit(self):
         for page in self.survey.pages:
             self.assertFalse(page.implicit)
 
     def test_get_page_by_name(self):
-        page = self.survey.get_page_by_name('page_choice')
+        page = self.survey.get_page_by_name("page_choice")
         self.assertIsNotNone(page)
-        self.assertEqual(page.name, 'page_choice')
+        self.assertEqual(page.name, "page_choice")
 
     def test_get_page_by_name_missing(self):
-        self.assertIsNone(self.survey.get_page_by_name('nope'))
+        self.assertIsNone(self.survey.get_page_by_name("nope"))
 
     def test_page_elements_are_root_elements(self):
         """A page holds only root elements, never nested children."""
@@ -74,13 +74,13 @@ class TestCreatorPages(unittest.TestCase):
         self.assertEqual(from_pages, list(self.survey.elements))
 
     def test_page_elements_are_the_same_objects(self):
-        page = self.survey.get_page_by_name('page_basic_input')
-        self.assertIs(page.elements['firstName'], self.survey.elements['firstName'])
+        page = self.survey.get_page_by_name("page_basic_input")
+        self.assertIs(page.elements["firstName"], self.survey.elements["firstName"])
 
     def test_page_questions_excludes_layout(self):
-        page = self.survey.get_page_by_name('page_layout')
-        self.assertIn('contactPanel', page.elements)
-        self.assertNotIn('contactPanel', page.questions)
+        page = self.survey.get_page_by_name("page_layout")
+        self.assertIn("contactPanel", page.elements)
+        self.assertNotIn("contactPanel", page.questions)
 
     def test_pages_are_not_elements(self):
         """Pages must not leak into the element registries."""
@@ -90,33 +90,32 @@ class TestCreatorPages(unittest.TestCase):
             self.assertNotIn(name, self.survey.questions)
 
     def test_page_to_dict(self):
-        page = self.survey.get_page_by_name('page_basic_input')
+        page = self.survey.get_page_by_name("page_basic_input")
         data = page.to_dict()
-        self.assertEqual(data['name'], 'page_basic_input')
-        self.assertEqual(data['title'], 'Basic Input')
-        self.assertEqual(len(data['elements']), len(page.elements))
+        self.assertEqual(data["name"], "page_basic_input")
+        self.assertEqual(data["title"], "Basic Input")
+        self.assertEqual(len(data["elements"]), len(page.elements))
 
     def test_page_repr(self):
-        self.assertEqual(repr(self.survey.pages[0]), '<Page name=page_basic_input>')
+        self.assertEqual(repr(self.survey.pages[0]), "<Page name=page_basic_input>")
 
 
 class TestCreatorElementPage(unittest.TestCase):
-
     def setUp(self):
         self.survey = load_creator()
 
     def test_root_element_page(self):
-        self.assertEqual(self.survey.questions['firstName'].page.name, 'page_basic_input')
+        self.assertEqual(self.survey.questions["firstName"].page.name, "page_basic_input")
 
     def test_nested_element_inherits_page_from_parent(self):
-        phone = self.survey.all_elements['phone']
+        phone = self.survey.all_elements["phone"]
         self.assertIsNotNone(phone.parent)
         self.assertIs(phone.page, phone.parent.page)
-        self.assertEqual(phone.page.name, 'page_layout')
+        self.assertEqual(phone.page.name, "page_layout")
 
     def test_every_element_has_a_page(self):
         for element in self.survey.all_elements.values():
-            self.assertIsNotNone(element.page, f'{element.name} has no page')
+            self.assertIsNotNone(element.page, f"{element.name} has no page")
 
 
 class TestImplicitPage(unittest.TestCase):
@@ -130,13 +129,13 @@ class TestImplicitPage(unittest.TestCase):
         self.assertTrue(self.survey.pages[0].implicit)
 
     def test_implicit_page_name(self):
-        self.assertEqual(self.survey.pages[0].name, 'page1')
+        self.assertEqual(self.survey.pages[0].name, "page1")
 
     def test_implicit_page_holds_top_level_elements(self):
-        self.assertEqual(list(self.survey.pages[0].elements), ['firstName', 'lastName'])
+        self.assertEqual(list(self.survey.pages[0].elements), ["firstName", "lastName"])
 
     def test_element_page(self):
-        self.assertEqual(self.survey.questions['firstName'].page.name, 'page1')
+        self.assertEqual(self.survey.questions["firstName"].page.name, "page1")
 
     def test_empty_schema_has_one_empty_page(self):
         survey = SurveyCreator({})
@@ -144,13 +143,12 @@ class TestImplicitPage(unittest.TestCase):
         self.assertEqual(len(survey.pages[0].elements), 0)
 
     def test_form_mirrors_implicit_page(self):
-        form = SurveyForm({'firstName': 'Bob'}, creator=self.survey)
-        self.assertEqual([p.name for p in form.pages], ['page1'])
-        self.assertEqual(form.questions['firstName'].page.name, 'page1')
+        form = SurveyForm({"firstName": "Bob"}, creator=self.survey)
+        self.assertEqual([p.name for p in form.pages], ["page1"])
+        self.assertEqual(form.questions["firstName"].page.name, "page1")
 
 
 class TestFormPages(unittest.TestCase):
-
     def setUp(self):
         self.form = load_form()
 
@@ -166,11 +164,11 @@ class TestFormPages(unittest.TestCase):
             self.assertIs(page.owner, self.form)
 
     def test_page_holds_form_elements_not_creator_elements(self):
-        page = self.form.get_page_by_name('page_basic_input')
-        self.assertIs(page.elements['firstName'], self.form.elements['firstName'])
+        page = self.form.get_page_by_name("page_basic_input")
+        self.assertIs(page.elements["firstName"], self.form.elements["firstName"])
         self.assertIsNot(
-            page.elements['firstName'],
-            self.form.creator.elements['firstName'],
+            page.elements["firstName"],
+            self.form.creator.elements["firstName"],
         )
 
     def test_pages_partition_root_elements(self):
@@ -178,26 +176,26 @@ class TestFormPages(unittest.TestCase):
         self.assertEqual(from_pages, list(self.form.elements))
 
     def test_page_elements_carry_values(self):
-        page = self.form.get_page_by_name('page_basic_input')
-        self.assertEqual(page.elements['firstName'].value, 'Alice')
+        page = self.form.get_page_by_name("page_basic_input")
+        self.assertEqual(page.elements["firstName"].value, "Alice")
 
     def test_get_page_by_name(self):
-        self.assertEqual(self.form.get_page_by_name('page_matrix').name, 'page_matrix')
+        self.assertEqual(self.form.get_page_by_name("page_matrix").name, "page_matrix")
 
     def test_get_page_by_name_missing(self):
-        self.assertIsNone(self.form.get_page_by_name('nope'))
+        self.assertIsNone(self.form.get_page_by_name("nope"))
 
     def test_root_element_page(self):
-        self.assertEqual(self.form.questions['firstName'].page.name, 'page_basic_input')
+        self.assertEqual(self.form.questions["firstName"].page.name, "page_basic_input")
 
     def test_nested_element_inherits_page(self):
-        phone = self.form.all_elements['phone']
+        phone = self.form.all_elements["phone"]
         self.assertIsNotNone(phone.parent)
-        self.assertEqual(phone.page.name, 'page_layout')
+        self.assertEqual(phone.page.name, "page_layout")
 
     def test_every_element_has_a_page(self):
         for element in self.form.all_elements.values():
-            self.assertIsNotNone(element.page, f'{element.name} has no page')
+            self.assertIsNotNone(element.page, f"{element.name} has no page")
 
     def test_pages_are_not_elements(self):
         for name in PAGE_NAMES:
@@ -206,55 +204,58 @@ class TestFormPages(unittest.TestCase):
 
 
 class TestPageProperties(unittest.TestCase):
-
     def test_optional_properties(self):
-        creator = SurveyCreator({
-            'pages': [{
-                'name': 'p1',
-                'title': 'Page One',
-                'description': 'Some help',
-                'visibleIf': '{age} > 18',
-                'visible': False,
-                'readOnly': True,
-                'elements': [],
-            }],
-        })
+        creator = SurveyCreator(
+            {
+                "pages": [
+                    {
+                        "name": "p1",
+                        "title": "Page One",
+                        "description": "Some help",
+                        "visibleIf": "{age} > 18",
+                        "visible": False,
+                        "readOnly": True,
+                        "elements": [],
+                    }
+                ],
+            }
+        )
         page = creator.pages[0]
-        self.assertEqual(page.description, 'Some help')
-        self.assertEqual(page.visible_if, '{age} > 18')
+        self.assertEqual(page.description, "Some help")
+        self.assertEqual(page.visible_if, "{age} > 18")
         self.assertFalse(page.is_visible)
         self.assertTrue(page.read_only)
 
     def test_property_defaults(self):
-        creator = SurveyCreator({'pages': [{'name': 'p1', 'elements': []}]})
+        creator = SurveyCreator({"pages": [{"name": "p1", "elements": []}]})
         page = creator.pages[0]
-        self.assertEqual(page.description, '')
-        self.assertEqual(page.visible_if, '')
+        self.assertEqual(page.description, "")
+        self.assertEqual(page.visible_if, "")
         self.assertTrue(page.is_visible)
         self.assertFalse(page.read_only)
 
     def test_localized_title(self):
         creator = SurveyCreator(
-            {'pages': [{'name': 'p1', 'title': {'default': 'Hello', 'fr': 'Bonjour'}, 'elements': []}]},
-            language='fr',
+            {"pages": [{"name": "p1", "title": {"default": "Hello", "fr": "Bonjour"}, "elements": []}]},
+            language="fr",
         )
-        self.assertEqual(creator.pages[0].title, 'Bonjour')
+        self.assertEqual(creator.pages[0].title, "Bonjour")
 
     def test_localized_title_falls_back_to_first_locale(self):
         creator = SurveyCreator(
-            {'pages': [{'name': 'p1', 'title': {'default': 'Hello'}, 'elements': []}]},
-            language='fr',
+            {"pages": [{"name": "p1", "title": {"default": "Hello"}, "elements": []}]},
+            language="fr",
         )
-        self.assertEqual(creator.pages[0].title, 'Hello')
+        self.assertEqual(creator.pages[0].title, "Hello")
 
     def test_i18n_title(self):
         creator = SurveyCreator(
-            {'pages': [{'name': 'p1', 'title': 'Hello', 'elements': []}]},
-            language='fr',
-            i18n={'fr': {'Hello': 'Bonjour'}},
+            {"pages": [{"name": "p1", "title": "Hello", "elements": []}]},
+            language="fr",
+            i18n={"fr": {"Hello": "Bonjour"}},
         )
-        self.assertEqual(creator.pages[0].title, 'Bonjour')
+        self.assertEqual(creator.pages[0].title, "Bonjour")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

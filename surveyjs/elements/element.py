@@ -13,6 +13,7 @@ from .validators import run_validators
 # so we can have common question properties (is_required, validators, etc.) in one place.
 # 2. Make a Layout class that inherits from Element and all layout classes (panel) inherit from that.
 
+
 class Element:
     """
     Base class for all SurveyJS element types.
@@ -58,13 +59,14 @@ class Element:
         self._all_data = {}
 
         # i18n
-        self.language = kwargs.get('language', 'en')
-        self.i18n = kwargs.get('i18n', {})
+        self.language = kwargs.get("language", "en")
+        self.i18n = kwargs.get("i18n", {})
 
-        self.default_value = self.raw.get('defaultValue')
+        self.default_value = self.raw.get("defaultValue")
 
-    def load(self, element_owner, parent=None, data=None, is_form=False,
-             register_with_owner=True, register_with_parent=True):
+    def load(
+        self, element_owner, parent=None, data=None, is_form=False, register_with_owner=True, register_with_parent=True
+    ):
         """Load the element into its owner (Survey or Form) and populate
         data from form submission if applicable.
 
@@ -135,13 +137,13 @@ class Element:
         if self._panel_index is not None:
             # `%s`, not `%d`: a row key is a row *index* in a dynamic panel or
             # a dynamic matrix, and a row *name* in a matrixdropdown.
-            segments[-1] = '%s[%s]' % (segments[-1], self._panel_index)
+            segments[-1] = "%s[%s]" % (segments[-1], self._panel_index)
         return [*segments, self.name]
 
     @property
     def path_str(self):
         """`path` as a dotted string — e.g. 'contactPanel.phone'."""
-        return '.'.join(self.path)
+        return ".".join(self.path)
 
     @property
     def _data_prefix(self):
@@ -173,12 +175,12 @@ class Element:
     @property
     def input_path_str(self):
         """`input_path` rendered as a string — e.g. 'education[0].year'."""
-        rendered = ''
+        rendered = ""
         for segment in self.input_path:
             if isinstance(segment, int):
-                rendered += '[%d]' % segment
+                rendered += "[%d]" % segment
             else:
-                rendered += ('.' if rendered else '') + segment
+                rendered += ("." if rendered else "") + segment
         return rendered
 
     def get_value_from(self, data):
@@ -196,7 +198,7 @@ class Element:
     @property
     def name(self):
         """The unique name/key of the element."""
-        return self.raw.get('name', '')
+        return self.raw.get("name", "")
 
     @property
     def value_name(self):
@@ -205,17 +207,17 @@ class Element:
         `name`. `name` stays the identifier for lookups and paths.
 
         Questions that share a `valueName` share one value."""
-        return self.raw.get('valueName') or self.name
+        return self.raw.get("valueName") or self.name
 
     @property
     def type(self):
         """The SurveyJS element type."""
-        return self.raw.get('type', '')
+        return self.raw.get("type", "")
 
     @property
     def title(self):
         """The display title of the element, with text piping applied."""
-        return self._interpolate(self.translate(self.raw.get('title')) or self.translate(self.name))
+        return self._interpolate(self.translate(self.raw.get("title")) or self.translate(self.name))
 
     @property
     def label(self):
@@ -225,53 +227,53 @@ class Element:
     @property
     def description(self):
         """The element description/help text, with text piping applied."""
-        return self._interpolate(self.translate(self.raw.get('description', '')))
+        return self._interpolate(self.translate(self.raw.get("description", "")))
 
     @property
     def is_required(self):
         """Whether the element is required."""
-        return self.raw.get('isRequired', False)
+        return self.raw.get("isRequired", False)
 
     @property
     def is_visible(self):
         """Whether the element is visible."""
-        return self.raw.get('visible', True)
+        return self.raw.get("visible", True)
 
     @property
     def visible_if(self):
         """The visibleIf expression."""
-        return self.raw.get('visibleIf', '')
+        return self.raw.get("visibleIf", "")
 
     @property
     def enable_if(self):
         """The enableIf expression."""
-        return self.raw.get('enableIf', '')
+        return self.raw.get("enableIf", "")
 
     @property
     def read_only(self):
         """Whether the question is read-only."""
-        return self.raw.get('readOnly', False)
+        return self.raw.get("readOnly", False)
 
     @property
     def validators(self):
         """The list of validators."""
-        return self.raw.get('validators', [])
+        return self.raw.get("validators", [])
 
     @property
     def required_error_text(self):
         """Custom message shown when a required element is left empty, or None
         to fall back to the default template."""
-        return self.translate(self.raw.get('requiredErrorText'))
+        return self.translate(self.raw.get("requiredErrorText"))
 
     @property
     def input_type(self):
         """The input type (for text questions)."""
-        return self.raw.get('inputType', '')
+        return self.raw.get("inputType", "")
 
     @property
     def placeholder(self):
         """The placeholder text."""
-        return self.translate(self.raw.get('placeholder', ''))
+        return self.translate(self.raw.get("placeholder", ""))
 
     @property
     def start_with_new_line(self):
@@ -280,7 +282,7 @@ class Element:
 
         Disable this property if you want to render the current question on the
         same line or row with the previous question or panel."""
-        return self.raw.get('startWithNewLine', True)
+        return self.raw.get("startWithNewLine", True)
 
     @property
     def elements_on_same_line(self):
@@ -319,7 +321,7 @@ class Element:
         # Collect the group: start element + all consecutive followers
         # with start_with_new_line False.
         group = [owner_els[start]]
-        for el in owner_els[start + 1:]:
+        for el in owner_els[start + 1 :]:
             if el.start_with_new_line:
                 break
             group.append(el)
@@ -422,10 +424,10 @@ class Element:
         `{'value': …, 'text': …}`, its text translated. The text falls back to
         the value, as in SurveyJS."""
         if isinstance(choice, dict):
-            value = choice.get('value')
-            text = self.translate(choice.get('text'))
-            return {'value': value, 'text': text if text else str(value if value is not None else '')}
-        return {'value': choice, 'text': self.translate(str(choice))}
+            value = choice.get("value")
+            text = self.translate(choice.get("text"))
+            return {"value": value, "text": text if text else str(value if value is not None else "")}
+        return {"value": choice, "text": self.translate(str(choice))}
 
     def _interpolate(self, text):
         """Apply SurveyJS text piping to `text` for this element's row.
@@ -527,14 +529,14 @@ class Element:
 
         Always JSON-serialisable, and always the original when `value` is
         None because the submitted text could not be parsed."""
-        val = self.form.get('raw_value', self._none_value)
+        val = self.form.get("raw_value", self._none_value)
         if val is self._none_value:
             return self.default_value
         return val
 
     @raw_value.setter
     def raw_value(self, value):
-        self.form['raw_value'] = value
+        self.form["raw_value"] = value
 
     @property
     def value(self):
@@ -561,7 +563,7 @@ class Element:
           { value: any, text: string }.
           For example, Dropdown, Checkboxes, and Radio Button Group questions use this type for the choices property.
         """
-        return self.raw.get('customProperties', [])
+        return self.raw.get("customProperties", [])
 
     # --- Validation ---
 
@@ -604,8 +606,8 @@ class Element:
             return errors
         empty = self.is_empty()
         if self.is_required and empty:
-            msg_tmpl = self.required_error_text or self.translate('{{field}} is required')
-            errors['required'] = msg_tmpl.replace('{{field}}', self.label)
+            msg_tmpl = self.required_error_text or self.translate("{{field}} is required")
+            errors["required"] = msg_tmpl.replace("{{field}}", self.label)
         if not empty:
             errors.update(run_validators(self))
         return errors
@@ -634,13 +636,13 @@ class Element:
         check it before SurveyJS silently drops or misreads it."""
         spec = self.value_spec()
         if spec is None:
-            return ['%s: holds no value (type %s)' % (self.input_path_str, self.type)]
+            return ["%s: holds no value (type %s)" % (self.input_path_str, self.type)]
         return check_spec(spec, value, self.input_path_str)
 
     # --- Representation ---
 
     def __repr__(self):
-        return '<%s name=%s>' % (self.__class__.__name__, self.name)
+        return "<%s name=%s>" % (self.__class__.__name__, self.name)
 
     def to_dict(self):
         """Return a dictionary representation of the element (question).
@@ -648,8 +650,8 @@ class Element:
         Emits `raw_value` under the `value` key: a parsed `value` may be a
         `date`, which is not JSON-serialisable."""
         return {
-            'name': self.name,
-            'type': self.type,
-            'title': self.title,
-            'value': self.raw_value,
+            "name": self.name,
+            "type": self.type,
+            "title": self.title,
+            "value": self.raw_value,
         }

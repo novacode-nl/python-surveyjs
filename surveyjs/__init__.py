@@ -25,11 +25,11 @@ from surveyjs.page import Page
 from surveyjs.text import interpolate_text
 
 __all__ = [
-    'AmbiguousNameError',
-    'Page',
-    'SurveyCreator',
-    'SurveyForm',
-    'interpolate_text',
-    'parse_input_value',
-    'register_input_type',
+    "AmbiguousNameError",
+    "Page",
+    "SurveyCreator",
+    "SurveyForm",
+    "interpolate_text",
+    "parse_input_value",
+    "register_input_type",
 ]

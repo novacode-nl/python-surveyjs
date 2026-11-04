@@ -21,14 +21,7 @@ class SurveyCreator:
     element found in the schema.
     """
 
-    def __init__(
-        self,
-        schema_json,
-        language='default',
-        i18n=None,
-        element_class_mapping=None,
-        **kwargs
-    ):
+    def __init__(self, schema_json, language="default", i18n=None, element_class_mapping=None, **kwargs):
         """
         @param schema_json: SurveyJS Creator JSON schema (str or dict)
         @param language: Language code for translations (default: 'en')
@@ -69,11 +62,11 @@ class SurveyCreator:
 
     @property
     def title(self):
-        return self.schema.get('title', '')
+        return self.schema.get("title", "")
 
     @property
     def description(self):
-        return self.schema.get('description', '')
+        return self.schema.get("description", "")
 
     @property
     def components(self):
@@ -97,11 +90,11 @@ class SurveyCreator:
     def load_elements(self):
         """Load pages and their elements from the schema, handling both
         pages-based and flat elements-based schemas."""
-        pages_raw = self.schema.get('pages')
+        pages_raw = self.schema.get("pages")
         implicit = not pages_raw
         if implicit:
             # Pages-less schema: elements at top level become one implicit page.
-            pages_raw = [{'elements': self.schema.get('elements', [])}]
+            pages_raw = [{"elements": self.schema.get("elements", [])}]
 
         for index, page_raw in enumerate(pages_raw):
             page = Page(
@@ -113,7 +106,7 @@ class SurveyCreator:
                 implicit=implicit,
             )
             self.pages.append(page)
-            self._load_elements(page_raw.get('elements', []), page=page)
+            self._load_elements(page_raw.get("elements", []), page=page)
 
     def get_page_by_name(self, name):
         """Get a page by its name."""
@@ -125,7 +118,7 @@ class SurveyCreator:
     def get_element_by_path(self, path):
         """Get an element by its path — a dotted string or a list of names."""
         if not isinstance(path, str):
-            path = '.'.join(path)
+            path = ".".join(path)
         return self.all_element_paths.get(path)
 
     @property
@@ -155,9 +148,9 @@ class SurveyCreator:
         Questions in a plain panel are at the top level; those in a dynamic
         panel are part of its value."""
         return {
-            'type': 'object',
-            'properties': data_properties(self.elements.values()),
-            'additionalProperties': False,
+            "type": "object",
+            "properties": data_properties(self.elements.values()),
+            "additionalProperties": False,
         }
 
     def check_values(self, values):
@@ -170,12 +163,9 @@ class SurveyCreator:
         (a dynamic panel's question, which is set through the panel's value).
         Like `check_value()`, a message never contains a value."""
         if not isinstance(values, dict):
-            return ['expected an object (dict) keyed by question name, got %s'
-                    % type(values).__name__]
+            return ["expected an object (dict) keyed by question name, got %s" % type(values).__name__]
         top_level = {
-            element.name: element
-            for element in self.all_element_paths.values()
-            if len(element.input_path) == 1
+            element.name: element for element in self.all_element_paths.values() if len(element.input_path) == 1
         }
         problems = []
         for key, value in values.items():
@@ -187,17 +177,18 @@ class SurveyCreator:
             if nested:
                 problems.append(
                     "%s: not at the top level of the data; it is part of '%s' "
-                    "(path %s), so set it through that question's value" % (
-                        key, nested[0].input_path[0], [e.path_str for e in nested]))
+                    "(path %s), so set it through that question's value"
+                    % (key, nested[0].input_path[0], [e.path_str for e in nested])
+                )
             else:
-                problems.append('%s: no question has this name' % key)
+                problems.append("%s: no question has this name" % key)
         return problems
 
     def _load_elements(self, elements, parent=None, page=None, choice_value=None):
         """Recursively load elements from the schema. `choice_value` marks
         the questions inside a choice of `parent`."""
         for element in elements:
-            if 'type' not in element:
+            if "type" not in element:
                 continue
 
             element_obj = self.get_element_object(element)
@@ -223,11 +214,11 @@ class SurveyCreator:
             # Recurse into panel/paneldynamic nested elements. Note that
             # paneldynamic stores its children under ``templateElements``
             # (the per-row template), not ``elements``.
-            if element['type'] == 'panel':
-                nested = element.get('elements', [])
+            if element["type"] == "panel":
+                nested = element.get("elements", [])
                 self._load_elements(nested, parent=element_obj)
-            elif element['type'] == 'paneldynamic':
-                nested = element.get('templateElements', element.get('elements', []))
+            elif element["type"] == "paneldynamic":
+                nested = element.get("templateElements", element.get("elements", []))
                 self._load_elements(nested, parent=element_obj)
             elif element_obj.is_question:
                 for value, raw in element_obj.choice_elements():
@@ -235,7 +226,7 @@ class SurveyCreator:
 
     def get_element_class(self, element):
         """Dynamically load the element class based on the element type."""
-        element_type = element.get('type')
+        element_type = element.get("type")
         element_type_cap = element_type.capitalize() if element_type else None
         if not element_type:
             return None
@@ -250,30 +241,32 @@ class SurveyCreator:
             # path to a class of your own, e.g. 'myapp.widgets.MyText'.
             # The name is used verbatim — capitalising it would mangle the
             # CamelCase the class actually has.
-            if '.' in cls_mapping:
-                module_path, cls_name = cls_mapping.rsplit('.', 1)
+            if "." in cls_mapping:
+                module_path, cls_name = cls_mapping.rsplit(".", 1)
             else:
-                module_path, cls_name = 'surveyjs.elements.%s' % element_type, cls_mapping
+                module_path, cls_name = "surveyjs.elements.%s" % element_type, cls_mapping
 
             try:
                 module = __import__(module_path, fromlist=[cls_name])
                 return getattr(module, cls_name)
             except (AttributeError, ImportError) as e:
                 logger.warning(
-                    "Could not load element class for type '%s': %s. "
-                    "Falling back to base Question Element.", element_type, e
+                    "Could not load element class for type '%s': %s. Falling back to base Question Element.",
+                    element_type,
+                    e,
                 )
                 return Element
         else:
             cls_name = f"Question{element_type_cap}"
-            import_path = 'surveyjs.elements.%s' % element_type
+            import_path = "surveyjs.elements.%s" % element_type
             try:
                 module = __import__(import_path, fromlist=[cls_name])
                 return getattr(module, cls_name)
             except (AttributeError, ModuleNotFoundError) as e:
                 logger.warning(
-                    "Could not load question class for type '%s': %s. "
-                    "Falling back to base Question Element.", element_type, e
+                    "Could not load question class for type '%s': %s. Falling back to base Question Element.",
+                    element_type,
+                    e,
                 )
                 return Element
 

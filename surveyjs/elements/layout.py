@@ -22,7 +22,7 @@ class Layout(Element):
     @property
     def _layout_elements(self):
         """Get the raw nested elements."""
-        return self.raw.get('elements', [])
+        return self.raw.get("elements", [])
 
     def value_spec(self):
         """A layout element holds no value of its own; a panel's questions

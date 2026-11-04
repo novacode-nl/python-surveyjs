@@ -10,22 +10,21 @@ from tests.utils import load_creator, load_form
 
 
 class TestQuestionComment(unittest.TestCase):
-
     def setUp(self):
         self.survey = load_creator()
-        self.q = self.survey.questions['bio']
+        self.q = self.survey.questions["bio"]
 
     def test_class_type(self):
         self.assertIsInstance(self.q, QuestionComment)
 
     def test_type(self):
-        self.assertEqual(self.q.type, 'comment')
+        self.assertEqual(self.q.type, "comment")
 
     def test_title(self):
-        self.assertEqual(self.q.title, 'Biography')
+        self.assertEqual(self.q.title, "Biography")
 
     def test_description(self):
-        self.assertEqual(self.q.description, 'Tell us about yourself')
+        self.assertEqual(self.q.description, "Tell us about yourself")
 
     def test_max_length(self):
         self.assertEqual(self.q.max_length, 500)
@@ -44,17 +43,16 @@ class TestQuestionComment(unittest.TestCase):
 
 
 class TestCommentForm(unittest.TestCase):
-
     def setUp(self):
         self.form = load_form()
-        self.q = self.form.questions['bio']
+        self.q = self.form.questions["bio"]
 
     def test_value(self):
-        self.assertIn('Software developer', self.q.value)
+        self.assertIn("Software developer", self.q.value)
 
     def test_value_string(self):
         self.assertIsInstance(self.q.value, str)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

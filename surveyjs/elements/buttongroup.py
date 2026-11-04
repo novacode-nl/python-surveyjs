@@ -25,15 +25,17 @@ class QuestionButtongroup(QuestionRadiogroup):
         for choice in self.choices:
             item = self.choice_item(choice)
             extra = choice if isinstance(choice, dict) else {}
-            item.update({
-                'icon_name': extra.get('iconName'),
-                'icon_size': extra.get('iconSize', 24),
-                'show_caption': extra.get('showCaption', True),
-            })
+            item.update(
+                {
+                    "icon_name": extra.get("iconName"),
+                    "icon_size": extra.get("iconSize", 24),
+                    "show_caption": extra.get("showCaption", True),
+                }
+            )
             result.append(item)
         return result
 
     @property
     def allow_clear(self):
         """Whether the clear (deselect) button is shown."""
-        return self.raw.get('allowClear', True)
+        return self.raw.get("allowClear", True)

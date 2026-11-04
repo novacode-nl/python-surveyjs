@@ -20,14 +20,7 @@ class SurveyForm:
     Question (Element) objects with values populated from the submission.
     """
 
-    def __init__(
-        self,
-        form_json,
-        creator=None,
-        creator_schema_json=None,
-        lang=None,
-        **kwargs
-    ):
+    def __init__(self, form_json, creator=None, creator_schema_json=None, lang=None, **kwargs):
         """
         @param form_json: SurveyJS Form submission JSON (str or dict)
         @param creator: A SurveyCreator instance
@@ -38,9 +31,7 @@ class SurveyForm:
         """
 
         if creator and creator_schema_json:
-            raise ValueError(
-                "Constructor accepts either creator or creator_schema_json, not both."
-            )
+            raise ValueError("Constructor accepts either creator or creator_schema_json, not both.")
 
         if isinstance(form_json, dict):
             self.form = form_json
@@ -51,9 +42,7 @@ class SurveyForm:
         self.creator_schema_json = creator_schema_json
 
         if self.creator is None and self.creator_schema_json:
-            self.creator = SurveyCreator(
-                self.creator_schema_json,
-                **({'language': lang} if lang is not None else {}))
+            self.creator = SurveyCreator(self.creator_schema_json, **({"language": lang} if lang is not None else {}))
 
         if self.creator:
             if not isinstance(self.creator, SurveyCreator):
@@ -62,14 +51,12 @@ class SurveyForm:
             assert isinstance(self.creator_schema_json, str)
 
         else:
-            raise ValueError(
-                "Provide either the argument: creator or creator_schema_json."
-            )
+            raise ValueError("Provide either the argument: creator or creator_schema_json.")
 
         self.lang = lang if lang is not None else self.creator.language
         # defaults to English (en) date/time format
-        self.date_format = kwargs.get('date_format', '%m/%d/%Y')
-        self.time_format = kwargs.get('time_format', '%H:%M:%S')
+        self.date_format = kwargs.get("date_format", "%m/%d/%Y")
+        self.time_format = kwargs.get("time_format", "%H:%M:%S")
 
         # Pages, in schema order — mirrors the creator's pages, but holding
         # this form's element objects. Pages are not elements: they never
@@ -126,7 +113,7 @@ class SurveyForm:
 
     @property
     def input_components(self):
-        """ Alias for questions."""
+        """Alias for questions."""
         return self.questions
 
     def load_elements(self):
@@ -190,7 +177,7 @@ class SurveyForm:
     def get_element_by_path(self, path):
         """Get an element by its path — a dotted string or a list of names."""
         if not isinstance(path, str):
-            path = '.'.join(path)
+            path = ".".join(path)
         return self.all_element_paths.get(path)
 
     @property
@@ -261,6 +248,6 @@ class FormData:
         self._form = form
 
     def __getattr__(self, key):
-        if key.startswith('_'):
+        if key.startswith("_"):
             return super().__getattribute__(key)
         return self._form.questions.get(key)

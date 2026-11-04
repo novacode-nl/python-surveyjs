@@ -4,7 +4,7 @@
 import json
 import os
 
-DATA_DIR = os.path.join(os.path.dirname(__file__), 'data')
+DATA_DIR = os.path.join(os.path.dirname(__file__), "data")
 
 
 def readfile(filename):
@@ -22,14 +22,16 @@ def readjson(filename):
 def load_creator():
     """Load the test survey schema."""
     from surveyjs import SurveyCreator
-    schema = readjson('test_survey_schema.json')
+
+    schema = readjson("test_survey_schema.json")
     return SurveyCreator(schema)
 
 
 def load_form():
     """Load the test form with survey schema."""
     from surveyjs import SurveyCreator, SurveyForm
-    schema = readjson('test_survey_schema.json')
-    form_json = readjson('test_survey_form.json')
+
+    schema = readjson("test_survey_schema.json")
+    form_json = readjson("test_survey_form.json")
     creator = SurveyCreator(schema)
     return SurveyForm(form_json, creator=creator)

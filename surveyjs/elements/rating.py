@@ -12,42 +12,42 @@ class QuestionRating(Question):
 
     @property
     def rate_min(self):
-        return self.raw.get('rateMin', 1)
+        return self.raw.get("rateMin", 1)
 
     @property
     def rate_max(self):
-        return self.raw.get('rateMax', 5)
+        return self.raw.get("rateMax", 5)
 
     @property
     def rate_step(self):
-        return self.raw.get('rateStep', 1)
+        return self.raw.get("rateStep", 1)
 
     @property
     def rate_values(self):
         """Custom rate values, if specified."""
-        return self.raw.get('rateValues', [])
+        return self.raw.get("rateValues", [])
 
     @property
     def rate_count(self):
-        return self.raw.get('rateCount', 5)
+        return self.raw.get("rateCount", 5)
 
     @property
     def min_rate_description(self):
-        return self.translate(self.raw.get('minRateDescription', ''))
+        return self.translate(self.raw.get("minRateDescription", ""))
 
     @property
     def max_rate_description(self):
-        return self.translate(self.raw.get('maxRateDescription', ''))
+        return self.translate(self.raw.get("maxRateDescription", ""))
 
     @property
     def display_mode(self):
         """'auto', 'buttons', or 'dropdown'."""
-        return self.raw.get('displayMode', 'auto')
+        return self.raw.get("displayMode", "auto")
 
     @property
     def rate_type(self):
         """'labels', 'stars', or 'smileys'."""
-        return self.raw.get('rateType', 'labels')
+        return self.raw.get("rateType", "labels")
 
     def to_number(self):
         """Convert value to a number."""
@@ -68,5 +68,5 @@ class QuestionRating(Question):
         """One of `rate_values` when the schema lists them, else a number
         from `rate_min` to `rate_max`."""
         if self.rate_values:
-            return {'enum': [self.choice_item(v)['value'] for v in self.rate_values]}
-        return {'type': 'number', 'minimum': self.rate_min, 'maximum': self.rate_max}
+            return {"enum": [self.choice_item(v)["value"] for v in self.rate_values]}
+        return {"type": "number", "minimum": self.rate_min, "maximum": self.rate_max}

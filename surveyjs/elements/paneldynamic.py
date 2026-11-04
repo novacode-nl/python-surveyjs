@@ -24,7 +24,7 @@ class PanelInstance:
 
     @property
     def name(self):
-        return '%s[%d]' % (self.panel.name, self.index)
+        return "%s[%d]" % (self.panel.name, self.index)
 
     @property
     def title(self):
@@ -51,10 +51,7 @@ class PanelInstance:
         if not isinstance(row, dict):
             return row
         questions = self._questions_by_key(self.elements.values())
-        return {
-            key: questions[key].value if key in questions else raw
-            for key, raw in row.items()
-        }
+        return {key: questions[key].value if key in questions else raw for key, raw in row.items()}
 
     @classmethod
     def _questions_by_key(cls, elements):
@@ -83,13 +80,13 @@ class PanelInstance:
         return len(self.elements)
 
     def __repr__(self):
-        return '<PanelInstance name=%s>' % self.name
+        return "<PanelInstance name=%s>" % self.name
 
     def to_dict(self):
         return {
-            'name': self.name,
-            'index': self.index,
-            'elements': [el.to_dict() for el in self.elements.values()],
+            "name": self.name,
+            "index": self.index,
+            "elements": [el.to_dict() for el in self.elements.values()],
         }
 
 
@@ -171,10 +168,7 @@ class QuestionPaneldynamic(Question):
         if not is_form:
             return
 
-        self._panels = [
-            self._materialise_panel(index, row)
-            for index, row in enumerate(self.panels_data)
-        ]
+        self._panels = [self._materialise_panel(index, row) for index, row in enumerate(self.panels_data)]
 
     def _materialise_panel(self, index, row):
         """Build one `PanelInstance`: a fresh set of the template's children,
@@ -188,7 +182,7 @@ class QuestionPaneldynamic(Question):
         values = row if isinstance(row, dict) else {}
         elements = OrderedDict()
         for raw in self.template_elements:
-            if 'type' not in raw:
+            if "type" not in raw:
                 continue
             element_obj = self.survey.get_element_object(raw, language=self.language)
             if not element_obj:
@@ -222,40 +216,40 @@ class QuestionPaneldynamic(Question):
     @property
     def template_elements(self):
         """Template elements that repeat for each panel."""
-        return self.raw.get('templateElements', self.raw.get('elements', []))
+        return self.raw.get("templateElements", self.raw.get("elements", []))
 
     @property
     def panel_count(self):
         """Initial panel count."""
-        return self.raw.get('panelCount', 1)
+        return self.raw.get("panelCount", 1)
 
     @property
     def min_panel_count(self):
-        return self.raw.get('minPanelCount', 0)
+        return self.raw.get("minPanelCount", 0)
 
     @property
     def max_panel_count(self):
-        return self.raw.get('maxPanelCount', None)
+        return self.raw.get("maxPanelCount", None)
 
     @property
     def panel_add_text(self):
-        return self.translate(self.raw.get('panelAddText', 'Add New'))
+        return self.translate(self.raw.get("panelAddText", "Add New"))
 
     @property
     def panel_remove_text(self):
-        return self.translate(self.raw.get('panelRemoveText', 'Remove'))
+        return self.translate(self.raw.get("panelRemoveText", "Remove"))
 
     @property
     def allow_add_panel(self):
-        return self.raw.get('allowAddPanel', True)
+        return self.raw.get("allowAddPanel", True)
 
     @property
     def allow_remove_panel(self):
-        return self.raw.get('allowRemovePanel', True)
+        return self.raw.get("allowRemovePanel", True)
 
     @property
     def template_title(self):
-        return self.translate(self.raw.get('templateTitle', ''))
+        return self.translate(self.raw.get("templateTitle", ""))
 
     @property
     def panels_data(self):
@@ -309,10 +303,10 @@ class QuestionPaneldynamic(Question):
         """A list of panels, each an object keyed by the names of the
         template's questions."""
         return {
-            'type': 'array',
-            'items': {
-                'type': 'object',
-                'properties': data_properties(self.elements.values()),
-                'additionalProperties': False,
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": data_properties(self.elements.values()),
+                "additionalProperties": False,
             },
         }

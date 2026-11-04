@@ -13,12 +13,12 @@ class QuestionFile(Question):
     @property
     def store_data_as_text(self):
         """Whether files are stored as base64 text."""
-        return self.raw.get('storeDataAsText', True)
+        return self.raw.get("storeDataAsText", True)
 
     @property
     def allow_multiple(self):
         """Specifies whether users can upload multiple files."""
-        return self.raw.get('allowMultiple', False)
+        return self.raw.get("allowMultiple", False)
 
     @property
     def max_files(self):
@@ -26,27 +26,27 @@ class QuestionFile(Question):
         Default value: 1000
         Doc: https://surveyjs.io/form-library/documentation/api-reference/file-model#maxFiles"""
         if self.allow_multiple:
-            return self.raw.get('maxFiles', 1000)
+            return self.raw.get("maxFiles", 1000)
         else:
             return 1
 
     @property
     def max_size(self):
         """Maximum file size in bytes (0 = unlimited)."""
-        return self.raw.get('maxSize', 0)
+        return self.raw.get("maxSize", 0)
 
     @property
     def accepted_types(self):
         """Accepted file types (MIME types or extensions)."""
-        return self.raw.get('acceptedTypes', '')
+        return self.raw.get("acceptedTypes", "")
 
     @property
     def allow_camera_access(self):
-        return self.raw.get('allowCameraAccess', False)
+        return self.raw.get("allowCameraAccess", False)
 
     @property
     def source_type(self):
-        return self.raw.get('sourceType', 'file')
+        return self.raw.get("sourceType", "file")
 
     @property
     def files(self):
@@ -67,16 +67,16 @@ class QuestionFile(Question):
         """A list of file objects (`name`, `type`, and `content`: base64 data
         or a URL), also for a single file."""
         spec = {
-            'type': 'array',
-            'items': {
-                'type': 'object',
-                'properties': {
-                    'name': {'type': 'string'},
-                    'type': {'type': 'string'},
-                    'content': {'type': 'string'},
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "name": {"type": "string"},
+                    "type": {"type": "string"},
+                    "content": {"type": "string"},
                 },
             },
         }
         if not self.allow_multiple:
-            spec['maxItems'] = 1
+            spec["maxItems"] = 1
         return spec

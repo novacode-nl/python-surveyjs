@@ -10,39 +10,37 @@ from tests.utils import load_creator, load_form
 
 
 class TestQuestionExpression(unittest.TestCase):
-
     def setUp(self):
         self.survey = load_creator()
-        self.q = self.survey.questions['fullName']
+        self.q = self.survey.questions["fullName"]
 
     def test_class_type(self):
         self.assertIsInstance(self.q, QuestionExpression)
 
     def test_type(self):
-        self.assertEqual(self.q.type, 'expression')
+        self.assertEqual(self.q.type, "expression")
 
     def test_title(self):
-        self.assertEqual(self.q.title, 'Full Name')
+        self.assertEqual(self.q.title, "Full Name")
 
     def test_expression(self):
         self.assertEqual(self.q.expression, "{firstName} + ' Smith'")
 
     def test_display_style(self):
-        self.assertEqual(self.q.display_style, 'none')
+        self.assertEqual(self.q.display_style, "none")
 
 
 class TestExpressionForm(unittest.TestCase):
-
     def setUp(self):
         self.form = load_form()
-        self.q = self.form.questions['fullName']
+        self.q = self.form.questions["fullName"]
 
     def test_value(self):
-        self.assertEqual(self.q.value, 'Alice Smith')
+        self.assertEqual(self.q.value, "Alice Smith")
 
     def test_to_number_returns_none_for_string(self):
         self.assertIsNone(self.q.to_number())
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

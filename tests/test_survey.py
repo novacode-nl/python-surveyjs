@@ -9,26 +9,25 @@ from tests.utils import load_creator, readjson
 
 
 class TestSurvey(unittest.TestCase):
-
     def setUp(self):
         self.survey = load_creator()
 
     def test_title(self):
-        self.assertEqual(self.survey.title, 'Test Survey')
+        self.assertEqual(self.survey.title, "Test Survey")
 
     def test_description(self):
-        self.assertIn('comprehensive', self.survey.description)
+        self.assertIn("comprehensive", self.survey.description)
 
     def test_pages(self):
         self.assertEqual(len(self.survey.pages), 5)
 
     def test_pages_names(self):
         names = [p.name for p in self.survey.pages]
-        self.assertIn('page_basic_input', names)
-        self.assertIn('page_choice', names)
-        self.assertIn('page_special', names)
-        self.assertIn('page_matrix', names)
-        self.assertIn('page_layout', names)
+        self.assertIn("page_basic_input", names)
+        self.assertIn("page_choice", names)
+        self.assertIn("page_special", names)
+        self.assertIn("page_matrix", names)
+        self.assertIn("page_layout", names)
 
     def test_questions_loaded(self):
         """All top-level and nested questions should be loaded."""
@@ -37,61 +36,64 @@ class TestSurvey(unittest.TestCase):
     def test_questions(self):
         """Input questions should not include panel, html, image."""
         for name, q in self.survey.questions.items():
-            self.assertTrue(q.is_input, f'{name} should be an input question')
+            self.assertTrue(q.is_input, f"{name} should be an input question")
 
     def test_non_questions_excluded(self):
         """Panel, html, image should not be in input_questions."""
-        non_input = ['contactPanel', 'infoHtml', 'thankYouImage']
+        non_input = ["contactPanel", "infoHtml", "thankYouImage"]
         for name in non_input:
             self.assertNotIn(name, self.survey.questions)
 
     def test_non_questions_in_elements(self):
         """Panel, html, image should still be in elements dict."""
-        non_input = ['contactPanel', 'infoHtml', 'thankYouImage']
+        non_input = ["contactPanel", "infoHtml", "thankYouImage"]
         for name in non_input:
             self.assertIn(name, self.survey.elements)
 
     def test_question_types(self):
         """Verify some expected question types."""
-        self.assertEqual(self.survey.questions['firstName'].type, 'text')
-        self.assertEqual(self.survey.questions['bio'].type, 'comment')
-        self.assertEqual(self.survey.questions['favoriteColor'].type, 'radiogroup')
-        self.assertEqual(self.survey.questions['hobbies'].type, 'checkbox')
-        self.assertEqual(self.survey.questions['country'].type, 'dropdown')
-        self.assertEqual(self.survey.questions['agreeTerms'].type, 'boolean')
+        self.assertEqual(self.survey.questions["firstName"].type, "text")
+        self.assertEqual(self.survey.questions["bio"].type, "comment")
+        self.assertEqual(self.survey.questions["favoriteColor"].type, "radiogroup")
+        self.assertEqual(self.survey.questions["hobbies"].type, "checkbox")
+        self.assertEqual(self.survey.questions["country"].type, "dropdown")
+        self.assertEqual(self.survey.questions["agreeTerms"].type, "boolean")
 
     def test_question_custom_properties(self):
         """Custom properties should be accessible on the question."""
-        age = self.survey.questions['age']
+        age = self.survey.questions["age"]
         # 1st property
-        self.assertEqual(age.raw.get('customProperties')[0]['value'], 'change')
-        self.assertEqual(age.raw.get('customProperties')[0]['text'], 'change_age')
-        self.assertEqual(age.custom_properties[0]['value'], 'change')
-        self.assertEqual(age.custom_properties[0]['text'], 'change_age')
+        self.assertEqual(age.raw.get("customProperties")[0]["value"], "change")
+        self.assertEqual(age.raw.get("customProperties")[0]["text"], "change_age")
+        self.assertEqual(age.custom_properties[0]["value"], "change")
+        self.assertEqual(age.custom_properties[0]["text"], "change_age")
         # 2nd property
-        self.assertEqual(age.raw.get('customProperties')[1]['value'], 'api_validate')
-        self.assertEqual(age.raw.get('customProperties')[1]['text'], 'validate_age')
-        self.assertEqual(age.custom_properties[1]['value'], 'api_validate')
-        self.assertEqual(age.custom_properties[1]['text'], 'validate_age')
+        self.assertEqual(age.raw.get("customProperties")[1]["value"], "api_validate")
+        self.assertEqual(age.raw.get("customProperties")[1]["text"], "validate_age")
+        self.assertEqual(age.custom_properties[1]["value"], "api_validate")
+        self.assertEqual(age.custom_properties[1]["text"], "validate_age")
 
     def test_nested_panel_questions(self):
         """Questions inside panels should be loaded."""
-        self.assertIn('phone', self.survey.questions)
-        self.assertIn('website', self.survey.questions)
+        self.assertIn("phone", self.survey.questions)
+        self.assertIn("website", self.survey.questions)
 
     def test_survey_from_json_string(self):
         """Survey should accept a JSON string."""
         import json
-        schema = readjson('test_survey_schema.json')
+
+        schema = readjson("test_survey_schema.json")
         from surveyjs import SurveyCreator
+
         creator = SurveyCreator(json.dumps(schema))
-        self.assertEqual(creator.title, 'Test Survey')
+        self.assertEqual(creator.title, "Test Survey")
 
     def test_get_question_class_unknown(self):
         """Unknown question types should fall back to base Question."""
         from surveyjs.elements.element import Element
-        with self.assertLogs('surveyjs.creator', level='WARNING') as cm:
-            cls = self.survey.get_element_class({'type': 'unknowntype'})
+
+        with self.assertLogs("surveyjs.creator", level="WARNING") as cm:
+            cls = self.survey.get_element_class({"type": "unknowntype"})
         self.assertEqual(cls, Element)
         self.assertIn("Could not load question class for type 'unknowntype'", cm.output[0])
 
@@ -100,5 +102,5 @@ class TestSurvey(unittest.TestCase):
         self.assertEqual(self.survey.form, {})
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

@@ -14,24 +14,24 @@ class QuestionBoolean(Question):
 
     @property
     def label_true(self):
-        return self.translate(self.raw.get('labelTrue', 'Yes'))
+        return self.translate(self.raw.get("labelTrue", "Yes"))
 
     @property
     def label_false(self):
-        return self.translate(self.raw.get('labelFalse', 'No'))
+        return self.translate(self.raw.get("labelFalse", "No"))
 
     @property
     def value_true(self):
-        return self.raw.get('valueTrue', True)
+        return self.raw.get("valueTrue", True)
 
     @property
     def value_false(self):
-        return self.raw.get('valueFalse', False)
+        return self.raw.get("valueFalse", False)
 
     @property
     def render_as(self):
         """Render mode: 'default' (toggle) or 'checkbox' or 'radio'."""
-        return self.raw.get('renderAs', 'default')
+        return self.raw.get("renderAs", "default")
 
     @property
     def value(self):
@@ -62,6 +62,6 @@ class QuestionBoolean(Question):
 
     def value_spec(self):
         """True/False, or the schema's own `valueTrue`/`valueFalse`."""
-        if 'valueTrue' in self.raw or 'valueFalse' in self.raw:
-            return {'enum': [self.value_true, self.value_false]}
-        return {'type': 'boolean'}
+        if "valueTrue" in self.raw or "valueFalse" in self.raw:
+            return {"enum": [self.value_true, self.value_false]}
+        return {"type": "boolean"}

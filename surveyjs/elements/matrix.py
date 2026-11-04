@@ -14,7 +14,7 @@ class QuestionMatrix(Question):
     @property
     def columns(self):
         """Get the matrix columns."""
-        return self.raw.get('columns', [])
+        return self.raw.get("columns", [])
 
     @property
     def column_values(self):
@@ -24,7 +24,7 @@ class QuestionMatrix(Question):
     @property
     def rows(self):
         """Get the matrix rows."""
-        return self.raw.get('rows', [])
+        return self.raw.get("rows", [])
 
     @property
     def row_values(self):
@@ -33,7 +33,7 @@ class QuestionMatrix(Question):
 
     @property
     def is_all_row_required(self):
-        return self.raw.get('isAllRowRequired', False)
+        return self.raw.get("isAllRowRequired", False)
 
     def get_row_value(self, row_name):
         """Get the selected value for a specific row."""
@@ -44,9 +44,9 @@ class QuestionMatrix(Question):
 
     def value_spec(self):
         """An object keyed by row value, each row holding one column value."""
-        columns = {'enum': [column['value'] for column in self.column_values]}
+        columns = {"enum": [column["value"] for column in self.column_values]}
         return {
-            'type': 'object',
-            'properties': {row['value']: columns for row in self.row_values},
-            'additionalProperties': False,
+            "type": "object",
+            "properties": {row["value"]: columns for row in self.row_values},
+            "additionalProperties": False,
         }

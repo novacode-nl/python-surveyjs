@@ -31,20 +31,20 @@ import re
 #: SurveyJS default English messages, keyed by its localization string ids.
 #: `{0}`, `{1}`, `{2}` are filled positionally by `_format`.
 DEFAULT_MESSAGES = {
-    'numericError': 'The value should be numeric.',
-    'numericMin': "The '{0}' should be at least {1}",
-    'numericMax': "The '{0}' should be at most {1}",
-    'numericMinMax': "The '{0}' should be at least {1} and at most {2}",
-    'textMinLength': 'Please enter at least {0} character(s).',
-    'textMaxLength': 'Please enter no more than {0} character(s).',
-    'textMinMaxLength': 'Please enter at least {0} and no more than {1} characters.',
-    'textNoDigitsAllow': 'Numbers are not allowed.',
-    'minSelectError': 'Please select at least {0} option(s).',
-    'maxSelectError': 'Please select no more than {0} option(s).',
-    'invalidEmail': 'Please enter a valid e-mail address.',
+    "numericError": "The value should be numeric.",
+    "numericMin": "The '{0}' should be at least {1}",
+    "numericMax": "The '{0}' should be at most {1}",
+    "numericMinMax": "The '{0}' should be at least {1} and at most {2}",
+    "textMinLength": "Please enter at least {0} character(s).",
+    "textMaxLength": "Please enter no more than {0} character(s).",
+    "textMinMaxLength": "Please enter at least {0} and no more than {1} characters.",
+    "textNoDigitsAllow": "Numbers are not allowed.",
+    "minSelectError": "Please select at least {0} option(s).",
+    "maxSelectError": "Please select no more than {0} option(s).",
+    "invalidEmail": "Please enter a valid e-mail address.",
     # SurveyJS has no default text for a regex mismatch (authors set `text`);
     # this stands in when none is given.
-    'regexError': 'Entered value does not match the expected pattern.',
+    "regexError": "Entered value does not match the expected pattern.",
 }
 
 #: The email pattern SurveyJS itself uses.
@@ -59,7 +59,7 @@ def _format(template, *params):
     """Fill `{0}`, `{1}`, … placeholders in `template` positionally."""
     result = template
     for index, param in enumerate(params):
-        result = result.replace('{%d}' % index, str(param))
+        result = result.replace("{%d}" % index, str(param))
     return result
 
 
@@ -71,8 +71,7 @@ def _message(rule, element, key, *params):
     — the same lookup `Element.validation_errors` uses for the required
     message — and its placeholders filled with `params`.
     """
-    template = element.translate(rule.get('text')) or element.translate(
-        DEFAULT_MESSAGES.get(key, key))
+    template = element.translate(rule.get("text")) or element.translate(DEFAULT_MESSAGES.get(key, key))
     return _format(template, *params)
 
 
@@ -89,10 +88,10 @@ def _to_number(value):
         text = str(value).strip()
     except (TypeError, ValueError):
         return None
-    if text == '':
+    if text == "":
         return None
     try:
-        return float(text) if ('.' in text or 'e' in text.lower()) else int(text)
+        return float(text) if ("." in text or "e" in text.lower()) else int(text)
     except ValueError:
         return None
 
@@ -101,10 +100,10 @@ def validate_numeric(value, rule, element):
     """`type: "numeric"` — value must be a number within [minValue, maxValue]."""
     num = _to_number(value)
     if num is None:
-        return _message(rule, element, 'numericError')
+        return _message(rule, element, "numericError")
 
-    min_value = rule.get('minValue')
-    max_value = rule.get('maxValue')
+    min_value = rule.get("minValue")
+    max_value = rule.get("maxValue")
     below = min_value is not None and num < min_value
     above = max_value is not None and num > max_value
     if not (below or above):
@@ -112,21 +111,21 @@ def validate_numeric(value, rule, element):
 
     name = element.title
     if min_value is not None and max_value is not None:
-        return _message(rule, element, 'numericMinMax', name, min_value, max_value)
+        return _message(rule, element, "numericMinMax", name, min_value, max_value)
     if below:
-        return _message(rule, element, 'numericMin', name, min_value)
-    return _message(rule, element, 'numericMax', name, max_value)
+        return _message(rule, element, "numericMin", name, min_value)
+    return _message(rule, element, "numericMax", name, max_value)
 
 
 def validate_text(value, rule, element):
     """`type: "text"` — length bounds and an optional no-digits rule."""
     text = value if isinstance(value, str) else str(value)
 
-    if rule.get('allowDigits') is False and any(ch.isdigit() for ch in text):
-        return _message(rule, element, 'textNoDigitsAllow')
+    if rule.get("allowDigits") is False and any(ch.isdigit() for ch in text):
+        return _message(rule, element, "textNoDigitsAllow")
 
-    min_length = rule.get('minLength') or 0
-    max_length = rule.get('maxLength') or 0
+    min_length = rule.get("minLength") or 0
+    max_length = rule.get("maxLength") or 0
     length = len(text)
     too_short = min_length > 0 and length < min_length
     too_long = max_length > 0 and length > max_length
@@ -134,10 +133,10 @@ def validate_text(value, rule, element):
         return None
 
     if min_length > 0 and max_length > 0:
-        return _message(rule, element, 'textMinMaxLength', min_length, max_length)
+        return _message(rule, element, "textMinMaxLength", min_length, max_length)
     if too_short:
-        return _message(rule, element, 'textMinLength', min_length)
-    return _message(rule, element, 'textMaxLength', max_length)
+        return _message(rule, element, "textMinLength", min_length)
+    return _message(rule, element, "textMaxLength", max_length)
 
 
 def validate_answercount(value, rule, element):
@@ -151,12 +150,12 @@ def validate_answercount(value, rule, element):
     if count == 0:
         return None
 
-    min_count = rule.get('minCount')
-    max_count = rule.get('maxCount')
+    min_count = rule.get("minCount")
+    max_count = rule.get("maxCount")
     if min_count and count < min_count:
-        return _message(rule, element, 'minSelectError', min_count)
+        return _message(rule, element, "minSelectError", min_count)
     if max_count and count > max_count:
-        return _message(rule, element, 'maxSelectError', max_count)
+        return _message(rule, element, "maxSelectError", max_count)
     return None
 
 
@@ -165,10 +164,10 @@ def validate_regex(value, rule, element):
 
     Each element of an array answer is tested; a value that fails to compile
     (an author typo) is treated as no constraint rather than a crash."""
-    pattern = rule.get('regex')
+    pattern = rule.get("regex")
     if not pattern:
         return None
-    flags = re.IGNORECASE if rule.get('caseInsensitive') else 0
+    flags = re.IGNORECASE if rule.get("caseInsensitive") else 0
     try:
         compiled = re.compile(pattern, flags)
     except re.error:
@@ -176,10 +175,10 @@ def validate_regex(value, rule, element):
 
     values = value if isinstance(value, list) else [value]
     for item in values:
-        if item in (None, ''):
+        if item in (None, ""):
             continue
         if not compiled.search(str(item)):
-            return _message(rule, element, 'regexError')
+            return _message(rule, element, "regexError")
     return None
 
 
@@ -189,17 +188,17 @@ def validate_email(value, rule, element):
     if not text:
         return None
     if not EMAIL_RE.match(text):
-        return _message(rule, element, 'invalidEmail')
+        return _message(rule, element, "invalidEmail")
     return None
 
 
 #: validator `type` -> function. Types absent here are skipped.
 VALIDATORS = {
-    'numeric': validate_numeric,
-    'text': validate_text,
-    'answercount': validate_answercount,
-    'regex': validate_regex,
-    'email': validate_email,
+    "numeric": validate_numeric,
+    "text": validate_text,
+    "answercount": validate_answercount,
+    "regex": validate_regex,
+    "email": validate_email,
 }
 
 
@@ -207,9 +206,11 @@ def register_validator(type_name):
     """Register (or replace) the function for a validator `type`.
 
     Usable as a decorator; see the module docstring."""
+
     def decorator(fn):
         VALIDATORS[type_name] = fn
         return fn
+
     return decorator
 
 
@@ -224,10 +225,10 @@ def run_validators(element):
     for rule in element.validators:
         if not isinstance(rule, dict):
             continue
-        fn = VALIDATORS.get(rule.get('type'))
+        fn = VALIDATORS.get(rule.get("type"))
         if fn is None:
             continue
         message = fn(value, rule, element)
         if message:
-            errors[rule.get('type')] = message
+            errors[rule.get("type")] = message
     return errors

@@ -10,30 +10,29 @@ from tests.utils import load_creator, load_form
 
 
 class TestQuestionRanking(unittest.TestCase):
-
     def setUp(self):
         self.survey = load_creator()
-        self.q = self.survey.questions['priorityItems']
+        self.q = self.survey.questions["priorityItems"]
 
     def test_class_type(self):
         self.assertIsInstance(self.q, QuestionRanking)
 
     def test_type(self):
-        self.assertEqual(self.q.type, 'ranking')
+        self.assertEqual(self.q.type, "ranking")
 
     def test_title(self):
-        self.assertEqual(self.q.title, 'Prioritize Items')
+        self.assertEqual(self.q.title, "Prioritize Items")
 
     def test_choices(self):
         self.assertEqual(len(self.q.choices), 4)
 
     def test_choices_values(self):
         values = self.q.choices_values
-        val_names = [v['value'] for v in values]
-        self.assertIn('price', val_names)
-        self.assertIn('quality', val_names)
-        self.assertIn('speed', val_names)
-        self.assertIn('support', val_names)
+        val_names = [v["value"] for v in values]
+        self.assertIn("price", val_names)
+        self.assertIn("quality", val_names)
+        self.assertIn("speed", val_names)
+        self.assertIn("support", val_names)
 
     def test_long_tap(self):
         self.assertTrue(self.q.long_tap)
@@ -43,24 +42,21 @@ class TestQuestionRanking(unittest.TestCase):
 
 
 class TestRankingForm(unittest.TestCase):
-
     def setUp(self):
         self.form = load_form()
-        self.q = self.form.questions['priorityItems']
+        self.q = self.form.questions["priorityItems"]
 
     def test_value_is_list(self):
         self.assertIsInstance(self.q.value, list)
 
     def test_value_contents(self):
-        self.assertEqual(
-            self.q.value, ['quality', 'price', 'support', 'speed']
-        )
+        self.assertEqual(self.q.value, ["quality", "price", "support", "speed"])
 
     def test_value_order(self):
         """First item should be highest priority."""
-        self.assertEqual(self.q.value[0], 'quality')
-        self.assertEqual(self.q.value[-1], 'speed')
+        self.assertEqual(self.q.value[0], "quality")
+        self.assertEqual(self.q.value[-1], "speed")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

@@ -19,18 +19,18 @@ class QuestionMatrixdropdown(MatrixColumnsMixin, Question):
     @property
     def rows(self):
         """Get the matrix rows."""
-        return self.raw.get('rows', [])
+        return self.raw.get("rows", [])
 
     @property
     def cell_type(self):
         """Default cell type for all columns: 'dropdown', 'checkbox',
         'radiogroup', 'text', 'comment', 'boolean', 'expression', 'rating'."""
-        return self.raw.get('cellType', 'dropdown')
+        return self.raw.get("cellType", "dropdown")
 
     @property
     def choices(self):
         """Default choices for all columns."""
-        return self.raw.get('choices', [])
+        return self.raw.get("choices", [])
 
     @property
     def row_count(self):
@@ -45,7 +45,7 @@ class QuestionMatrixdropdown(MatrixColumnsMixin, Question):
         """
         names = []
         for row in self.rows:
-            name = row.get('value') if isinstance(row, dict) else row
+            name = row.get("value") if isinstance(row, dict) else row
             if name is not None:
                 names.append(name)
         return names
@@ -57,10 +57,7 @@ class QuestionMatrixdropdown(MatrixColumnsMixin, Question):
         val = self.raw_value
         if not isinstance(val, dict):
             return val
-        return {
-            name: self._parse_row(name, row) if isinstance(row, dict) else row
-            for name, row in val.items()
-        }
+        return {name: self._parse_row(name, row) if isinstance(row, dict) else row for name, row in val.items()}
 
     def _iter_rows(self):
         """A matrixdropdown's rows are the ones its schema declares, keyed by
@@ -70,10 +67,7 @@ class QuestionMatrixdropdown(MatrixColumnsMixin, Question):
         still has its cells — a matrixdropdown shows every row it declares,
         answered or not.
         """
-        return (
-            (name, self.get_row_raw_value(name))
-            for name in self.row_names
-        )
+        return ((name, self.get_row_raw_value(name)) for name in self.row_names)
 
     def get_row_raw_value(self, row_name):
         """Get a row's cell dict, exactly as submitted."""
@@ -104,7 +98,7 @@ class QuestionMatrixdropdown(MatrixColumnsMixin, Question):
         """An object keyed by row name, each row an object of cells."""
         row = self._row_spec()
         return {
-            'type': 'object',
-            'properties': dict.fromkeys(self.row_names, row),
-            'additionalProperties': False,
+            "type": "object",
+            "properties": dict.fromkeys(self.row_names, row),
+            "additionalProperties": False,
         }

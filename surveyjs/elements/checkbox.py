@@ -14,7 +14,7 @@ class QuestionCheckbox(Question):
 
     @property
     def choices(self):
-        return self.raw.get('choices', [])
+        return self.raw.get("choices", [])
 
     @property
     def choices_values(self):
@@ -25,7 +25,7 @@ class QuestionCheckbox(Question):
     def value_property_name(self):
         """`valuePropertyName`: store each picked item as an object with the
         choice value under this key, e.g. `[{"car": "Ford"}]`. '' when not set."""
-        return self.raw.get('valuePropertyName', '')
+        return self.raw.get("valuePropertyName", "")
 
     @property
     def value(self):
@@ -44,7 +44,7 @@ class QuestionCheckbox(Question):
     def _item_object_field(self):
         if self.value_property_name:
             return self.value_property_name
-        return self._choice_value_field if self._has_choice_comments() else ''
+        return self._choice_value_field if self._has_choice_comments() else ""
 
     @property
     def value_texts(self):
@@ -52,28 +52,28 @@ class QuestionCheckbox(Question):
         val = self.value
         if not val or not isinstance(val, list):
             return []
-        choice_map = {c['value']: c['text'] for c in self.choices_values}
+        choice_map = {c["value"]: c["text"] for c in self.choices_values}
         return [self._choice_text(v, choice_map) for v in val]
 
     @property
     def has_none(self):
-        return self.raw.get('showNoneItem', self.raw.get('hasNone', False))
+        return self.raw.get("showNoneItem", self.raw.get("hasNone", False))
 
     @property
     def has_select_all(self):
-        return self.raw.get('showSelectAllItem', self.raw.get('hasSelectAll', False))
+        return self.raw.get("showSelectAllItem", self.raw.get("hasSelectAll", False))
 
     @property
     def max_selected_choices(self):
-        return self.raw.get('maxSelectedChoices', 0)
+        return self.raw.get("maxSelectedChoices", 0)
 
     @property
     def min_selected_choices(self):
-        return self.raw.get('minSelectedChoices', 0)
+        return self.raw.get("minSelectedChoices", 0)
 
     @property
     def col_count(self):
-        return self.raw.get('colCount', 0)
+        return self.raw.get("colCount", 0)
 
     def value_spec(self):
         """A list of choice values, or of objects (`[{"car": "Ford"}]`) when
@@ -81,5 +81,5 @@ class QuestionCheckbox(Question):
         form SurveyJS stores. `value` returns the plain choice values."""
         spec = self._choices_spec(multiple=True)
         if self.max_selected_choices:
-            spec['maxItems'] = self.max_selected_choices
+            spec["maxItems"] = self.max_selected_choices
         return spec

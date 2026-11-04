@@ -18,26 +18,26 @@ class QuestionImage(Layout):
     @property
     def image_link(self):
         """Get the image URL."""
-        return self.raw.get('imageLink', '')
+        return self.raw.get("imageLink", "")
 
     @property
     def image_fit(self):
         """Image fit: 'contain', 'cover', 'fill', 'none'."""
-        return self.raw.get('imageFit', 'contain')
+        return self.raw.get("imageFit", "contain")
 
     @property
     def image_height(self):
-        return self.raw.get('imageHeight', 150)
+        return self.raw.get("imageHeight", 150)
 
     @property
     def image_width(self):
-        return self.raw.get('imageWidth', 200)
+        return self.raw.get("imageWidth", 200)
 
     @property
     def alt_text(self):
-        return self.translate(self.raw.get('altText', ''))
+        return self.translate(self.raw.get("altText", ""))
 
     @property
     def content_mode(self):
         """Content mode: 'image', 'video', 'youtube'."""
-        return self.raw.get('contentMode', 'image')
+        return self.raw.get("contentMode", "image")

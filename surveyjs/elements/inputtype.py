@@ -27,8 +27,8 @@ password, color) pass their value through unchanged.
 from datetime import date, datetime, time
 
 #: Formats accepted for each temporal input type, most specific first.
-DATETIME_FORMATS = ('%Y-%m-%dT%H:%M:%S', '%Y-%m-%dT%H:%M', '%Y-%m-%d %H:%M:%S', '%Y-%m-%d %H:%M')
-TIME_FORMATS = ('%H:%M:%S', '%H:%M')
+DATETIME_FORMATS = ("%Y-%m-%dT%H:%M:%S", "%Y-%m-%dT%H:%M", "%Y-%m-%d %H:%M:%S", "%Y-%m-%d %H:%M")
+TIME_FORMATS = ("%H:%M:%S", "%H:%M")
 
 
 def _strptime(value, formats):
@@ -39,7 +39,7 @@ def _strptime(value, formats):
             return datetime.strptime(text, fmt)
         except ValueError:
             continue
-    raise ValueError('%r matches none of %r' % (text, formats))
+    raise ValueError("%r matches none of %r" % (text, formats))
 
 
 def parse_date(value):
@@ -50,7 +50,7 @@ def parse_date(value):
         return value.date()
     if isinstance(value, date):
         return value
-    return _strptime(value, ('%Y-%m-%d',)).date()
+    return _strptime(value, ("%Y-%m-%d",)).date()
 
 
 def parse_datetime(value):
@@ -77,7 +77,7 @@ def parse_month(value):
         return value.date().replace(day=1)
     if isinstance(value, date):
         return value.replace(day=1)
-    return _strptime(value, ('%Y-%m',)).date()
+    return _strptime(value, ("%Y-%m",)).date()
 
 
 def parse_week(value):
@@ -88,23 +88,23 @@ def parse_week(value):
         return value.date()
     if isinstance(value, date):
         return value
-    year, week = str(value).split('-W')
+    year, week = str(value).split("-W")
     return date.fromisocalendar(int(year), int(week), 1)
 
 
 def parse_number(value):
     """`inputType: "number"` / `"range"` — '42' -> 42, '4.2' -> 4.2."""
     if isinstance(value, bool):
-        raise TypeError('bool is not a number')
+        raise TypeError("bool is not a number")
     if isinstance(value, (int, float)):
         return value
     text = str(value)
-    return float(text) if '.' in text else int(text)
+    return float(text) if "." in text else int(text)
 
 
 #: Strings accepted as a boolean, compared case-insensitively.
-TRUE_STRINGS = ('true', 'yes', 'on', '1')
-FALSE_STRINGS = ('false', 'no', 'off', '0')
+TRUE_STRINGS = ("true", "yes", "on", "1")
+FALSE_STRINGS = ("false", "no", "off", "0")
 
 
 def parse_boolean(value, value_true=True, value_false=False):
@@ -123,19 +123,19 @@ def parse_boolean(value, value_true=True, value_false=False):
         return True
     if text in FALSE_STRINGS:
         return False
-    raise ValueError('%r is not a boolean' % (value,))
+    raise ValueError("%r is not a boolean" % (value,))
 
 
 #: inputType -> parser. Types absent here pass their value through unchanged.
 INPUT_TYPE_PARSERS = {
-    'boolean': parse_boolean,
-    'date': parse_date,
-    'datetime-local': parse_datetime,
-    'time': parse_time,
-    'month': parse_month,
-    'week': parse_week,
-    'number': parse_number,
-    'range': parse_number,
+    "boolean": parse_boolean,
+    "date": parse_date,
+    "datetime-local": parse_datetime,
+    "time": parse_time,
+    "month": parse_month,
+    "week": parse_week,
+    "number": parse_number,
+    "range": parse_number,
 }
 
 
