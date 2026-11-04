@@ -1,0 +1,11 @@
+# Runs Ruff on the staged files before each commit: the same checks as CI.
+# Set up once with `poetry run pre-commit install`, see CONTRIBUTING.md.
+#
+# Keep `rev` at the Ruff version in pyproject.toml ([tool.poetry.group.dev.dependencies]).
+repos:
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.17.1
+    hooks:
+      - id: ruff-check
+        args: [--fix]
+      - id: ruff-format

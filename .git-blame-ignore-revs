@@ -1,0 +1,5 @@
+# Commits that only change the code layout, skipped by `git blame` (GitHub
+# reads this file too). Locally: git config blame.ignoreRevsFile .git-blame-ignore-revs
+
+# Format the code with ruff format
+4a69e94019d2618e870c651926bd69bd4dbcb19a

@@ -41,7 +41,7 @@ alternatives you have considered.
    (see [Coding Guidelines](#coding-guidelines)).
 4. Add or update tests that cover your change.
 5. Ensure the full test suite passes and Ruff reports no problems (see
-   [Running Tests](#running-tests) and [Linting](#linting)).
+   [Running Tests](#running-tests) and [Linting and formatting](#linting-and-formatting)).
 6. Add a draft entry under `## Unreleased` in [CHANGELOG.md](CHANGELOG.md) for
    any user-visible change (see [Changelog](#changelog)); maintainers may
    reword or move it. Leave `version` in `pyproject.toml` as it is:
@@ -97,10 +97,10 @@ Alternatively, with `pip`:
 pip install -e .
 ```
 
-This does not install [Ruff](#linting): install the version pinned under
-`[tool.poetry.group.dev.dependencies]` in [pyproject.toml](pyproject.toml)
-yourself, e.g. `pip install ruff==<version>`. Run the commands below without
-`poetry run`.
+This does not install [Ruff and pre-commit](#linting-and-formatting): install
+the versions pinned under `[tool.poetry.group.dev.dependencies]` in
+[pyproject.toml](pyproject.toml) yourself, e.g. `pip install ruff==<version>
+pre-commit==<version>`. Run the commands below without `poetry run`.
 
 ## Running Tests
 
@@ -113,22 +113,44 @@ poetry run python -m unittest
 Please make sure all tests pass, and add new tests for any code you change or
 add.
 
-## Linting
+## Linting and formatting
 
-The code is checked with [Ruff](https://docs.astral.sh/ruff/), on every push
-too. Its version and rules are in [pyproject.toml](pyproject.toml), and
-`poetry install` installs it:
+The code is checked and formatted with [Ruff](https://docs.astral.sh/ruff/),
+also on every push. Its version and rules are in
+[pyproject.toml](pyproject.toml), and `poetry install` installs it:
 
 ```sh
 poetry run ruff check          # report problems
 poetry run ruff check --fix    # fix what Ruff can fix itself
+poetry run ruff format         # format the code (also Python code in Markdown)
+```
+
+To run both on the changed files before each commit, install the
+[pre-commit](https://pre-commit.com/) hook once (Python 3.11 or newer):
+
+```sh
+poetry run pre-commit install
+```
+
+A commit then stops when Ruff fixed or reformatted a file: check the changes,
+`git add` them and commit again. The hooks are in
+[.pre-commit-config.yaml](.pre-commit-config.yaml); keep their Ruff version at
+the one in pyproject.toml.
+
+The commit that formatted the whole code base is listed in
+[.git-blame-ignore-revs](.git-blame-ignore-revs). GitHub skips it in its blame
+view; for `git blame`, run once:
+
+```sh
+git config blame.ignoreRevsFile .git-blame-ignore-revs
 ```
 
 ## Coding Guidelines
 
 - Keep changes focused; one logical change per pull request.
-- Match the existing code style and naming conventions, and make sure
-  `poetry run ruff check` passes (see [Linting](#linting)).
+- Match the existing naming conventions, and make sure `poetry run ruff check`
+  and `poetry run ruff format --check` pass (see
+  [Linting and formatting](#linting-and-formatting)).
 - Start every Python file with the project copyright header (keep the original
   year or add the current year, e.g. `2026-2027`); Ruff checks it:
 

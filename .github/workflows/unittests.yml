@@ -1,9 +1,12 @@
 name: Unit tests
 
 on:
+  # Pushes to main, and every pull request (also from forks and Dependabot).
+  # A branch without a pull request is not checked: open a draft one.
   push:
     branches:
-      - '**'
+      - main
+  pull_request:
 
 jobs:
   tests:
@@ -32,6 +35,9 @@ jobs:
     # pyproject.toml.
     - name: Lint with Ruff
       run: nix-shell --run "poetry run ruff check"
+
+    - name: Check the formatting with Ruff
+      run: nix-shell --run "poetry run ruff format --check"
 
     - name: Run the tests
       run: nix-shell --run "poetry run python -m unittest"
