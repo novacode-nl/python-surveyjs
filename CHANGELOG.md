@@ -4,6 +4,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## Unreleased
 
+## 1.0.0
+
+The API is now stable: from this version on, a breaking change only comes with a new major version (2.0.0). Version 0.x has been in production use for months; 1.0.0 has the API of 0.11.0.
+
 ### Removed
 
 - Support for Python 3.8 and 3.9, which reached their end of life in October 2024 and October 2025. The package needs Python 3.10 or newer.

@@ -196,11 +196,12 @@ commit that built it. There is no manual upload and no API token.
 To release (maintainers only):
 
 1. Bump `version` in [pyproject.toml](pyproject.toml):
-   - a patch version (`0.9.1`) for fixes, or for changes that leave the code
+   - a patch version (`1.0.1`) for fixes, or for changes that leave the code
      as it is;
-   - a minor version (`0.10.0`) for new features. Before 1.0.0, breaking
-     changes also go in a minor version; from 1.0.0 on, they need a major
-     version (`2.0.0`).
+   - a minor version (`1.1.0`) for new features;
+   - a major version (`2.0.0`) for breaking changes. Where possible, deprecate
+     first (keep the old behaviour with a warning) and remove it in the next
+     major version.
 2. In [CHANGELOG.md](CHANGELOG.md), rename `## Unreleased` to `## X.Y.Z` and
    add a new, empty `## Unreleased` above it.
 3. Push to `main`, or merge the pull request with the version bump.
