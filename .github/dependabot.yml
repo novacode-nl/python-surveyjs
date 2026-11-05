@@ -1,6 +1,6 @@
-# Opens a pull request when a newer Ruff (pyproject.toml) or GitHub Action
-# version is out, but only once that version is 30 days old (60 for a new
-# major version). Security updates are not delayed.
+# Opens a pull request when a newer Ruff (pyproject.toml and the pre-commit
+# hook) or GitHub Action version is out, but only once that version is 30 days
+# old (60 for a new major version). Security updates are not delayed.
 version: 2
 updates:
   - package-ecosystem: pip
@@ -10,6 +10,16 @@ updates:
     cooldown:
       default-days: 30
       semver-major-days: 60
+
+  # The pre-commit hook's rev, the same Ruff as in pyproject.toml: its pull
+  # request comes with the pip one, merge them together. pre-commit only
+  # supports default-days.
+  - package-ecosystem: pre-commit
+    directory: /
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 30
 
   # Workflows use major tags (@v5), so the updates here are new major
   # versions; github-actions only supports default-days.

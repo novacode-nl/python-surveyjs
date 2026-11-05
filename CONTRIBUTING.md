@@ -134,8 +134,9 @@ poetry run pre-commit install
 
 A commit then stops when Ruff fixed or reformatted a file: check the changes,
 `git add` them and commit again. The hooks are in
-[.pre-commit-config.yaml](.pre-commit-config.yaml); keep their Ruff version at
-the one in pyproject.toml.
+[.pre-commit-config.yaml](.pre-commit-config.yaml), with the same Ruff version
+as pyproject.toml. Dependabot updates both, in two pull requests: merge them
+together.
 
 The commit that formatted the whole code base is listed in
 [.git-blame-ignore-revs](.git-blame-ignore-revs). GitHub skips it in its blame

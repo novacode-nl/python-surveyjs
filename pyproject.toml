@@ -70,7 +70,8 @@ min-file-size = 0
 ]
 
 [tool.poetry.group.dev.dependencies]
-# Keep at the `rev` of ruff-pre-commit in .pre-commit-config.yaml.
+# The same version as the `rev` of ruff-pre-commit in .pre-commit-config.yaml;
+# Dependabot updates both, in two pull requests: merge them together.
 ruff = "0.17.1"
 pre-commit = {version = "4.7.0", python = ">=3.11"}
 
