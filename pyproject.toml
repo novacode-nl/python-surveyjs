@@ -5,11 +5,12 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "surveyjs"
 version = "1.0.0"
-description = "Python API for SurveyJS Creator (Form Builder) JSON schema and Form response JSON."
+description = "Python object API for SurveyJS JSON: Creator (form builder) schemas and form submissions."
 readme = "README.md"
 license = "MIT"
 license-files = ["LICENSE"]
 requires-python = ">=3.10"
+keywords = ["surveyjs", "survey", "form", "form builder", "json", "schema", "submission"]
 authors = [
     {name = "Nova Code BV", email = "contact@novaforms.io"}
 ]

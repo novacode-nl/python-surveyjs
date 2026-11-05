@@ -4,7 +4,7 @@
 
 # surveyjs (Python)
 
-Python API for SurveyJS Creator (Form Builder) schema and Form response JSON.
+Python object API for SurveyJS JSON: Creator (form builder) schemas and form submissions.
 
 For information about the SurveyJS project, see <https://surveyjs.io>
 
