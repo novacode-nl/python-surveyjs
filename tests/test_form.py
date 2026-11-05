@@ -6,7 +6,7 @@
 import json
 import unittest
 
-from surveyjs import SurveyForm
+from surveyjs import SurveyCreator, SurveyForm
 from tests.utils import load_creator, load_form, readfile, readjson
 
 
@@ -62,6 +62,15 @@ class TestForm(unittest.TestCase):
         form_data = readjson("test_survey_form.json")
         with self.assertRaisesRegex(ValueError, "Provide either the argument: creator or creator_schema_json"):
             SurveyForm(form_data)
+
+    def test_unknown_argument_raises(self):
+        """An unknown (or misspelled) argument is not silently ignored."""
+        form_data = readjson("test_survey_form.json")
+        creator = load_creator()
+        with self.assertRaises(TypeError):
+            SurveyForm(form_data, creator, date_format="%d-%m-%Y")
+        with self.assertRaises(TypeError):
+            SurveyCreator(readjson("test_survey_schema.json"), langauge="fr")
 
     def test_form_from_json_string(self):
         """Form should accept a JSON string for form_json."""

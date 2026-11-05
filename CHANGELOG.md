@@ -4,6 +4,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## Unreleased
 
+### Breaking Changes
+
+- `SurveyForm` no longer accepts `date_format` and `time_format`, and no longer has the `date_format`/`time_format` attributes. They were stored but never used. Remove these arguments from your `SurveyForm(...)` calls.
+- `SurveyForm` and `SurveyCreator` no longer accept unknown keyword arguments: they raise `TypeError` instead of ignoring them, so a misspelled argument is no longer silently lost.
+
 ## 0.10.0
 
 ### Breaking Changes

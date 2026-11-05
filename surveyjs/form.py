@@ -20,7 +20,7 @@ class SurveyForm:
     Question (Element) objects with values populated from the submission.
     """
 
-    def __init__(self, form_json, creator=None, creator_schema_json=None, lang=None, **kwargs):
+    def __init__(self, form_json, creator=None, creator_schema_json=None, lang=None):
         """
         @param form_json: SurveyJS Form submission JSON (str or dict)
         @param creator: A SurveyCreator instance
@@ -54,9 +54,6 @@ class SurveyForm:
             raise ValueError("Provide either the argument: creator or creator_schema_json.")
 
         self.lang = lang if lang is not None else self.creator.language
-        # defaults to English (en) date/time format
-        self.date_format = kwargs.get("date_format", "%m/%d/%Y")
-        self.time_format = kwargs.get("time_format", "%H:%M:%S")
 
         # Pages, in schema order — mirrors the creator's pages, but holding
         # this form's element objects. Pages are not elements: they never

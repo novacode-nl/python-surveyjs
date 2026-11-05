@@ -21,7 +21,7 @@ class SurveyCreator:
     element found in the schema.
     """
 
-    def __init__(self, schema_json, language="default", i18n=None, element_class_mapping=None, **kwargs):
+    def __init__(self, schema_json, language="default", i18n=None, element_class_mapping=None):
         """
         @param schema_json: SurveyJS Creator JSON schema (str or dict)
         @param language: Language code for translations (default: 'en')
