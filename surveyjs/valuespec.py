@@ -207,7 +207,7 @@ def _check_any_of(specs, value, path):
     if not specs or any(not found for found in problems):
         return []
     if isinstance(value, dict):
-        for one, found in zip(specs, problems):
+        for one, found in zip(specs, problems, strict=True):
             if one.get("type") == "object":
                 return found
     return problems[0]

@@ -27,7 +27,7 @@ The file prefix `question` indicates a question (field) class.
 
 ## Features
 
-- Compatible with Python 3.8 and later.
+- Compatible with Python 3.10 and later.
 - Constructor of the **SurveyCreator** and **SurveyForm** class only requires the JSON (string or dict) and an optional language code (e.g. 'en', 'fr', etc.).
 - **Translations**: every displayed text (titles, descriptions, choices, boolean labels, error messages, …) is translated, from SurveyJS localizable strings and/or an `i18n` map (see [Translations](#translations)).
 - Get a **SurveyForm object's Questions** as usable **Python objects** e.g. date, datetime, boolean, list (for checkbox), dict (for matrix) etc. Every question exposes both `raw_value` (exactly as submitted) and `value` (parsed according to its SurveyJS type and `inputType`).

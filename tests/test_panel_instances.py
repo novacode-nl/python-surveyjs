@@ -86,7 +86,7 @@ class TestFormMaterialisesPanels(unittest.TestCase):
         self.assertEqual(repr(self.q.panels[1]), "<PanelInstance name=education[1]>")
 
     def test_panel_children_carry_their_row_values(self):
-        for panel, row in zip(self.q.panels, self.data["education"]):
+        for panel, row in zip(self.q.panels, self.data["education"], strict=True):
             for key, expected in row.items():
                 self.assertEqual(panel.elements[key].value, expected)
 

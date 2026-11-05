@@ -4,6 +4,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## Unreleased
 
+### Removed
+
+- Support for Python 3.8 and 3.9, which reached their end of life in October 2024 and October 2025. The package needs Python 3.10 or newer.
+
+### Changed
+
+- The license is declared as `license = "MIT"` in `pyproject.toml` (PEP 639), instead of the deprecated table form and license classifier. Builds with the old form stop working in setuptools from February 2027.
+
 ## 0.11.0
 
 ### Breaking Changes
