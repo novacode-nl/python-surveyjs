@@ -8,6 +8,7 @@ from collections import OrderedDict
 from surveyjs.elements.element import Element
 from surveyjs.names import ElementsByName
 from surveyjs.page import Page
+from surveyjs.schema import SchemaError, check_schema
 from surveyjs.valuespec import data_properties
 
 logger = logging.getLogger(__name__)
@@ -57,8 +58,16 @@ class SurveyCreator:
         # children of two paneldynamics), so this registry is lossless.
         self.all_element_paths = OrderedDict()
 
-        # Load all elements from the schema
-        self.load_elements()
+        # Load all elements from the schema. A structure it cannot read
+        # raises `SchemaError`, saying what, rather than whatever the
+        # traversal trips over; a schema it reads is read as it always was.
+        try:
+            self.load_elements()
+        except (AttributeError, TypeError) as e:
+            problems = check_schema(self.schema)
+            if problems:
+                raise SchemaError(problems) from e
+            raise
 
     @property
     def title(self):

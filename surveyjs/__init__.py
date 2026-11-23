@@ -22,13 +22,16 @@ from surveyjs.elements.inputtype import parse_input_value, register_input_type
 from surveyjs.form import SurveyForm
 from surveyjs.names import AmbiguousNameError
 from surveyjs.page import Page
+from surveyjs.schema import SchemaError, check_schema
 from surveyjs.text import interpolate_text
 
 __all__ = [
     "AmbiguousNameError",
     "Page",
+    "SchemaError",
     "SurveyCreator",
     "SurveyForm",
+    "check_schema",
     "interpolate_text",
     "parse_input_value",
     "register_input_type",
