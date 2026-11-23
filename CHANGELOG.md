@@ -4,6 +4,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## Unreleased
 
+## 1.1.0
+
 ### Added
 
 - `check_schema(schema)`: checks the structure of a schema (a JSON string or a dict) and returns the problems, each with its path, e.g. `pages[0].elements[1]: not an object (got str)`. An empty list means it's fine. A schema still being designed passes.

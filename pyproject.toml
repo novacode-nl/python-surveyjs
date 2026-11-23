@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "surveyjs"
-version = "1.0.0"
+version = "1.1.0"
 description = "Python object API for SurveyJS JSON: Creator (form builder) schemas and form submissions."
 readme = "README.md"
 license = "MIT"
