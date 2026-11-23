@@ -1,13 +1,17 @@
 name: Publish to PyPI
 
 # Releases whenever a push to main changes the version in pyproject.toml to
-# one that is not on PyPI yet, then tags the commit (v0.10.0).
+# one that is not on PyPI yet, then tags the commit (v0.10.0). It can also be
+# run by hand (Actions > Publish to PyPI > Run workflow, on main), e.g. after a
+# force-push changed no files: it releases the same way, only a version that is
+# not on PyPI yet.
 on:
   push:
     branches:
       - main
     paths:
       - pyproject.toml
+  workflow_dispatch:
 
 jobs:
   check:
