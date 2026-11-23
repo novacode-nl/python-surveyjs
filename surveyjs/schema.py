@@ -3,6 +3,8 @@
 
 """The structure of a SurveyJS schema, as far as this package reads it."""
 
+import json
+
 #: The keys that hold child elements: a schema's pages, a page's or a
 #: panel's elements, a dynamic panel's template.
 ELEMENT_LISTS = ("pages", "elements", "templateElements")
@@ -21,15 +23,21 @@ class SchemaError(ValueError):
 
 
 def check_schema(schema):
-    """What in `schema` (a decoded SurveyJS JSON schema) does not fit the
-    structure SurveyJS prescribes, as a list of messages, each starting with
-    the path of the offending part; empty when it fits.
+    """What in `schema` (a SurveyJS JSON schema, as a str or decoded) does
+    not fit the structure SurveyJS prescribes, as a list of messages, each
+    starting with the path of the offending part; empty when it fits. A str
+    that is not JSON gives that one message.
 
     Checks what this package and the SurveyJS library both rely on: an
     object, whose pages, elements and template elements are lists of
     objects, with a text ``name`` and ``type`` where they have one. A schema
     being designed passes: an empty one, or an element without a name or
     type. The element types' own properties are left to SurveyJS."""
+    if isinstance(schema, str):
+        try:
+            schema = json.loads(schema)
+        except ValueError as e:
+            return ["schema: not JSON (%s)" % e]
     if not isinstance(schema, dict):
         return ["schema: not an object (got %s)" % type(schema).__name__]
     problems = []

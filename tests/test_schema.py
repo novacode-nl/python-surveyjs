@@ -40,6 +40,14 @@ class TestCheckSchema(unittest.TestCase):
             with self.subTest(schema=schema):
                 self.assertEqual(check_schema(schema), problems)
 
+    def test_a_json_string(self):
+        self.assertEqual(check_schema('{"elements": [{"type": "text"}]}'), [])
+        self.assertEqual(check_schema('{"pages": "x"}'), ["pages: not a list (got str)"])
+        self.assertEqual(
+            check_schema("{not json"),
+            ["schema: not JSON (Expecting property name enclosed in double quotes: line 1 column 2 (char 1))"],
+        )
+
     def test_every_problem_is_listed(self):
         schema = {"elements": [{"type": 1}, "x", {"type": "panel", "elements": "y"}]}
         self.assertEqual(

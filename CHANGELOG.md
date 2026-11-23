@@ -6,7 +6,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Added
 
-- `check_schema(schema)`: checks the structure of a decoded schema (a dict) and returns the problems, each with its path, e.g. `pages[0].elements[1]: not an object (got str)`. An empty list means it's fine. A schema still being designed passes.
+- `check_schema(schema)`: checks the structure of a schema (a JSON string or a dict) and returns the problems, each with its path, e.g. `pages[0].elements[1]: not an object (got str)`. An empty list means it's fine. A schema still being designed passes.
 - `SchemaError` (a `ValueError`): raised by `SurveyCreator` for a schema it cannot read, listing the problems. Before, this gave an `AttributeError` or `TypeError` from deep in the parser. Schemas that worked before still work.
 
 ## 1.0.0
